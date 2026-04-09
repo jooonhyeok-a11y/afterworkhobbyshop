@@ -67,10 +67,23 @@
         .detail-img { width: 100%; height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; background: var(--border);}
         .detail-desc { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); font-size: 1.05rem; line-height: 1.8; white-space: pre-wrap; margin-bottom: 20px;}
 
+        /* ⭐️ 캘린더 전용 스타일 복구 완료 */
+        .calendar-toggle-group { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .toggle-btn { padding: 8px 20px; border: 1px solid var(--primary); background: var(--card-bg); color: var(--primary); border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 0.9rem;}
+        .toggle-btn.active { background: var(--primary); color: white; }
+        .calendar-header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
+        .calendar-header-nav button { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 5px 15px; cursor: pointer; font-weight: bold; color: var(--text-dark);}
+        
         .weekly-day-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
         .weekly-day-header { font-weight: bold; font-size: 1.1rem; margin-bottom: 12px; border-bottom: 2px solid var(--bg-color); padding-bottom: 8px; }
+        .weekly-day-header.today { color: var(--primary); }
         .weekly-event-item { padding: 12px; background: var(--primary-light); border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--primary); cursor: pointer;}
         
+        .monthly-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .m-day-header { font-weight: bold; text-align: center; margin-bottom: 5px; color: var(--text-gray); font-size: 0.9rem;}
+        .m-day { background: var(--card-bg); border-radius: 5px; padding: 5px; border: 1px solid var(--border); min-height: 85px; font-size: 0.85rem; display:flex; flex-direction:column; gap:3px;}
+        .m-event { font-size: 0.75rem; background: var(--primary-light); color: var(--primary); padding: 3px 5px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; cursor: pointer; font-weight: bold;}
+
         .auth-box, .profile-section { background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px;}
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; box-shadow: 0 4px 10px rgba(46,125,50,0.4); cursor: pointer; z-index: 100; border: none; }
         
@@ -118,8 +131,17 @@
         </div>
 
         <div id="calendar-view" class="view-section">
-            <div id="list-mode-wrapper"></div>
-            <div id="scroll-sentinel" style="height:20px;"></div>
+            <div class="calendar-toggle-group">
+                <button id="btn-list" class="toggle-btn active" onclick="setCalendarMode('list')">일정 목록</button>
+                <button id="btn-monthly" class="toggle-btn" onclick="setCalendarMode('monthly')">월간 달력</button>
+            </div>
+            
+            <div class="calendar-header-nav" id="calendar-header-nav" style="display:none;">
+                <button onclick="changeCalendar(-1)">◀ 이전</button>
+                <h3 id="calendar-month-year"></h3>
+                <button onclick="changeCalendar(1)">다음 ▶</button>
+            </div>
+            <div id="calendar-grid"></div>
         </div>
 
         <div id="community-view" class="view-section">
@@ -252,6 +274,7 @@ window.currentEditEventId = null;
 
 // 무한스크롤 변수
 window.groupedEvents = []; window.listRenderCount = 0; window.listObserver = null;
+window.calendarMode = 'list'; window.currentCalDate = new Date();
 
 // ==========================================
 // 공통 UI 로직
@@ -394,7 +417,7 @@ window.renderMyPageContent = async function() {
 };
 
 // ==========================================
-// ⭐️ 커뮤니티 (COMMUNITY) - 로딩 버그 픽스
+// 커뮤니티 (COMMUNITY)
 // ==========================================
 window.loadCommunity = async function(category) {
     window.currentCommunityTab = category;
@@ -405,12 +428,11 @@ window.loadCommunity = async function(category) {
     container.innerHTML = "<p style='text-align:center;'>불러오는 중...</p>";
     
     try {
-        // 복합 인덱스 에러를 피하기 위해 카테고리만 가져오고, 정렬은 자바스크립트로 처리
         const snap = await getDocs(query(collection(db, "posts"), where("category", "==", category)));
         let posts = [];
         snap.forEach(d => posts.push(d.data()));
         
-        // 최신순 정렬 (자바스크립트 내장 기능 사용)
+        // ⭐️ JS 최신순 정렬 (파이어베이스 복합 인덱스 에러 방지)
         posts.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
 
         let html = '';
@@ -448,7 +470,7 @@ window.savePost = async function() {
 };
 
 // ==========================================
-// 메인 게시판 (HOME) & 캘린더 무한스크롤
+// 메인 게시판 (HOME) & 캘린더 기능
 // ==========================================
 window.setCategory = function(cat) { window.currentCategory = cat; document.querySelectorAll('#list-view .cat-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(cat))); renderFilteredEvents(); };
 
@@ -483,27 +505,69 @@ window.renderFilteredEvents = function() {
 
 window.toggleLike = async function(id, e) { e.stopPropagation(); const myName = localStorage.getItem('myNickname'); if(!myName||!window.isUserApproved) return; const ref = doc(db, "events", id); const snap = await getDoc(ref); if(!snap.exists()) return; if((snap.data().likes||[]).includes(myName)) await updateDoc(ref, { likes: arrayRemove(myName) }); else await updateDoc(ref, { likes: arrayUnion(myName) }); loadEvents(); };
 
+// ⭐️ 캘린더 복구 로직
+window.setCalendarMode = function(mode) { 
+    window.calendarMode = mode; 
+    document.getElementById('btn-list').classList.toggle('active', mode === 'list'); 
+    document.getElementById('btn-monthly').classList.toggle('active', mode === 'monthly'); 
+    renderCalendar(); 
+};
+
+window.changeCalendar = function(offset) { 
+    window.currentCalDate.setMonth(window.currentCalDate.getMonth() + offset); 
+    renderCalendar(); 
+};
+
 window.renderCalendar = function() {
     const grid = document.getElementById('calendar-grid');
-    window.listRenderCount = 0;
-    grid.innerHTML = '<div id="list-mode-wrapper"></div><div id="scroll-sentinel" style="height:20px;"></div>';
-    
-    const groups = {}; const today = new Date(); today.setHours(0,0,0,0);
-    window.allFetchedEvents.forEach(e => {
-        const d = new Date(e.date);
-        if(d >= today) {
-            const key = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-            if(!groups[key]) groups[key] = { dateObj: new Date(d.getFullYear(), d.getMonth(), d.getDate()), events: [] };
-            groups[key].events.push(e);
+    const nav = document.getElementById('calendar-header-nav');
+
+    if (window.calendarMode === 'list') {
+        nav.style.display = 'none'; 
+        window.listRenderCount = 0;
+        grid.innerHTML = '<div id="list-mode-wrapper"></div><div id="scroll-sentinel" style="height:20px;"></div>';
+        
+        const groups = {}; const today = new Date(); today.setHours(0,0,0,0);
+        window.allFetchedEvents.forEach(e => {
+            const d = new Date(e.date);
+            if(d >= today) {
+                const key = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+                if(!groups[key]) groups[key] = { dateObj: new Date(d.getFullYear(), d.getMonth(), d.getDate()), events: [] };
+                groups[key].events.push(e);
+            }
+        });
+        window.groupedEvents = Object.values(groups).sort((a,b) => a.dateObj - b.dateObj);
+        
+        if(window.listObserver) window.listObserver.disconnect();
+        window.listObserver = new IntersectionObserver(e => { if(e[0].isIntersecting) renderListChunk(); });
+        const sentinel = document.getElementById('scroll-sentinel');
+        if(sentinel) window.listObserver.observe(sentinel);
+        renderListChunk();
+    } else {
+        nav.style.display = 'flex'; 
+        const curr = new Date(window.currentCalDate);
+        const year = curr.getFullYear(); const month = curr.getMonth();
+        document.getElementById('calendar-month-year').innerText = `${year}년 ${month + 1}월`;
+        
+        const firstDayOfWeek = new Date(year, month, 1).getDay(); 
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        let html = '<div class="monthly-grid">';
+        ['일','월','화','수','목','금','토'].forEach(day => html += `<div class="m-day-header">${day}</div>`);
+        for(let i=0; i<firstDayOfWeek; i++) html += '<div class="m-day empty"></div>';
+        
+        for(let d=1; d<=daysInMonth; d++) {
+            let evs = window.allFetchedEvents.filter(e => { const ed = new Date(e.date); return ed.getFullYear() === year && ed.getMonth() === month && ed.getDate() === d; });
+            let evHtml = '';
+            if(evs.length > 0) {
+                if(!window.isUserApproved) evHtml = `<div style="filter:blur(3px); user-select:none; margin-top:5px; font-size:0.7rem; color:var(--primary); font-weight:bold; text-align:center;">🔒 비공개</div>`;
+                else evHtml = evs.map(e => `<div class="m-event" onclick="event.stopPropagation(); openEventDetail('${e.id}', 'calendar')">${e.title}</div>`).join('');
+            }
+            const isToday = (year === new Date().getFullYear() && month === new Date().getMonth() && d === new Date().getDate());
+            html += `<div class="m-day" ${!window.isUserApproved && evs.length > 0 ? "onclick=\"alert('가입 승인 후 확인할 수 있습니다.')\"" : ""}><span style="color:${isToday ? 'var(--primary)' : 'var(--text-dark)'}; font-weight:${isToday ? 'bold' : 'normal'};">${d}</span>${evHtml}</div>`;
         }
-    });
-    window.groupedEvents = Object.values(groups).sort((a,b) => a.dateObj - b.dateObj);
-    
-    if(window.listObserver) window.listObserver.disconnect();
-    window.listObserver = new IntersectionObserver(e => { if(e[0].isIntersecting) renderListChunk(); });
-    const sentinel = document.getElementById('scroll-sentinel');
-    if(sentinel) window.listObserver.observe(sentinel);
-    renderListChunk();
+        grid.innerHTML = html + '</div>';
+    }
 };
 
 window.renderListChunk = function() {
@@ -523,7 +587,7 @@ window.renderListChunk = function() {
 };
 
 // ==========================================
-// ⭐️ 일정 CRUD 및 수정 오류 픽스
+// 일정 등록 & ⭐️ 수정 로직 픽스
 // ==========================================
 window.checkProfileAndOpenCreate = function() {
     document.getElementById('event-category').value = '아웃도어'; document.getElementById('event-title').value = ''; document.getElementById('event-location').value = ''; document.getElementById('event-date').value = ''; document.getElementById('event-max').value = ''; document.getElementById('event-chat').value = ''; document.getElementById('event-desc').value = '';
