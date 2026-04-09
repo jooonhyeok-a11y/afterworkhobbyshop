@@ -18,41 +18,49 @@
         * { box-sizing: border-box; font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg-color); color: var(--text-dark); line-height: 1.6; padding-top: 70px; transition: 0.3s; }
         
-        header { background: var(--card-bg); padding: 15px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; }
-        .logo { font-size: 1.2rem; font-weight: bold; color: var(--primary); cursor:pointer; flex-shrink: 0;}
-        .nav-buttons { display: flex; gap: 5px; align-items: center;}
-        .nav-buttons button { background: none; border: none; font-size: 0.95rem; cursor: pointer; font-weight: bold; color: var(--text-gray); padding: 5px 6px; position: relative;}
+        /* ⭐️ 모바일 상단 메뉴 좌우 스와이프 적용 및 가려짐 픽스 */
+        header { 
+            background: var(--card-bg); padding: 10px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); 
+            display: flex; align-items: center; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; gap: 15px;
+        }
+        .logo { font-size: 1.2rem; font-weight: bold; color: var(--primary); cursor:pointer; flex-shrink: 0; white-space: nowrap; }
+        .nav-buttons { 
+            display: flex; gap: 15px; align-items: center; flex-grow: 1;
+            overflow-x: auto; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none; 
+        }
+        .nav-buttons::-webkit-scrollbar { display: none; }
+        .nav-buttons button { background: none; border: none; font-size: 0.95rem; cursor: pointer; font-weight: bold; color: var(--text-gray); padding: 5px 0; position: relative; flex-shrink: 0;}
         .nav-buttons button.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
-        .theme-btn { font-size: 1.2rem; cursor: pointer; border: none; background: none; padding: 5px;}
-        .badge { position: absolute; top: -5px; right: -5px; background: var(--danger); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; display: none; }
+        .theme-btn { font-size: 1.2rem; cursor: pointer; border: none; background: none; padding: 0 5px; flex-shrink: 0;}
+        .badge { position: absolute; top: -5px; right: -10px; background: var(--danger); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; display: none; }
 
         main { max-width: 1200px; margin: 0 auto; padding: 20px 20px 80px 20px; }
-        .category-filters { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 15px; }
+        .category-filters { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 15px; -ms-overflow-style: none; scrollbar-width: none; }
         .category-filters::-webkit-scrollbar { display: none; }
         .cat-btn { padding: 6px 15px; border-radius: 20px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-gray); cursor: pointer; white-space: nowrap; font-weight: bold;}
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        #calendar-view, #mypage-view, #detail-view, #community-view { display: none; max-width: 600px; margin: 0 auto;}
+        .view-section { display: none; max-width: 600px; margin: 0 auto; }
+        #list-view { display: block; max-width: 1200px; }
 
-        /* 게시판 공통 스타일 */
-        #db-events, #community-posts { display: grid; gap: 20px; grid-template-columns: 1fr; }
-        @media (min-width: 640px) { #db-events { grid-template-columns: repeat(2, 1fr); } }
+        .grid-container { display: grid; gap: 20px; grid-template-columns: 1fr; }
+        @media (min-width: 640px) { .grid-container { grid-template-columns: repeat(2, 1fr); } }
 
-        .event-card, .post-card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; cursor: pointer; position: relative; padding: 20px;}
-        .event-img { width: 100%; height: 180px; object-fit: cover; background: var(--border); display: block; margin: -20px -20px 20px -20px; width: calc(100% + 40px); }
-        .event-cat-tag { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
-        .event-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 8px; line-height: 1.3;}
-        .event-loc { font-size: 0.85rem; color: var(--text-dark); margin-bottom: 10px; font-weight: bold;}
-        .event-info { display: flex; justify-content: space-between; color: var(--text-gray); font-size: 0.85rem; align-items: center; margin-top: auto;}
+        .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; cursor: pointer; position: relative; padding: 20px;}
+        .card-img { width: 100%; height: 180px; object-fit: cover; background: var(--border); display: block; margin: -20px -20px 20px -20px; width: calc(100% + 40px); }
+        .card-tag { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
+        .card-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 8px; line-height: 1.3;}
+        .card-loc { font-size: 0.85rem; color: var(--text-dark); margin-bottom: 10px; font-weight: bold;}
+        .card-info { display: flex; justify-content: space-between; color: var(--text-gray); font-size: 0.85rem; align-items: center; margin-top: auto;}
         
         .like-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; z-index: 5;}
         .like-btn.liked { color: #FF4B4B; }
 
-        .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; font-size:0.95rem;}
+        .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; font-size:0.95rem; width: 100%;}
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
         .btn-apply { background: var(--primary); color: white; }
         .btn-manage { background: #343A40; color: white; } 
-        .btn-delete { background: var(--card-bg); color: var(--danger); border: 1px solid var(--danger); }
+        .btn-delete { background: var(--card-bg); color: var(--danger); border: 1px solid var(--danger); margin-top: 10px; }
         
         .blur-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(var(--bg-color), 0.4); z-index: 10; display: flex; justify-content: center; align-items: center; font-weight: bold;}
         .blur-overlay span { background: var(--card-bg); padding: 5px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -60,11 +68,6 @@
         .detail-img { width: 100%; height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; background: var(--border);}
         .detail-desc { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); font-size: 1.05rem; line-height: 1.8; white-space: pre-wrap; margin-bottom: 20px;}
 
-        /* 캘린더 모드 */
-        .calendar-toggle-group { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
-        .toggle-btn { padding: 8px 20px; border: 1px solid var(--primary); background: var(--card-bg); color: var(--primary); border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 0.9rem;}
-        .toggle-btn.active { background: var(--primary); color: white; }
-        
         .weekly-day-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
         .weekly-day-header { font-weight: bold; font-size: 1.1rem; margin-bottom: 12px; border-bottom: 2px solid var(--bg-color); padding-bottom: 8px; }
         .weekly-event-item { padding: 12px; background: var(--primary-light); border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--primary); cursor: pointer;}
@@ -79,7 +82,7 @@
         .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text-dark);}
         
         .login-banner { background: var(--primary-light); border: 1px solid var(--primary); border-radius: 12px; padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 15px; align-items: center; text-align: center; }
-        @media (min-width: 640px) { .login-banner { flex-direction: row; justify-content: space-between; text-align: left; } }
+        @media (min-width: 640px) { .login-banner { flex-direction: row; justify-content: space-between; text-align: left; } .login-banner button { width: auto; min-width: 150px; } }
     </style>
 </head>
 <body>
@@ -96,7 +99,7 @@
     </header>
 
     <main>
-        <div id="list-view">
+        <div id="list-view" class="view-section">
             <div id="login-prompt-banner" class="login-banner" style="display: none;">
                 <div>
                     <strong style="color:var(--primary); font-size:1.1rem; display:block;">로그인하고 일정을 확인해보세요!</strong>
@@ -104,7 +107,7 @@
                 </div>
                 <button class="btn btn-apply" onclick="switchTab('mypage')">로그인 / 가입하기</button>
             </div>
-            <div class="category-filters" id="category-filters">
+            <div class="category-filters">
                 <button class="cat-btn active" onclick="setCategory('전체')">전체</button>
                 <button class="cat-btn" onclick="setCategory('아웃도어')">🏃 아웃도어</button>
                 <button class="cat-btn" onclick="setCategory('맛집')">🍣 맛집</button>
@@ -112,26 +115,24 @@
                 <button class="cat-btn" onclick="setCategory('온라인')">💻 온라인</button>
                 <button class="cat-btn" onclick="setCategory('기타')">✨ 기타</button>
             </div>
-            <div id="db-events"></div>
+            <div id="db-events" class="grid-container"></div>
         </div>
 
-        <div id="calendar-view">
-            <div class="calendar-toggle-group">
-                <button id="btn-list" class="toggle-btn active" onclick="setCalendarMode('list')">일정 목록</button>
-            </div>
-            <div id="calendar-grid"></div>
+        <div id="calendar-view" class="view-section">
+            <div id="list-mode-wrapper"></div>
+            <div id="scroll-sentinel" style="height:20px;"></div>
         </div>
 
-        <div id="community-view">
+        <div id="community-view" class="view-section">
             <div class="category-filters">
                 <button class="cat-btn active" id="comm-btn-idea" onclick="loadCommunity('idea')">💡 벙 아이디어</button>
                 <button class="cat-btn" id="comm-btn-review" onclick="loadCommunity('review')">📝 모임 후기</button>
                 <button class="cat-btn" id="comm-btn-inquiry" onclick="loadCommunity('inquiry')">🚨 불편/문의</button>
             </div>
-            <div id="community-posts"></div>
+            <div id="community-posts" class="grid-container"></div>
         </div>
 
-        <div id="mypage-view">
+        <div id="mypage-view" class="view-section">
             <div id="auth-section" class="auth-box">
                 <h3>환영합니다! 👋</h3>
                 <div class="input-group"><label>닉네임</label><input type="text" id="auth-id"></div>
@@ -148,18 +149,18 @@
                         <h3 style="margin-bottom:5px;">👤 <span id="display-my-name" style="color:var(--primary);"></span></h3>
                         <span id="display-my-role" style="color:var(--text-gray); font-size:0.9rem;"></span>
                     </div>
-                    <button class="btn" style="background:var(--border); padding:8px 15px; flex:none; color:var(--text-dark);" onclick="logout()">로그아웃</button>
+                    <button class="btn" style="background:var(--border); padding:8px 15px; width:auto; flex:none; color:var(--text-dark);" onclick="logout()">로그아웃</button>
                 </div>
-                <button id="admin-user-manage-btn" class="btn btn-manage" style="width:100%; margin-bottom:20px; display:none;" onclick="openUserManageModal()">👥 가입자 승인 관리</button>
-                <div class="calendar-toggle-group">
-                    <button id="tab-my-apps" class="toggle-btn active" onclick="setMyPageTab('apps')">나의 신청 내역</button>
-                    <button id="tab-my-likes" class="toggle-btn" onclick="setMyPageTab('likes')">내가 찜한 모임</button>
+                <button id="admin-user-manage-btn" class="btn btn-manage" style="margin-bottom:20px; display:none;" onclick="openUserManageModal()">👥 가입자 승인 관리</button>
+                <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;">
+                    <button id="tab-my-apps" class="btn btn-apply" style="border-radius:20px; width:auto; padding:8px 20px;" onclick="setMyPageTab('apps')">나의 신청 내역</button>
+                    <button id="tab-my-likes" class="btn" style="background:var(--card-bg); color:var(--primary); border:1px solid var(--primary); border-radius:20px; width:auto; padding:8px 20px;" onclick="setMyPageTab('likes')">내가 찜한 모임</button>
                 </div>
                 <div id="my-content-list" style="display: flex; flex-direction: column; gap: 15px;"></div>
             </div>
         </div>
 
-        <div id="detail-view">
+        <div id="detail-view" class="view-section">
             <div style="margin-bottom: 20px;">
                 <button onclick="switchTab(window.previousTab)" style="background:none; border:none; font-size:1rem; cursor:pointer; font-weight:bold; color:var(--text-gray);">← 뒤로 가기</button>
             </div>
@@ -167,11 +168,11 @@
         </div>
     </main>
 
-    <button class="fab" id="main-fab" onclick="handleFabClick()">+</button>
+    <button class="fab" onclick="handleFabClick()">+</button>
 
     <div id="postModal" class="modal">
         <div class="modal-content">
-            <h3 id="post-modal-title">게시글 작성 ✍️</h3>
+            <h3>게시글 작성 ✍️</h3>
             <div class="input-group">
                 <label>게시판 선택</label>
                 <select id="post-category">
@@ -187,15 +188,15 @@
             </div>
             <div class="input-group"><label>제목</label><input type="text" id="post-title"></div>
             <div class="input-group"><label>내용</label><textarea id="post-content" style="height:120px;"></textarea></div>
-            <button class="btn btn-apply" style="width:100%" onclick="savePost()">등록하기</button>
-            <button class="btn" style="width:100%; margin-top:10px; background:var(--border); color:var(--text-dark);" onclick="closeModal('postModal')">취소</button>
+            <button class="btn btn-apply" onclick="savePost()">등록하기</button>
+            <button class="btn btn-delete" onclick="closeModal('postModal')">취소</button>
         </div>
     </div>
 
     <div id="createModal" class="modal">
         <div class="modal-content">
             <h3>새 일정 만들기 ✍️</h3>
-            <div class="input-group"><label>카테고리</label><select id="event-category"><option value="아웃도어">🏃 아웃도어</option><option value="기타">✨ 기타</option></select></div>
+            <div class="input-group"><label>카테고리</label><select id="event-category"><option value="아웃도어">🏃 아웃도어</option><option value="맛집">🍣 맛집</option><option value="문화예술">🎨 문화예술</option><option value="온라인">💻 온라인</option><option value="기타">✨ 기타</option></select></div>
             <div class="input-group"><label>모임 제목</label><input type="text" id="event-title"></div>
             <div class="input-group"><label>모이는 장소</label><input type="text" id="event-location"></div>
             <div class="input-group"><label>날짜 및 시간</label><input type="datetime-local" id="event-date"></div>
@@ -203,14 +204,15 @@
             <div class="input-group"><label>오픈채팅방 링크</label><input type="url" id="event-chat"></div>
             <div class="input-group"><label>이미지 첨부 (선택)</label><input type="file" id="event-image-file" accept="image/*"></div>
             <div class="input-group"><label>상세 내용</label><textarea id="event-desc" style="height:100px;"></textarea></div>
-            <button id="reg-btn" class="btn btn-apply" style="width:100%" onclick="registerEvent()">등록하기</button>
-            <button class="btn" style="width:100%; margin-top:10px; background:var(--border); color:var(--text-dark);" onclick="closeModal('createModal')">취소</button>
+            <button id="reg-btn" class="btn btn-apply" onclick="registerEvent()">등록하기</button>
+            <button class="btn btn-delete" onclick="closeModal('createModal')">취소</button>
         </div>
     </div>
 
     <div id="editModal" class="modal">
         <div class="modal-content">
             <h3>일정 수정하기 ✏️</h3>
+            <div class="input-group"><label>카테고리</label><select id="edit-category"><option value="아웃도어">🏃 아웃도어</option><option value="맛집">🍣 맛집</option><option value="문화예술">🎨 문화예술</option><option value="온라인">💻 온라인</option><option value="기타">✨ 기타</option></select></div>
             <div class="input-group"><label>모임 제목</label><input type="text" id="edit-title"></div>
             <div class="input-group"><label>모이는 장소</label><input type="text" id="edit-location"></div>
             <div class="input-group"><label>날짜 및 시간</label><input type="datetime-local" id="edit-date"></div>
@@ -218,14 +220,14 @@
             <div class="input-group"><label>오픈채팅방 링크</label><input type="url" id="edit-chat"></div>
             <div class="input-group"><label>새 이미지로 변경 (선택)</label><input type="file" id="edit-image-file" accept="image/*"></div>
             <div class="input-group"><label>상세 내용</label><textarea id="edit-desc" style="height:100px;"></textarea></div>
-            <button id="update-btn" class="btn btn-apply" style="width:100%" onclick="updateEvent()">수정 완료</button>
-            <button class="btn" style="width:100%; margin-top:10px; background:var(--border); color:var(--text-dark);" onclick="closeModal('editModal')">취소</button>
+            <button id="update-btn" class="btn btn-apply" onclick="updateEvent()">수정 완료</button>
+            <button class="btn btn-delete" onclick="closeModal('editModal')">취소</button>
         </div>
     </div>
 
-    <div id="applyModal" class="modal"><div class="modal-content"><h3>참가 신청 🙋</h3><div class="input-group"><textarea id="apply-message" placeholder="참여 동기"></textarea></div><button class="btn btn-apply" style="width:100%" onclick="submitApplication()">제출</button><button class="btn" style="width:100%; margin-top:10px; background:var(--border); color:var(--text-dark);" onclick="closeModal('applyModal')">취소</button></div></div>
-    <div id="manageModal" class="modal"><div class="modal-content"><h3>신청자 관리 👑</h3><div id="applicant-list"></div><button class="btn" style="width:100%; margin-top:15px; background:var(--border); color:var(--text-dark);" onclick="closeModal('manageModal')">닫기</button></div></div>
-    <div id="userManageModal" class="modal"><div class="modal-content"><h3>가입 승인 관리 👥</h3><div id="pending-users-list"></div><button class="btn" style="width:100%; margin-top:15px; background:var(--border); color:var(--text-dark);" onclick="closeModal('userManageModal')">닫기</button></div></div>
+    <div id="applyModal" class="modal"><div class="modal-content"><h3>참가 신청 🙋</h3><div class="input-group"><textarea id="apply-message" placeholder="참여 동기"></textarea></div><button class="btn btn-apply" onclick="submitApplication()">제출</button><button class="btn btn-delete" onclick="closeModal('applyModal')">취소</button></div></div>
+    <div id="manageModal" class="modal"><div class="modal-content"><h3>신청자 관리 👑</h3><div id="applicant-list"></div><button class="btn btn-delete" onclick="closeModal('manageModal')">닫기</button></div></div>
+    <div id="userManageModal" class="modal"><div class="modal-content"><h3>가입 승인 관리 👥</h3><div id="pending-users-list"></div><button class="btn btn-delete" onclick="closeModal('userManageModal')">닫기</button></div></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
@@ -246,12 +248,19 @@ const db = getFirestore(app); const storage = getStorage(app);
 window.allFetchedEvents = []; window.myApplications = [];
 window.previousTab = 'list'; window.isUserApproved = false; window.currentCategory = '전체'; 
 window.currentCommunityTab = 'idea';
+window.myPageTabMode = 'apps';
+window.currentEditEventId = null;
 
-// 탭 전환 시스템
+// 무한스크롤 변수
+window.groupedEvents = []; window.listRenderCount = 0; window.listObserver = null;
+
+// ==========================================
+// 공통 UI 로직
+// ==========================================
 window.switchTab = function(tab) {
-    ['list', 'calendar', 'community', 'mypage', 'detail'].forEach(t => {
-        document.getElementById(t + '-view').style.display = t === tab ? 'block' : 'none';
-    });
+    document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
+    document.getElementById(tab + '-view').style.display = 'block';
+    
     document.querySelectorAll('.nav-buttons button').forEach(b => b.classList.remove('active'));
     
     if(tab === 'list') { document.querySelectorAll('.nav-buttons button')[0].classList.add('active'); loadEvents(); } 
@@ -259,17 +268,16 @@ window.switchTab = function(tab) {
     else if(tab === 'community') { document.querySelectorAll('.nav-buttons button')[2].classList.add('active'); loadCommunity(window.currentCommunityTab); }
     else if(tab === 'mypage') { document.querySelectorAll('.nav-buttons button')[3].classList.add('active'); checkLoginStatus(); }
 };
-window.openModal = function(id) { document.getElementById(id).style.display = 'flex'; };
-window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; };
 
-// FAB 버튼 로직 분기
+window.openModal = id => document.getElementById(id).style.display = 'flex';
+window.closeModal = id => document.getElementById(id).style.display = 'none';
+
 window.handleFabClick = function() {
-    const isComm = document.getElementById('community-view').style.display === 'block';
-    if(isComm) { openPostModal(window.currentCommunityTab); } 
-    else { checkProfileAndOpenCreate(); }
+    if(!window.isUserApproved) { alert("승인된 회원만 작성 가능합니다."); return; }
+    if(document.getElementById('community-view').style.display === 'block') openPostModal(window.currentCommunityTab);
+    else checkProfileAndOpenCreate();
 };
 
-// 다크모드
 window.toggleTheme = function() {
     const isDark = document.body.classList.toggle('dark-mode');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
@@ -277,7 +285,27 @@ window.toggleTheme = function() {
 };
 if(localStorage.getItem('theme') === 'dark') { document.body.classList.add('dark-mode'); document.querySelector('.theme-btn').innerText = '🌙'; }
 
-// 로그인 상태 체크 (My Page, 배너, 배지)
+window.checkNotifications = async function() {
+    const myName = localStorage.getItem('myNickname');
+    const badge = document.getElementById('my-badge');
+    if(!myName) return badge.style.display = 'none';
+    let count = 0;
+    if(myName === 'admin') {
+        count = (await getDocs(query(collection(db, "users"), where("status", "==", "pending")))).size;
+    } else {
+        const myEvSnap = await getDocs(query(collection(db, "events"), where("host", "==", myName)));
+        const myEvIds = myEvSnap.docs.map(d => d.id);
+        if(myEvIds.length > 0) {
+            (await getDocs(query(collection(db, "applications"), where("status", "==", "pending")))).forEach(d => { if(myEvIds.includes(d.data().eventId)) count++; });
+        }
+    }
+    badge.style.display = count > 0 ? 'inline-block' : 'none';
+    if(count > 0) badge.innerText = count;
+};
+
+// ==========================================
+// 로그인 & 마이페이지
+// ==========================================
 window.checkLoginStatus = async function() {
     const myName = localStorage.getItem('myNickname');
     window.isUserApproved = false; 
@@ -290,6 +318,10 @@ window.checkLoginStatus = async function() {
             document.getElementById('profile-section').style.display = 'block';
             document.getElementById('display-my-name').innerText = myName;
             document.getElementById('admin-user-manage-btn').style.display = myName === 'admin' ? 'block' : 'none';
+            document.getElementById('display-my-role').innerText = myName === 'admin' ? "총괄 관리자 모드 🛡️" : (window.isUserApproved ? "승인 완료된 회원입니다 ✨" : "가입 승인 대기 중 ⏳");
+            document.getElementById('display-my-role').style.color = window.isUserApproved ? "var(--primary)" : "var(--text-gray)";
+            if(myName === 'admin') document.getElementById('display-my-role').style.color = "var(--danger)";
+            
             await renderMyPageContent(); checkNotifications();
         } else { window.logout(); return; }
     } else {
@@ -297,252 +329,283 @@ window.checkLoginStatus = async function() {
         document.getElementById('auth-section').style.display = 'block';
         document.getElementById('profile-section').style.display = 'none';
     }
-    loadEvents();
+    if(document.getElementById('list-view').style.display === 'block') loadEvents();
 };
 
-window.login = async function() { /* 이전 코드와 동일 생략을 최소화하기 위해 기본 탑재 */
+window.login = async function() {
     const id = document.getElementById('auth-id').value.trim(); const pw = document.getElementById('auth-pw').value.trim();
     if(!id || !pw) return;
     const userSnap = await getDoc(doc(db, "users", id));
-    if (!userSnap.exists() && id === 'admin' && pw === '0707') {
+    if(!userSnap.exists() && id === 'admin' && pw === '0707') {
         await setDoc(doc(db, "users", id), { password: pw, status: 'approved', createdAt: new Date() });
         localStorage.setItem('myNickname', id); await checkLoginStatus(); return;
     }
     if(userSnap.exists() && userSnap.data().password === pw) { localStorage.setItem('myNickname', id); await checkLoginStatus(); }
     else alert("정보가 틀립니다.");
 };
+
 window.signup = async function() {
     const id = document.getElementById('auth-id').value.trim(); const pw = document.getElementById('auth-pw').value.trim();
-    if(!id || !pw) return;
-    if(id === 'admin' && pw !== '0707') return;
-    const userSnap = await getDoc(doc(db, "users", id));
-    if (userSnap.exists()) { alert("이미 존재합니다."); return; }
+    if(!id || !pw || (id === 'admin' && pw !== '0707')) return;
+    if((await getDoc(doc(db, "users", id))).exists()) return alert("이미 존재합니다.");
     await setDoc(doc(db, "users", id), { password: pw, status: id === 'admin' ? 'approved' : 'pending', createdAt: new Date() });
     localStorage.setItem('myNickname', id); alert("가입 완료!"); await checkLoginStatus();
 };
+
 window.logout = function() { localStorage.setItem('myNickname', ''); window.isUserApproved = false; switchTab('list'); checkLoginStatus(); };
 
-// ⭐️ 마이페이지 신청 내역 (2시간 후 '후기 작성' 버튼 로직 추가)
+window.setMyPageTab = function(mode) { 
+    window.myPageTabMode = mode; 
+    document.getElementById('tab-my-apps').style.background = mode==='apps' ? 'var(--primary)' : 'var(--card-bg)';
+    document.getElementById('tab-my-apps').style.color = mode==='apps' ? 'white' : 'var(--primary)';
+    document.getElementById('tab-my-likes').style.background = mode==='likes' ? 'var(--primary)' : 'var(--card-bg)';
+    document.getElementById('tab-my-likes').style.color = mode==='likes' ? 'white' : 'var(--primary)';
+    renderMyPageContent(); 
+};
+
 window.renderMyPageContent = async function() {
     const container = document.getElementById('my-content-list');
     const myName = localStorage.getItem('myNickname');
-    if(!window.isUserApproved) { container.innerHTML = "<p style='text-align:center; color:var(--text-gray);'>승인 후 이용 가능합니다.</p>"; return; }
+    if(!window.isUserApproved) return container.innerHTML = "<p style='text-align:center;'>승인 후 이용 가능합니다.</p>";
     
+    let html = '';
     if(window.myPageTabMode === 'apps') {
         const snap = await getDocs(query(collection(db, "applications"), where("applicantName", "==", myName)));
-        window.myApplications = [];
-        let html = '';
         for(const d of snap.docs) {
-            const appD = d.data(); window.myApplications.push({ id: d.id, ...appD }); 
-            const evS = await getDoc(doc(db, "events", appD.eventId));
+            const appD = d.data(); const evS = await getDoc(doc(db, "events", appD.eventId));
             if(evS.exists()) {
                 const evD = evS.data();
                 const badge = appD.status === 'approved' ? `<span style="color:var(--primary); font-weight:bold;">[승인 완료]</span>` : `<span style="color:var(--text-gray); font-weight:bold;">[대기 중]</span>`;
+                const isPast2H = new Date() >= new Date(new Date(evD.date).getTime() + 2 * 60 * 60 * 1000);
                 
-                // ⭐️ 2시간 경과 체크 로직
-                const evDate = new Date(evD.date);
-                const reviewTime = new Date(evDate.getTime() + 2 * 60 * 60 * 1000); // 일정 + 2시간
-                const now = new Date();
-                
-                let actionBtn = '';
-                if(appD.status === 'approved' && now >= reviewTime && !appD.hasReviewed) {
-                    // 후기 작성 버튼 표시
-                    actionBtn = `<button class="btn btn-delete" style="width:100%; margin-top:10px; border-color:var(--primary); color:var(--primary);" onclick="event.stopPropagation(); openPostModal('review', '${evS.id}', '${evD.title}', '${d.id}')">📝 모임은 어떠셨나요? 후기 작성하기</button>`;
-                } else if(appD.status === 'approved') {
-                    // 기존 단톡방 버튼
-                    actionBtn = `<button class="btn" style="width:100%; margin-top:10px; background:#FEE500; color:black; border:none; padding:10px; border-radius:8px; font-weight:bold;" onclick="event.stopPropagation(); window.open('${evD.chatLink}')">💬 단톡방 입장하기</button>`;
+                let actionBtn = appD.status === 'approved' ? `<button class="btn" style="background:#FEE500; color:black; margin-top:10px;" onclick="event.stopPropagation(); window.open('${evD.chatLink}')">💬 단톡방 입장</button>` : '';
+                if(appD.status === 'approved' && isPast2H && !appD.hasReviewed) {
+                    actionBtn = `<button class="btn btn-delete" style="margin-top:10px; border-color:var(--primary); color:var(--primary);" onclick="event.stopPropagation(); openPostModal('review', '${evS.id}', '${evD.title}', '${d.id}')">📝 후기 작성하기</button>`;
                 }
-
-                html += `<div class="event-card" style="padding:20px;" onclick="openEventDetail('${evS.id}', 'mypage')">
-                    <div style="font-weight:bold; font-size:1.1rem; margin-bottom:5px;">${evD.title}</div>
-                    <div style="font-size:0.85rem; color:var(--text-gray); margin-bottom:10px;">👑 주최: ${evD.host}</div>
-                    ${badge}${actionBtn}
+                html += `<div class="card" onclick="openEventDetail('${evS.id}', 'mypage')">
+                    <div class="card-title">${evD.title}</div><div class="card-loc">👑 주최: ${evD.host}</div>${badge}${actionBtn}
                 </div>`;
             }
         }
-        container.innerHTML = html || "<p style='text-align:center;'>내역이 없습니다.</p>";
+    } else {
+        const snap = await getDocs(query(collection(db, "events"), where("likes", "array-contains", myName)));
+        snap.forEach(d => { html += `<div class="card" onclick="openEventDetail('${d.id}', 'mypage')"><div class="card-title">❤️ ${d.data().title}</div></div>`; });
     }
+    container.innerHTML = html || "<p style='text-align:center;'>내역이 없습니다.</p>";
 };
-window.setMyPageTab = function(mode) { window.myPageTabMode = mode; renderMyPageContent(); };
 
-// ⭐️ 커뮤니티 기능 (새로 추가됨)
+// ==========================================
+// 커뮤니티 (COMMUNITY)
+// ==========================================
 window.loadCommunity = async function(category) {
     window.currentCommunityTab = category;
     document.querySelectorAll('#community-view .cat-btn').forEach(b => b.classList.remove('active'));
     document.getElementById('comm-btn-' + category).classList.add('active');
     
     const container = document.getElementById('community-posts');
-    container.innerHTML = "<p style='text-align:center;'>불러오는 중...</p>";
-    
     const snap = await getDocs(query(collection(db, "posts"), where("category", "==", category), orderBy("createdAt", "desc")));
     let html = '';
     snap.forEach(d => {
         const post = d.data();
-        const dateStr = new Date(post.createdAt.toDate()).toLocaleDateString();
         const refHtml = post.eventTitle ? `<div style="font-size:0.8rem; color:var(--primary); margin-bottom:5px;">🔗 참조: ${post.eventTitle}</div>` : '';
-        html += `<div class="post-card">
-            ${refHtml}
-            <div style="font-weight:bold; font-size:1.1rem; margin-bottom:10px;">${post.title}</div>
-            <div style="color:var(--text-dark); white-space:pre-wrap; margin-bottom:15px;">${post.content}</div>
-            <div style="font-size:0.8rem; color:var(--text-gray); text-align:right;">✍️ ${post.author} | 🕒 ${dateStr}</div>
+        html += `<div class="card">${refHtml}<div class="card-title">${post.title}</div>
+            <div style="white-space:pre-wrap; margin-bottom:15px;">${post.content}</div>
+            <div style="font-size:0.8rem; color:var(--text-gray); text-align:right;">✍️ ${post.author} | 🕒 ${new Date(post.createdAt.toDate()).toLocaleDateString()}</div>
         </div>`;
     });
-    container.innerHTML = html || "<p style='text-align:center; color:gray;'>아직 작성된 글이 없습니다.</p>";
+    container.innerHTML = html || "<p style='text-align:center;'>아직 작성된 글이 없습니다.</p>";
 };
 
 window.openPostModal = function(category, eventId = '', eventTitle = '', applyId = '') {
-    if(!window.isUserApproved) { alert("승인된 회원만 글을 쓸 수 있습니다."); return; }
     document.getElementById('post-category').value = category;
-    document.getElementById('post-title').value = '';
-    document.getElementById('post-content').value = '';
-    
-    // 후기 작성 연동
-    if(category === 'review' && eventId) {
-        document.getElementById('post-event-ref').style.display = 'block';
-        document.getElementById('post-event-title').value = eventTitle;
-        document.getElementById('post-event-id').value = eventId;
-        window.currentReviewApplyId = applyId; // 후기 작성 완료 처리를 위해 저장
-    } else {
-        document.getElementById('post-event-ref').style.display = 'none';
-        document.getElementById('post-event-id').value = '';
-        window.currentReviewApplyId = null;
-    }
-    
+    document.getElementById('post-title').value = ''; document.getElementById('post-content').value = '';
+    document.getElementById('post-event-ref').style.display = (category === 'review' && eventId) ? 'block' : 'none';
+    document.getElementById('post-event-title').value = eventTitle; document.getElementById('post-event-id').value = eventId;
+    window.currentReviewApplyId = (category === 'review' && eventId) ? applyId : null;
     openModal('postModal');
 };
 
 window.savePost = async function() {
-    const cat = document.getElementById('post-category').value;
-    const title = document.getElementById('post-title').value;
-    const content = document.getElementById('post-content').value;
-    const evId = document.getElementById('post-event-id').value;
-    const evTitle = document.getElementById('post-event-title').value;
-
-    if(!title || !content) { alert("제목과 내용을 입력해주세요!"); return; }
-
-    try {
-        await addDoc(collection(db, "posts"), {
-            category: cat, title: title, content: content, author: localStorage.getItem('myNickname'),
-            eventId: evId, eventTitle: evTitle, createdAt: new Date()
-        });
-        
-        // 자동 알림에서 후기를 남긴 경우, 다시 안 뜨도록 업데이트
-        if(window.currentReviewApplyId) {
-            await updateDoc(doc(db, "applications", window.currentReviewApplyId), { hasReviewed: true });
-        }
-
-        alert("게시글이 등록되었습니다!");
-        closeModal('postModal');
-        
-        // 마이페이지에서 후기를 남겼으면 마이페이지 리로드, 아니면 커뮤니티 리로드
-        if(window.currentReviewApplyId) { switchTab('mypage'); } 
-        else { loadCommunity(cat); }
-        
-    } catch(e) { console.error(e); }
+    const cat = document.getElementById('post-category').value; const title = document.getElementById('post-title').value; const content = document.getElementById('post-content').value;
+    if(!title || !content) return alert("제목과 내용을 입력해주세요!");
+    await addDoc(collection(db, "posts"), { category: cat, title, content, author: localStorage.getItem('myNickname'), eventId: document.getElementById('post-event-id').value, eventTitle: document.getElementById('post-event-title').value, createdAt: new Date() });
+    if(window.currentReviewApplyId) await updateDoc(doc(db, "applications", window.currentReviewApplyId), { hasReviewed: true });
+    alert("등록 완료!"); closeModal('postModal');
+    if(window.currentReviewApplyId) switchTab('mypage'); else loadCommunity(cat);
 };
 
-// 기존 일정 불러오기 (HOME)
+// ==========================================
+// 메인 게시판 (HOME) & 캘린더 무한스크롤
+// ==========================================
+window.setCategory = function(cat) { window.currentCategory = cat; document.querySelectorAll('#list-view .cat-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(cat))); renderFilteredEvents(); };
+
 window.loadEvents = async function() {
     const snap = await getDocs(query(collection(db, "events"), orderBy("date", "asc")));
-    window.allFetchedEvents = [];
-    snap.forEach(d => { window.allFetchedEvents.push({id: d.id, ...d.data()}); });
+    window.allFetchedEvents = snap.docs.map(d => ({id: d.id, ...d.data()}));
     renderFilteredEvents();
 };
 
 window.renderFilteredEvents = function() {
     const container = document.getElementById('db-events');
     const myName = localStorage.getItem('myNickname');
-    let filtered = window.allFetchedEvents;
-    if(window.currentCategory !== '전체') filtered = filtered.filter(e => e.category === window.currentCategory);
-
+    let filtered = window.currentCategory === '전체' ? window.allFetchedEvents : window.allFetchedEvents.filter(e => e.category === window.currentCategory);
     let html = '';
+    
     filtered.forEach(data => {
-        const dateStr = new Date(data.date).toLocaleString('ko-KR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
-        const imgHtml = data.imageUrl ? `<img src="${data.imageUrl}" class="event-img">` : `<div class="event-img" style="display:flex; justify-content:center; align-items:center; font-size:2rem;">⛺</div>`;
-        const currentCount = data.approvedCount || 0; const maxCount = data.maxParticipants || 100;
-        const isFull = currentCount >= maxCount;
-        
+        const isFull = (data.approvedCount || 0) >= (data.maxParticipants || 100);
+        const isLiked = myName && (data.likes || []).includes(myName);
         const cardInner = `
-            ${imgHtml}
-            <div class="event-content">
-                <div class="event-cat-tag">#${data.category || '분류없음'}</div>
-                <div class="event-date">${dateStr}</div>
-                <div class="event-title">${data.title}</div>
-                <div class="event-loc">📍 ${data.location || '장소 미지정'}</div>
-                <div class="event-info">
-                    <span>👑 ${data.host}</span>
-                    <strong style="color:${isFull ? 'var(--danger)' : 'var(--primary)'}">${currentCount}/${maxCount}명 ${isFull ? '(마감)' : ''}</strong>
-                </div>
+            <div class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${data.id}', event)">${isLiked ? '❤️' : '🤍'}</div>
+            ${data.imageUrl ? `<img src="${data.imageUrl}" class="card-img">` : `<div class="card-img" style="display:flex; justify-content:center; align-items:center; font-size:2rem;">⛺</div>`}
+            <div class="event-content" style="padding:0; display:flex; flex-direction:column; flex:1;">
+                <div class="card-tag">#${data.category || '기타'}</div>
+                <div class="card-title">${data.title}</div>
+                <div class="card-loc">🕒 ${new Date(data.date).toLocaleString('ko-KR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}<br>📍 ${data.location || '미지정'}</div>
+                <div class="card-info"><span>👑 ${data.host}</span><strong style="color:${isFull ? 'var(--danger)' : 'var(--primary)'}">${data.approvedCount||0}/${data.maxParticipants||100}명 ${isFull ? '(마감)' : ''}</strong></div>
             </div>`;
-
-        if(!window.isUserApproved) {
-            html += `<div class="event-card" onclick="alert('승인된 회원 전용입니다.')"><div class="blur-overlay-container"><div class="blur-content">${cardInner}</div><div class="blur-overlay"><span>🔒 비공개</span></div></div></div>`;
-        } else {
-            html += `<div class="event-card" onclick="openEventDetail('${data.id}', 'list')">${cardInner}</div>`;
-        }
+        html += window.isUserApproved ? `<div class="card" onclick="openEventDetail('${data.id}', 'list')">${cardInner}</div>` : `<div class="card" onclick="alert('승인된 회원 전용입니다.')"><div class="blur-overlay-container"><div class="blur-content">${cardInner}</div><div class="blur-overlay"><span>🔒 비공개</span></div></div></div>`;
     });
     container.innerHTML = html || "<p style='text-align:center;'>일정이 없습니다.</p>";
 };
 
+window.toggleLike = async function(id, e) { e.stopPropagation(); const myName = localStorage.getItem('myNickname'); if(!myName||!window.isUserApproved) return; const ref = doc(db, "events", id); const snap = await getDoc(ref); if(!snap.exists()) return; if((snap.data().likes||[]).includes(myName)) await updateDoc(ref, { likes: arrayRemove(myName) }); else await updateDoc(ref, { likes: arrayUnion(myName) }); loadEvents(); };
+
+// 캘린더 (무한 스크롤)
+window.renderCalendar = function() {
+    const grid = document.getElementById('calendar-grid');
+    window.listRenderCount = 0;
+    grid.innerHTML = '<div id="list-mode-wrapper"></div><div id="scroll-sentinel" style="height:20px;"></div>';
+    
+    const groups = {}; const today = new Date(); today.setHours(0,0,0,0);
+    window.allFetchedEvents.forEach(e => {
+        const d = new Date(e.date);
+        if(d >= today) {
+            const key = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+            if(!groups[key]) groups[key] = { dateObj: new Date(d.getFullYear(), d.getMonth(), d.getDate()), events: [] };
+            groups[key].events.push(e);
+        }
+    });
+    window.groupedEvents = Object.values(groups).sort((a,b) => a.dateObj - b.dateObj);
+    
+    if(window.listObserver) window.listObserver.disconnect();
+    window.listObserver = new IntersectionObserver(e => { if(e[0].isIntersecting) renderListChunk(); });
+    const sentinel = document.getElementById('scroll-sentinel');
+    if(sentinel) window.listObserver.observe(sentinel);
+    renderListChunk();
+};
+
+window.renderListChunk = function() {
+    const wrapper = document.getElementById('list-mode-wrapper'); if(!wrapper) return;
+    const chunk = window.groupedEvents.slice(window.listRenderCount, window.listRenderCount + 5);
+    if(chunk.length === 0) {
+        if(document.getElementById('scroll-sentinel')) document.getElementById('scroll-sentinel').style.display = 'none';
+        if(window.listRenderCount === 0) wrapper.innerHTML = '<p style="text-align:center;">예정된 일정이 없습니다.</p>'; return;
+    }
+    let html = '';
+    chunk.forEach(g => {
+        const d = g.dateObj; const isToday = d.toDateString() === new Date().toDateString();
+        const evHtml = g.events.map(e => window.isUserApproved ? `<div class="weekly-event-item" onclick="openEventDetail('${e.id}', 'calendar')"><div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:3px;">🕒 ${new Date(e.date).getHours().toString().padStart(2, '0')}:${new Date(e.date).getMinutes().toString().padStart(2, '0')} | 📍 ${e.location}</div><div style="font-weight:bold; color:var(--text-dark);">${e.title}</div></div>` : `<div class="weekly-event-item" onclick="alert('가입 승인 후 확인 가능합니다.')"><div style="filter:blur(4px);">비공개 일정</div></div>`).join('');
+        html += `<div class="weekly-day-card"><div class="${isToday ? 'weekly-day-header today' : 'weekly-day-header'}">${d.getMonth()+1}월 ${d.getDate()}일</div>${evHtml}</div>`;
+    });
+    wrapper.insertAdjacentHTML('beforeend', html); window.listRenderCount += 5;
+};
+
 // ==========================================
-// 기존 일정 등록/수정/삭제 로직 축약 (이전과 완벽히 동일하게 동작)
+// 일정 CRUD 및 신청
 // ==========================================
 window.checkProfileAndOpenCreate = function() {
-    if(!window.isUserApproved) return;
+    document.getElementById('event-category').value = '아웃도어'; document.getElementById('event-title').value = ''; document.getElementById('event-location').value = ''; document.getElementById('event-date').value = ''; document.getElementById('event-max').value = ''; document.getElementById('event-chat').value = ''; document.getElementById('event-desc').value = '';
     openModal('createModal');
 };
-window.registerEvent = async function() { /* 생략 없이 동작 */
-    const cat = document.getElementById('event-category').value;
-    const title = document.getElementById('event-title').value;
-    const loc = document.getElementById('event-location').value;
-    const date = document.getElementById('event-date').value;
-    const max = parseInt(document.getElementById('event-max').value);
-    const chat = document.getElementById('event-chat').value;
-    const desc = document.getElementById('event-desc').value;
-    if(!title || !date || !loc || !chat || !max) { alert("필수 입력!"); return; }
-    
-    await addDoc(collection(db, "events"), { category: cat, title, location: loc, date, maxParticipants: max, approvedCount: 0, chatLink: chat, description: desc, host: localStorage.getItem('myNickname') });
-    alert("등록 완료!"); closeModal('createModal'); loadEvents();
-};
-window.openEventDetail = function(eventId, fromTab) {
-    if(fromTab) window.previousTab = fromTab; 
-    const event = window.allFetchedEvents.find(e => e.id === eventId);
-    if(!event) return;
-    
-    const myName = localStorage.getItem('myNickname');
-    const isHost = (myName === event.host || myName === 'admin');
-    
-    let actionButtons = '';
-    if(isHost) {
-        actionButtons = `
-            <button class="btn btn-manage" onclick="openEditModal('${event.id}')">✏️ 수정하기</button>
-            <button class="btn btn-manage" onclick="openManageModal('${event.id}')">👑 신청자 관리</button>
-            <button class="btn btn-delete" onclick="deleteEvent('${event.id}')">🗑️ 삭제하기</button>
-        `;
-    } else {
-        const existingApp = window.myApplications.find(app => app.eventId === event.id);
-        if(existingApp) actionButtons = `<button class="btn btn-delete" onclick="cancelApplication('${existingApp.id}')">❌ 신청 취소</button>`;
-        else actionButtons = `<button class="btn btn-apply" onclick="openApplyModal('${event.id}')">🙋 신청하기</button>`;
-    }
 
-    const detailHtml = `
-        <h2 style="font-size: 1.5rem; margin-bottom: 10px;">${event.title}</h2>
-        <div style="font-size: 1rem; color: var(--primary); font-weight: bold; margin-bottom: 5px;">🕒 ${new Date(event.date).toLocaleString()}</div>
-        <div style="font-size: 1rem; font-weight: bold; margin-bottom: 15px;">📍 ${event.location}</div>
+window.registerEvent = async function() {
+    const cat = document.getElementById('event-category').value; const title = document.getElementById('event-title').value; const loc = document.getElementById('event-location').value; const date = document.getElementById('event-date').value; const max = parseInt(document.getElementById('event-max').value); const chat = document.getElementById('event-chat').value; const desc = document.getElementById('event-desc').value; const file = document.getElementById('event-image-file').files[0];
+    if(!title||!date||!loc||!max) return alert("필수 입력!");
+    
+    document.getElementById('reg-btn').innerText = "업로드 중...";
+    try {
+        let imageUrl = "";
+        if(file) { const sRef = ref(storage, 'events/' + Date.now() + '_' + file.name); await uploadBytes(sRef, file); imageUrl = await getDownloadURL(sRef); }
+        await addDoc(collection(db, "events"), { category: cat, title, location: loc, date, maxParticipants: max, approvedCount: 0, chatLink: chat, description: desc, imageUrl, likes: [], host: localStorage.getItem('myNickname'), createdAt: new Date() });
+        alert("등록 완료!"); closeModal('createModal'); loadEvents();
+    } catch(e) { console.error(e); } finally { document.getElementById('reg-btn').innerText = "등록하기"; }
+};
+
+window.openEventDetail = function(eventId, fromTab) {
+    if(fromTab) window.previousTab = fromTab;
+    const event = window.allFetchedEvents.find(e => e.id === eventId); if(!event) return;
+    const myName = localStorage.getItem('myNickname'); const isHost = (myName === event.host || myName === 'admin');
+    const isFull = (event.approvedCount||0) >= (event.maxParticipants||100);
+    
+    let btns = '';
+    if(isHost) {
+        btns = `<button class="btn btn-manage" style="background:var(--primary);" onclick="openEditModal('${event.id}')">✏️ 수정</button><button class="btn btn-manage" onclick="openManageModal('${event.id}')">👑 신청자 관리</button><button class="btn btn-delete" onclick="deleteEvent('${event.id}')">🗑️ 삭제</button>`;
+    } else {
+        const app = window.myApplications.find(a => a.eventId === event.id);
+        if(app) btns = `<button class="btn btn-delete" onclick="cancelApplication('${app.id}')">❌ 신청 취소</button>`;
+        else btns = isFull ? `<button class="btn" disabled>정원 마감</button>` : `<button class="btn btn-apply" onclick="openApplyModal('${event.id}')">🙋 신청하기</button>`;
+    }
+    document.getElementById('detail-content').innerHTML = `
+        ${event.imageUrl ? `<img src="${event.imageUrl}" class="detail-img">` : ''}
+        <h2 style="margin-bottom:10px;">${event.title}</h2>
+        <div style="color:var(--primary); font-weight:bold;">🕒 ${new Date(event.date).toLocaleString()}</div>
+        <div style="font-weight:bold; margin-bottom:15px;">📍 ${event.location}</div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px; color:var(--text-gray);"><span>👑 ${event.host}</span><span style="color:${isFull?'var(--danger)':'var(--primary)'}; font-weight:bold;">${event.approvedCount||0}/${event.maxParticipants}명</span></div>
         <div class="detail-desc">${event.description}</div>
-        <div class="action-buttons" style="flex-direction: column; gap: 10px;">${actionButtons}</div>
-    `;
-    document.getElementById('detail-content').innerHTML = detailHtml;
+        <div style="display:flex; flex-direction:column; gap:10px;">${btns}</div>`;
     switchTab('detail');
 };
 
-// 수정 및 기타 삭제 로직 
-window.openEditModal = function(id) { window.currentEditEventId = id; openModal('editModal'); };
-window.updateEvent = async function() { await updateDoc(doc(db, "events", window.currentEditEventId), { title: document.getElementById('edit-title').value }); closeModal('editModal'); loadEvents(); switchTab('list'); };
-window.deleteEvent = async function(id) { await deleteDoc(doc(db, "events", id)); loadEvents(); switchTab('list'); };
+window.openEditModal = function(id) {
+    const ev = window.allFetchedEvents.find(e => e.id === id); window.currentEditEventId = id;
+    document.getElementById('edit-category').value = ev.category; document.getElementById('edit-title').value = ev.title; document.getElementById('edit-location').value = ev.location; document.getElementById('edit-date').value = ev.date; document.getElementById('edit-max').value = ev.maxParticipants; document.getElementById('edit-chat').value = ev.chatLink; document.getElementById('edit-desc').value = ev.description;
+    openModal('editModal');
+};
 
-// 캘린더 (기존 유지)
-window.setCalendarMode = function(mode) { document.getElementById('calendar-grid').innerHTML = "<p style='padding:20px;text-align:center;'>리스트 뷰 준비됨.</p>"; };
+window.updateEvent = async function() {
+    const cat = document.getElementById('edit-category').value; const title = document.getElementById('edit-title').value; const loc = document.getElementById('edit-location').value; const date = document.getElementById('edit-date').value; const max = parseInt(document.getElementById('edit-max').value); const chat = document.getElementById('edit-chat').value; const desc = document.getElementById('edit-desc').value; const file = document.getElementById('edit-image-file').files[0];
+    if(!title||!date||!loc||!max) return alert("필수 입력!");
+    document.getElementById('update-btn').innerText = "수정 중...";
+    try {
+        let upData = { category: cat, title, location: loc, date, maxParticipants: max, chatLink: chat, description: desc };
+        if(file) { const sRef = ref(storage, 'events/' + Date.now() + '_' + file.name); await uploadBytes(sRef, file); upData.imageUrl = await getDownloadURL(sRef); }
+        await updateDoc(doc(db, "events", window.currentEditEventId), upData);
+        alert("수정 완료!"); closeModal('editModal'); loadEvents(); switchTab('list');
+    } catch(e) { console.error(e); } finally { document.getElementById('update-btn').innerText = "수정 완료"; }
+};
+
+window.deleteEvent = async function(id) { if(!confirm("삭제하시겠습니까?")) return; await deleteDoc(doc(db, "events", id)); loadEvents(); switchTab('list'); };
+
+window.openApplyModal = function(id) { window.currentApplyEventId = id; openModal('applyModal'); };
+window.submitApplication = async function() {
+    const msg = document.getElementById('apply-message').value; if(!msg) return;
+    await addDoc(collection(db, "applications"), { eventId: window.currentApplyEventId, applicantName: localStorage.getItem('myNickname'), message: msg, status: "pending", appliedAt: new Date() });
+    alert("신청 완료!"); closeModal('applyModal'); renderMyPageContent(); switchTab('mypage'); checkNotifications();
+};
+
+window.cancelApplication = async function(appId) {
+    if(!confirm("취소하시겠습니까?")) return;
+    const snap = await getDoc(doc(db, "applications", appId));
+    if(snap.exists() && snap.data().status === 'approved') await updateDoc(doc(db, "events", snap.data().eventId), { approvedCount: increment(-1) });
+    await deleteDoc(doc(db, "applications", appId)); alert("취소되었습니다."); renderMyPageContent(); loadEvents(); switchTab('mypage');
+};
+
+window.openManageModal = async function(id) {
+    window.currentManageEventId = id; openModal('manageModal');
+    const container = document.getElementById('applicant-list');
+    const snap = await getDocs(query(collection(db, "applications"), where("eventId", "==", id), where("status", "==", "pending")));
+    let html = '';
+    snap.forEach(d => { html += `<div style="padding:15px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between;"><div><strong>${d.data().applicantName}</strong><br><span style="font-size:0.9rem;">"${d.data().message}"</span></div><button class="btn btn-apply" style="width:auto; padding:5px 15px;" onclick="approveApp('${d.id}', '${id}')">수락</button></div>`; });
+    container.innerHTML = html || "<p style='text-align:center;'>대기자가 없습니다.</p>";
+};
+
+window.approveApp = async function(appId, eventId) {
+    const evRef = doc(db, "events", eventId); const evD = (await getDoc(evRef)).data();
+    if(evD.approvedCount >= evD.maxParticipants) return alert("정원 마감!");
+    await updateDoc(doc(db, "applications", appId), { status: "approved" });
+    await updateDoc(evRef, { approvedCount: increment(1) });
+    alert("수락 완료!"); loadEvents(); openManageModal(eventId); checkNotifications();
+};
 
 window.onload = async () => { await checkLoginStatus(); };
 </script>
