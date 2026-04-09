@@ -211,6 +211,13 @@
                     <option value="inquiry">🚨 불편사항 및 문의</option>
                 </select>
             </div>
+            
+            <div class="input-group" id="post-secret-group" style="display:none; margin-top: -5px; margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: normal; font-size: 0.9rem;">
+                    <input type="checkbox" id="post-is-secret" style="width: auto; margin: 0;">
+                    🔒 운영자만 볼 수 있게 비밀글로 설정
+                </label>
+            </div>
             <div class="input-group" id="post-event-ref" style="display:none;">
                 <label>참조 일정</label>
                 <input type="text" id="post-event-title" disabled style="background:var(--bg-color);">
@@ -500,21 +507,33 @@ window.loadCommunity = async function(category) {
         snap.forEach(d => posts.push(d.data()));
         
         // 날짜가 안전하게 처리되도록 안전망 추가 후 최신순 정렬
-        posts.sort((a, b) => {
-            const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
-            const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
-            return dateB - dateA;
-        });
+        // ... (기존 코드) posts.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate()); ...
+
+        const myName = localStorage.getItem('myNickname'); // ⭐️ 내 닉네임 가져오기
 
         let html = '';
         posts.forEach(post => {
             const dateObj = post.createdAt?.toDate ? post.createdAt.toDate() : new Date(post.createdAt);
             const dateStr = dateObj.toLocaleDateString();
             const refHtml = post.eventTitle ? `<div style="font-size:0.8rem; color:var(--primary); margin-bottom:5px;">🔗 참조: ${post.eventTitle}</div>` : '';
-            html += `<div class="card">${refHtml}<div class="card-title">${post.title}</div>
-                <div style="white-space:pre-wrap; margin-bottom:15px;">${post.content}</div>
-                <div style="font-size:0.8rem; color:var(--text-gray); text-align:right;">✍️ ${post.author} | 🕒 ${dateStr}</div>
-            </div>`;
+            
+            // ⭐️ 비밀글 필터링 로직 추가
+            if (post.isSecret && myName !== 'admin' && myName !== post.author) {
+                // 권한이 없는 유저에게 보이는 모습
+                html += `<div class="card">
+                    <div class="card-title" style="color:var(--text-gray);">🔒 비밀글입니다.</div>
+                    <div style="color:var(--text-gray); margin-bottom:15px; font-size:0.9rem;">운영자와 작성자만 볼 수 있습니다.</div>
+                    <div style="font-size:0.8rem; color:var(--text-gray); text-align:right;">✍️ 익명 | 🕒 ${dateStr}</div>
+                </div>`;
+            } else {
+                // 권한이 있는 유저(본인 또는 관리자) 또는 일반 글일 때 보이는 모습
+                const secretBadge = post.isSecret ? '<span style="color:var(--danger); font-size:0.9rem;">[🔒비밀글]</span> ' : '';
+                html += `<div class="card">${refHtml}
+                    <div class="card-title">${secretBadge}${post.title}</div>
+                    <div style="white-space:pre-wrap; margin-bottom:15px;">${post.content}</div>
+                    <div style="font-size:0.8rem; color:var(--text-gray); text-align:right;">✍️ ${post.author} | 🕒 ${dateStr}</div>
+                </div>`;
+            }
         });
         container.innerHTML = html || "<p style='text-align:center; color:var(--text-gray);'>아직 작성된 글이 없습니다.</p>";
     } catch(e) {
@@ -525,10 +544,23 @@ window.loadCommunity = async function(category) {
 
 window.openPostModal = function(category, eventId = '', eventTitle = '', applyId = '') {
     document.getElementById('post-category').value = category;
-    document.getElementById('post-title').value = ''; document.getElementById('post-content').value = '';
+    document.getElementById('post-title').value = ''; 
+    document.getElementById('post-content').value = '';
+    
+    // ⭐️ 비밀글 초기화 및 보이기/숨기기 설정
+    document.getElementById('post-is-secret').checked = false;
+    document.getElementById('post-secret-group').style.display = (category === 'inquiry') ? 'block' : 'none';
+    
+    // 카테고리 셀렉트박스를 바꿀 때마다 체크박스 표시 여부 업데이트
+    document.getElementById('post-category').onchange = function(e) {
+        document.getElementById('post-secret-group').style.display = (e.target.value === 'inquiry') ? 'block' : 'none';
+    };
+
     document.getElementById('post-event-ref').style.display = (category === 'review' && eventId) ? 'block' : 'none';
-    document.getElementById('post-event-title').value = eventTitle; document.getElementById('post-event-id').value = eventId;
+    document.getElementById('post-event-title').value = eventTitle; 
+    document.getElementById('post-event-id').value = eventId;
     window.currentReviewApplyId = (category === 'review' && eventId) ? applyId : null;
+    
     openModal('postModal');
 };
 
@@ -536,13 +568,19 @@ window.savePost = async function() {
     const cat = document.getElementById('post-category').value; 
     const title = document.getElementById('post-title').value; 
     const content = document.getElementById('post-content').value;
+    const isSecret = document.getElementById('post-is-secret').checked; // ⭐️ 체크박스 값 가져오기
+    
     if(!title || !content) return alert("제목과 내용을 입력해주세요!");
     
     try {
         await addDoc(collection(db, "posts"), { 
-            category: cat, title, content, author: localStorage.getItem('myNickname'), 
+            category: cat, 
+            title: title, 
+            content: content, 
+            author: localStorage.getItem('myNickname'), 
             eventId: document.getElementById('post-event-id').value, 
             eventTitle: document.getElementById('post-event-title').value, 
+            isSecret: isSecret, // ⭐️ DB에 비밀글 여부 저장
             createdAt: new Date() 
         });
         if(window.currentReviewApplyId) {
