@@ -24,7 +24,20 @@
             background: var(--card-bg); padding: 10px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); 
             display: flex; align-items: center; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; gap: 15px; transition: background-color 0.3s;
         }
-        .logo { font-size: 1.2rem; font-weight: bold; color: var(--primary); cursor:pointer; flex-shrink: 0; white-space: nowrap; }
+        /* 로고 공통 스타일 */
+.logo { font-weight: bold; color: var(--primary); cursor:pointer; flex-shrink: 0; white-space: nowrap; }
+
+/* 모바일 기본: 폰트 작게, 띄어쓰기 없는 로고 노출 */
+.logo { font-size: 1rem; }
+.logo-pc { display: none; }
+.logo-mo { display: inline; }
+
+/* PC/태블릿 (640px 이상): 폰트 크게, 띄어쓰기 있는 로고 노출 */
+@media (min-width: 640px) {
+    .logo { font-size: 1.2rem; }
+    .logo-pc { display: inline; }
+    .logo-mo { display: none; }
+}
         .nav-buttons { 
             display: flex; gap: 15px; align-items: center; flex-grow: 1;
             overflow-x: auto; white-space: nowrap; -ms-overflow-style: none; scrollbar-width: none; 
@@ -112,7 +125,10 @@
 <body>
 
     <header>
-        <div class="logo" onclick="switchTab('list')">⛺ 퇴근 후 취미 상점</div>
+        <div class="logo" onclick="switchTab('list')">
+    <span class="logo-pc">⛺ 퇴근 후 취미 상점</span>
+    <span class="logo-mo">⛺ 퇴근후취미상점</span>
+</div>
         <div class="nav-buttons">
             <button class="active" onclick="switchTab('list')">HOME</button>
             <button onclick="switchTab('calendar')">CALENDAR</button>
