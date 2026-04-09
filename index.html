@@ -186,4 +186,688 @@
                 <h3>환영합니다! 👋</h3>
                 <p style="text-align:center; color:gray; margin-bottom:20px; font-size:0.9rem;">일정 신청 및 개설을 위해 로그인해주세요.</p>
                 <div class="input-group">
-                    <label>닉
+                    <label>닉네임 (아이디)</label>
+                    <input type="text" id="auth-id" placeholder="사용할 닉네임을 입력하세요">
+                </div>
+                <div class="input-group">
+                    <label>비밀번호</label>
+                    <input type="password" id="auth-pw" placeholder="비밀번호를 입력하세요">
+                </div>
+                <div style="display:flex; gap:10px; margin-top:25px;">
+                    <button class="btn btn-apply" onclick="login()">로그인</button>
+                    <button class="btn" style="background:#E9ECEF; color:#212529;" onclick="signup()">새로 가입하기</button>
+                </div>
+            </div>
+
+            <div id="profile-section" style="display:none;">
+                <div style="background:white; padding:20px; border-radius:12px; border:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <h3 style="margin-bottom:5px;">👤 <span id="display-my-name" style="color:var(--primary);"></span> 님</h3>
+                        <span id="display-my-role" style="color:gray; font-size:0.9rem;"></span>
+                    </div>
+                    <button class="btn" style="background:#eee; padding:8px 15px; flex:none;" onclick="logout()">로그아웃</button>
+                </div>
+
+                <button id="admin-user-manage-btn" class="btn btn-manage" style="width:100%; margin-top:15px; display:none;" onclick="openUserManageModal()">👥 신규 가입자 승인 관리하기</button>
+
+                <h3 style="margin: 25px 0 15px 0;">나의 신청 내역 📝</h3>
+                <div id="my-applications-list" style="display: flex; flex-direction: column; gap: 15px;"></div>
+            </div>
+        </div>
+    </main>
+
+    <button class="fab" onclick="checkProfileAndOpenCreate()">+</button>
+
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <h3>새 일정 만들기 ✍️</h3>
+            <div class="input-group">
+                <label>모임 제목</label>
+                <input type="text" id="event-title" placeholder="예: 따릉이 타실 분!">
+            </div>
+            <div class="input-group">
+                <label>날짜 및 시간</label>
+                <input type="datetime-local" id="event-date">
+            </div>
+            <div class="input-group">
+                <label>오픈채팅방 링크</label>
+                <input type="url" id="event-chat" placeholder="https://open.kakao.com/o/...">
+                <p class="help-text">* 주최자가 수락한 멤버에게만 링크가 안전하게 공개됩니다 🔒</p>
+            </div>
+            
+            <div class="input-group">
+                <label>대표 이미지 첨부 <span style="font-weight:normal; font-size:0.8rem; color:gray;">(선택)</span></label>
+                <input type="file" id="event-image-file" accept="image/*" style="background: #f1f3f5; padding: 8px;">
+            </div>
+
+            <div class="input-group">
+                <label>상세 내용</label>
+                <textarea id="event-desc" placeholder="모임에 대한 자세한 내용을 적어주세요." style="height:120px;"></textarea>
+            </div>
+            
+            <button id="reg-btn" class="btn btn-apply" style="width:100%" onclick="registerEvent()">일정 등록하기</button>
+            <button class="btn" style="width:100%; margin-top:10px; background:#ccc; color:white;" onclick="closeModal('createModal')">취소</button>
+        </div>
+    </div>
+
+    <div id="applyModal" class="modal">
+        <div class="modal-content">
+            <h3>일정 참가 신청 🙋</h3>
+            <div class="input-group">
+                <label>신청 멘트</label>
+                <textarea id="apply-message" placeholder="호스트에게 어필할 참여 동기를 적어주세요!"></textarea>
+            </div>
+            <button class="btn btn-apply" style="width:100%" onclick="submitApplication()">제출하기</button>
+            <button class="btn" style="width:100%; margin-top:10px; background:#ccc; color:white;" onclick="closeModal('applyModal')">취소</button>
+        </div>
+    </div>
+
+    <div id="manageModal" class="modal">
+        <div class="modal-content">
+            <h3>신청자 관리 👑</h3>
+            <div id="applicant-list"></div>
+            <button class="btn" style="width:100%; margin-top:15px; background:#ccc; color:white;" onclick="closeModal('manageModal')">닫기</button>
+        </div>
+    </div>
+
+    <div id="userManageModal" class="modal">
+        <div class="modal-content">
+            <h3>회원 가입 승인 관리 👥</h3>
+            <div id="pending-users-list"></div>
+            <button class="btn" style="width:100%; margin-top:15px; background:#ccc; color:white;" onclick="closeModal('userManageModal')">닫기</button>
+        </div>
+    </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, doc, updateDoc, where, getDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBJdbv0BYTbKE61xn6kxa2sjHrLsaiQtyA",
+    authDomain: "seulchwisang.firebaseapp.com",
+    projectId: "seulchwisang",
+    storageBucket: "seulchwisang.firebasestorage.app",
+    messagingSenderId: "24842731662",
+    appId: "1:24842731662:web:2c8da17fec5325c79209df"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app); 
+
+window.currentCalDate = new Date();
+window.allFetchedEvents = [];
+window.myApplications = [];
+window.previousTab = 'list';
+window.calendarMode = 'list'; 
+window.isUserApproved = false; 
+
+window.groupedEvents = [];
+window.listRenderCount = 0;
+window.listObserver = null;
+
+window.switchTab = function(tab) {
+    document.getElementById('list-view').style.display = tab === 'list' ? 'block' : 'none';
+    document.getElementById('calendar-view').style.display = tab === 'calendar' ? 'block' : 'none';
+    document.getElementById('mypage-view').style.display = tab === 'mypage' ? 'block' : 'none';
+    document.getElementById('detail-view').style.display = tab === 'detail' ? 'block' : 'none';
+    
+    const buttons = document.querySelectorAll('.nav-buttons button');
+    buttons.forEach(b => b.classList.remove('active'));
+    
+    if(tab === 'list') {
+        buttons[0].classList.add('active');
+        loadEvents();
+    } else if(tab === 'calendar') {
+        buttons[1].classList.add('active');
+        renderCalendar();
+    } else if(tab === 'mypage') {
+        buttons[2].classList.add('active');
+    }
+};
+
+window.openModal = function(id) { document.getElementById(id).style.display = 'flex'; };
+window.closeModal = function(id) { document.getElementById(id).style.display = 'none'; };
+
+// ==========================================
+// 1. 로그인 시스템
+// ==========================================
+window.checkLoginStatus = async function() {
+    const myName = localStorage.getItem('myNickname');
+    window.isUserApproved = false; 
+    
+    const promptBanner = document.getElementById('login-prompt-banner');
+
+    if(myName) {
+        if(promptBanner) promptBanner.style.display = 'none'; // ⭐️ 로그인하면 배너 숨김
+
+        const userSnap = await getDoc(doc(db, "users", myName));
+        
+        if(userSnap.exists()) {
+            const userData = userSnap.data();
+            window.isUserApproved = (userData.status === 'approved' || myName === 'admin');
+
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('profile-section').style.display = 'block';
+            document.getElementById('display-my-name').innerText = myName;
+            
+            if(myName === 'admin') {
+                document.getElementById('display-my-role').innerText = "총괄 관리자 모드 🛡️";
+                document.getElementById('display-my-role').style.color = "var(--danger)";
+                document.getElementById('display-my-role').style.fontWeight = "bold";
+                document.getElementById('admin-user-manage-btn').style.display = 'block';
+            } else {
+                document.getElementById('admin-user-manage-btn').style.display = 'none';
+                if(window.isUserApproved) {
+                    document.getElementById('display-my-role').innerText = "승인 완료된 회원입니다 ✨";
+                    document.getElementById('display-my-role').style.color = "var(--primary)";
+                } else {
+                    document.getElementById('display-my-role').innerText = "관리자 가입 승인 대기 중 ⏳";
+                    document.getElementById('display-my-role').style.color = "gray";
+                }
+            }
+            await loadMyApplications(); 
+        } else {
+            window.logout(); 
+            return;
+        }
+    } else {
+        if(promptBanner) promptBanner.style.display = 'flex'; // ⭐️ 비로그인 시 배너 표시
+
+        document.getElementById('auth-section').style.display = 'block';
+        document.getElementById('profile-section').style.display = 'none';
+    }
+    
+    loadEvents();
+    if(document.getElementById('calendar-view').style.display === 'block') {
+        renderCalendar();
+    }
+};
+
+window.signup = async function() {
+    const id = document.getElementById('auth-id').value.trim();
+    const pw = document.getElementById('auth-pw').value.trim();
+    if(!id || !pw) { alert("닉네임과 비밀번호를 모두 입력해주세요!"); return; }
+    if(id === 'admin' && pw !== '0707') { alert("관리자(admin) 계정은 지정된 비밀번호로만 가입할 수 있습니다."); return; }
+
+    try {
+        const userRef = doc(db, "users", id);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) { alert("이미 누군가 사용 중인 닉네임입니다."); return; }
+        
+        const userStatus = (id === 'admin') ? 'approved' : 'pending';
+        await setDoc(userRef, { password: pw, status: userStatus, createdAt: new Date() });
+        localStorage.setItem('myNickname', id);
+        
+        if(id === 'admin') alert("최고 관리자(admin) 계정이 생성 및 활성화되었습니다!");
+        else alert(`환영합니다, ${id}님! \n현재 가입 승인 대기 상태입니다.`);
+        
+        document.getElementById('auth-id').value = '';
+        document.getElementById('auth-pw').value = '';
+        await checkLoginStatus();
+    } catch (e) { console.error(e); }
+};
+
+window.login = async function() {
+    const id = document.getElementById('auth-id').value.trim();
+    const pw = document.getElementById('auth-pw').value.trim();
+    if(!id || !pw) { alert("입력칸을 채워주세요!"); return; }
+
+    try {
+        const userRef = doc(db, "users", id);
+        const userSnap = await getDoc(userRef);
+        
+        if (!userSnap.exists()) { 
+            if(id === 'admin' && pw === '0707') {
+                await setDoc(userRef, { password: pw, status: 'approved', createdAt: new Date() });
+                localStorage.setItem('myNickname', id);
+                alert("최고 관리자 계정이 활성화되었습니다!");
+                document.getElementById('auth-id').value = '';
+                document.getElementById('auth-pw').value = '';
+                await checkLoginStatus();
+                return;
+            }
+            alert("존재하지 않는 닉네임입니다."); 
+            return; 
+        }
+        if (userSnap.data().password !== pw) { alert("비밀번호가 틀렸습니다."); return; }
+
+        localStorage.setItem('myNickname', id);
+        if(id === 'admin') alert("관리자로 로그인했습니다.");
+        else alert(`안녕하세요, ${id}님!`);
+        
+        document.getElementById('auth-id').value = '';
+        document.getElementById('auth-pw').value = '';
+        await checkLoginStatus();
+    } catch (e) { console.error(e); }
+};
+
+window.logout = function() {
+    localStorage.setItem('myNickname', '');
+    window.myApplications = [];
+    window.isUserApproved = false;
+    alert("안전하게 로그아웃 되었습니다.");
+    switchTab('list');
+    checkLoginStatus();
+};
+
+window.openUserManageModal = async function() {
+    openModal('userManageModal');
+    const container = document.getElementById('pending-users-list');
+    container.innerHTML = "<p style='text-align:center;'>불러오는 중...</p>";
+
+    try {
+        const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending")));
+        let html = '';
+        if(snap.empty) { 
+            html = '<p style="text-align:center; color:gray; padding:10px;">현재 가입 대기 중인 회원이 없습니다.</p>'; 
+        } else {
+            snap.forEach(d => {
+                html += `
+                <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                    <div><strong style="font-size:1.1rem; color:var(--text-dark);">${d.id}</strong><br><span style="color:gray; font-size:0.85rem;">가입 승인 대기</span></div>
+                    <button class="btn btn-apply" style="padding:8px 15px;" onclick="approveUser('${d.id}')">가입 승인</button>
+                </div>`;
+            });
+        }
+        container.innerHTML = html;
+    } catch(e) { console.error(e); }
+};
+
+window.approveUser = async function(userId) {
+    try {
+        await updateDoc(doc(db, "users", userId), { status: "approved" });
+        alert(`${userId}님의 가입이 승인되었습니다!`);
+        openUserManageModal(); 
+    } catch(e) { console.error(e); }
+};
+
+// ==========================================
+// 2. 홈 게시판 데이터 로드
+// ==========================================
+window.loadEvents = async function() {
+    const container = document.getElementById('db-events');
+    const snap = await getDocs(query(collection(db, "events"), orderBy("date", "asc")));
+    
+    window.allFetchedEvents = [];
+    if(snap.empty) { 
+        container.innerHTML = '<p style="text-align:center; padding: 20px; color:gray; grid-column: 1 / -1;">아직 등록된 일정이 없습니다.</p>'; 
+        return; 
+    }
+    
+    let html = '';
+    snap.forEach(d => {
+        const data = d.data();
+        window.allFetchedEvents.push({id: d.id, ...data});
+        
+        const dateStr = new Date(data.date).toLocaleString('ko-KR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+        const imgHtml = data.imageUrl ? `<img src="${data.imageUrl}" class="event-img">` : `<div class="event-img" style="display:flex; justify-content:center; align-items:center; color:#ccc; font-size:2rem;">⛺</div>`;
+        
+        const cardInner = `
+            ${imgHtml}
+            <div class="event-content">
+                <div class="event-date">${dateStr}</div>
+                <div class="event-title">${data.title}</div>
+                <div class="event-info"><span>👑 주최: ${data.host}</span></div>
+            </div>
+        `;
+
+        if(!window.isUserApproved) {
+            html += `
+            <div class="event-card" onclick="alert('관리자 가입 승인 후 상세 내용을 확인할 수 있습니다.')">
+                <div class="blur-overlay-container">
+                    <div class="blur-content">${cardInner}</div>
+                    <div class="blur-overlay"><span>🔒 승인된 회원 전용</span></div>
+                </div>
+            </div>`;
+        } else {
+            html += `<div class="event-card" onclick="openEventDetail('${d.id}', 'list')">${cardInner}</div>`;
+        }
+    });
+    container.innerHTML = html;
+};
+
+// ==========================================
+// 3. 캘린더 모드 (무한 스크롤 & 월간 달력)
+// ==========================================
+window.setCalendarMode = function(mode) {
+    window.calendarMode = mode;
+    document.getElementById('btn-list').classList.toggle('active', mode === 'list');
+    document.getElementById('btn-monthly').classList.toggle('active', mode === 'monthly');
+    renderCalendar();
+};
+
+window.changeCalendar = function(offset) { 
+    window.currentCalDate.setMonth(window.currentCalDate.getMonth() + offset);
+    renderCalendar(); 
+};
+
+window.setupIntersectionObserver = function() {
+    const sentinel = document.getElementById('scroll-sentinel');
+    if(!sentinel) return;
+
+    if(window.listObserver) window.listObserver.disconnect();
+
+    window.listObserver = new IntersectionObserver((entries) => {
+        if(entries[0].isIntersecting) {
+            renderListChunk();
+        }
+    });
+    window.listObserver.observe(sentinel);
+}
+
+window.renderListChunk = function() {
+    const listWrapper = document.getElementById('list-mode-wrapper');
+    if(!listWrapper) return;
+
+    const chunk = window.groupedEvents.slice(window.listRenderCount, window.listRenderCount + 5); 
+
+    if(chunk.length === 0) {
+        const sentinel = document.getElementById('scroll-sentinel');
+        if(sentinel) sentinel.style.display = 'none'; 
+        if(window.listRenderCount === 0) {
+            listWrapper.innerHTML = '<div style="text-align:center; padding: 30px; color:gray;">예정된 일정이 없습니다.</div>';
+        }
+        return;
+    }
+
+    let html = '';
+    const dayNames = ['일','월','화','수','목','금','토'];
+    const todayStr = new Date().toDateString();
+
+    chunk.forEach(group => {
+        const d = group.dateObj;
+        const isToday = d.toDateString() === todayStr;
+        const dateHeader = `${isToday ? '오늘 ' : ''}${d.getMonth()+1}월 ${d.getDate()}일 (${dayNames[d.getDay()]})`;
+
+        let evHtml = '';
+        if(!window.isUserApproved) {
+            evHtml = group.events.map(e => `
+                <div class="weekly-event-item" onclick="alert('관리자 가입 승인 후 상세 내용을 확인할 수 있습니다.')">
+                    <div class="blur-overlay-container">
+                        <div class="blur-content">
+                            <div style="font-size:0.8rem; font-weight:bold; margin-bottom:3px;">🕒 00:00 | 👑 비공개</div>
+                            <div style="font-weight:bold; font-size:1.05rem;">비공개 일정입니다.</div>
+                        </div>
+                        <div class="blur-overlay" style="background:rgba(255,255,255,0.7); font-size:0.9rem;"><span>🔒 비공개</span></div>
+                    </div>
+                </div>
+            `).join('');
+        } else {
+            evHtml = group.events.map(e => `
+                <div class="weekly-event-item" onclick="openEventDetail('${e.id}', 'calendar')">
+                    <div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:3px;">
+                        🕒 ${new Date(e.date).getHours().toString().padStart(2, '0')}:${new Date(e.date).getMinutes().toString().padStart(2, '0')} | 👑 ${e.host}
+                    </div>
+                    <div style="font-weight:bold; font-size:1.05rem;">${e.title}</div>
+                </div>
+            `).join('');
+        }
+        html += `<div class="weekly-day-card"><div class="${isToday ? 'weekly-day-header today' : 'weekly-day-header'}">${dateHeader}</div>${evHtml}</div>`;
+    });
+
+    listWrapper.insertAdjacentHTML('beforeend', html);
+    window.listRenderCount += 5;
+};
+
+window.renderCalendar = function() {
+    const grid = document.getElementById('calendar-grid');
+    const nav = document.getElementById('calendar-header-nav');
+
+    if (window.calendarMode === 'list') {
+        nav.style.display = 'none'; 
+        window.listRenderCount = 0;
+        grid.innerHTML = '<div id="list-mode-wrapper"></div><div id="scroll-sentinel" style="height:20px;"></div>';
+
+        const groups = {};
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        
+        window.allFetchedEvents.forEach(e => {
+            const d = new Date(e.date);
+            if(d >= today) {
+                const dateKey = `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+                if(!groups[dateKey]) groups[dateKey] = { dateObj: new Date(d.getFullYear(), d.getMonth(), d.getDate()), events: [] };
+                groups[dateKey].events.push(e);
+            }
+        });
+        
+        window.groupedEvents = Object.values(groups).sort((a,b) => a.dateObj - b.dateObj);
+        
+        window.setupIntersectionObserver();
+        renderListChunk(); 
+
+    } else {
+        nav.style.display = 'flex'; 
+        const curr = new Date(window.currentCalDate);
+        const year = curr.getFullYear();
+        const month = curr.getMonth();
+        document.getElementById('calendar-month-year').innerText = `${year}년 ${month + 1}월`;
+
+        const firstDayOfWeek = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const dayNames = ['일','월','화','수','목','금','토'];
+        const todayObj = new Date();
+
+        let html = '<div class="monthly-grid">';
+        dayNames.forEach(day => html += `<div class="m-day-header">${day}</div>`);
+        for(let i=0; i<firstDayOfWeek; i++) html += '<div class="m-day empty"></div>';
+        
+        for(let d=1; d<=daysInMonth; d++) {
+            let evs = window.allFetchedEvents.filter(e => {
+                const ed = new Date(e.date);
+                return ed.getFullYear() === year && ed.getMonth() === month && ed.getDate() === d;
+            });
+            
+            let evHtml = '';
+            if(evs.length > 0) {
+                if(!window.isUserApproved) {
+                    evHtml = `<div style="filter:blur(3px); user-select:none; margin-top:5px; font-size:0.7rem; color:var(--primary); font-weight:bold; text-align:center;">🔒 비공개</div>`;
+                } else {
+                    evHtml = evs.map(e => `<div class="m-event" onclick="event.stopPropagation(); openEventDetail('${e.id}', 'calendar')">${e.title}</div>`).join('');
+                }
+            }
+            const isToday = (year === todayObj.getFullYear() && month === todayObj.getMonth() && d === todayObj.getDate());
+            const dayStyle = isToday ? 'color:var(--primary); font-weight:bold;' : '';
+            html += `<div class="m-day" ${!window.isUserApproved && evs.length > 0 ? "onclick=\"alert('가입 승인 후 확인할 수 있습니다.')\"" : ""}><span style="${dayStyle}">${d}</span>${evHtml}</div>`;
+        }
+        html += '</div>';
+        grid.innerHTML = html;
+    }
+};
+
+// ==========================================
+// 4. 상세 페이지 및 기타 기능들
+// ==========================================
+window.openEventDetail = function(eventId, fromTab) {
+    if(!window.isUserApproved) { alert("관리자 가입 승인 후 상세 내용을 확인할 수 있습니다."); return; }
+    if(fromTab) window.previousTab = fromTab; 
+    
+    const event = window.allFetchedEvents.find(e => e.id === eventId);
+    if(!event) return;
+
+    const myName = localStorage.getItem('myNickname') || "";
+    const dateStr = new Date(event.date).toLocaleString('ko-KR', {year: 'numeric', month:'long', day:'numeric', weekday: 'long', hour:'2-digit', minute:'2-digit'});
+    const imgHtml = event.imageUrl ? `<img src="${event.imageUrl}" class="detail-img">` : '';
+
+    let actionButtons = '';
+    if (myName === event.host || myName === 'admin') {
+        const adminBadge = (myName === 'admin' && myName !== event.host) ? ' (관리자)' : '';
+        actionButtons = `
+            <button class="btn btn-manage" onclick="openManageModal('${event.id}')">👑 신청자 관리하기${adminBadge}</button>
+            <button class="btn btn-delete" onclick="deleteEvent('${event.id}')">🗑️ 이 일정 삭제하기${adminBadge}</button>
+        `;
+    } else {
+        const existingApplication = window.myApplications.find(app => app.eventId === event.id);
+        if (existingApplication) {
+            actionButtons = `<button class="btn btn-delete" onclick="cancelApplication('${existingApplication.id}')">❌ 신청 취소하기</button>`;
+        } else {
+            actionButtons = `<button class="btn btn-apply" onclick="openApplyModal('${event.id}')">🙋 이 모임에 신청하기</button>`;
+        }
+    }
+
+    const detailHtml = `
+        ${imgHtml}
+        <h2 style="font-size: 1.5rem; margin-bottom: 10px; color: var(--text-dark);">${event.title}</h2>
+        <div style="font-size: 1rem; color: var(--primary); font-weight: bold; margin-bottom: 15px;">🕒 ${dateStr}</div>
+        <div style="margin-bottom: 25px; color: var(--text-gray);">👑 주최자: <strong>${event.host}</strong></div>
+        <div class="detail-desc">${event.description}</div>
+        <div class="action-buttons" style="flex-direction: column; gap: 10px; margin-top:30px;">
+            ${actionButtons}
+        </div>
+    `;
+
+    document.getElementById('detail-content').innerHTML = detailHtml;
+    switchTab('detail');
+};
+
+window.checkProfileAndOpenCreate = function() {
+    if(!window.isUserApproved) { alert("회원가입 후 관리자의 승인을 받아야 일정을 개설할 수 있습니다."); switchTab('mypage'); return; }
+    document.getElementById('event-title').value = '';
+    document.getElementById('event-date').value = '';
+    document.getElementById('event-chat').value = '';
+    document.getElementById('event-image-file').value = ''; 
+    document.getElementById('event-desc').value = '';
+    openModal('createModal');
+};
+
+window.registerEvent = async function() {
+    const title = document.getElementById('event-title').value;
+    const date = document.getElementById('event-date').value;
+    const chat = document.getElementById('event-chat').value;
+    const desc = document.getElementById('event-desc').value;
+    const fileInput = document.getElementById('event-image-file');
+    const file = fileInput.files[0];
+
+    if(!title || !date || !chat) { alert("필수 정보를 입력해주세요!"); return; }
+
+    const regBtn = document.getElementById('reg-btn');
+    regBtn.innerText = "업로드 중입니다... ⏳";
+    regBtn.disabled = true;
+
+    try {
+        let imageUrl = "";
+        if(file) {
+            const storageRef = ref(storage, 'events/' + Date.now() + '_' + file.name);
+            await uploadBytes(storageRef, file);
+            imageUrl = await getDownloadURL(storageRef);
+        }
+
+        await addDoc(collection(db, "events"), { title, date, chatLink: chat, description: desc, imageUrl: imageUrl, createdAt: new Date(), host: localStorage.getItem('myNickname') });
+        alert("일정 등록이 완료되었습니다!");
+        closeModal('createModal');
+        switchTab('list');
+    } catch(e) { console.error(e); alert("등록 중 오류가 발생했습니다."); } 
+    finally { regBtn.innerText = "일정 등록하기"; regBtn.disabled = false; }
+};
+
+window.openApplyModal = function(id) { 
+    if(!window.isUserApproved) { alert("승인된 회원만 신청 가능합니다."); return; }
+    window.currentApplyEventId = id; 
+    openModal('applyModal'); 
+};
+
+window.submitApplication = async function() {
+    const message = document.getElementById('apply-message').value;
+    if(!message) { alert("멘트를 적어주세요!"); return; }
+
+    try {
+        await addDoc(collection(db, "applications"), { eventId: window.currentApplyEventId, applicantName: localStorage.getItem('myNickname'), message: message, status: "pending", appliedAt: new Date() });
+        alert("신청 완료! 호스트 승인 후 단톡방이 열립니다."); 
+        closeModal('applyModal');
+        await loadMyApplications(); 
+        openEventDetail(window.currentApplyEventId); 
+    } catch(e) { console.error(e); }
+};
+
+window.cancelApplication = async function(applicationId) {
+    if(!confirm("정말 이 모임의 신청을 취소하시겠습니까?")) return;
+    try {
+        await deleteDoc(doc(db, "applications", applicationId));
+        alert("신청이 정상적으로 취소되었습니다.");
+        await loadMyApplications(); 
+        switchTab('mypage'); 
+    } catch (e) { console.error(e); }
+};
+
+window.deleteEvent = async function(eventId) {
+    if(!confirm("정말 이 일정을 삭제하시겠습니까?\n삭제 후에는 복구할 수 없습니다.")) return;
+    try {
+        await deleteDoc(doc(db, "events", eventId));
+        alert("일정이 성공적으로 삭제되었습니다.");
+        switchTab('list');
+    } catch (e) { console.error(e); }
+};
+
+window.openManageModal = async function(id) {
+    window.currentManageEventId = id; openModal('manageModal');
+    const container = document.getElementById('applicant-list');
+    container.innerHTML = "<p style='text-align:center;'>불러오는 중...</p>";
+    
+    const snap = await getDocs(query(collection(db, "applications"), where("eventId", "==", id), where("status", "==", "pending")));
+    let html = '';
+    if(snap.empty) { html = '<p style="text-align:center; color:gray; padding:10px;">신청자가 없습니다.</p>'; } 
+    else {
+        snap.forEach(d => {
+            const data = d.data();
+            html += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                <div><strong style="font-size:1.1rem; color:var(--text-dark);">${data.applicantName}</strong><br><span style="color:gray; font-size:0.9rem;">"${data.message}"</span></div>
+                <button class="btn btn-apply" style="padding:8px 15px;" onclick="approveApp('${d.id}')">수락</button>
+            </div>`;
+        });
+    }
+    container.innerHTML = html;
+};
+
+window.approveApp = async function(id) {
+    try {
+        await updateDoc(doc(db, "applications", id), { status: "approved" });
+        alert("수락되었습니다!"); 
+        openManageModal(window.currentManageEventId);
+    } catch(e) { console.error(e); }
+};
+
+window.loadMyApplications = async function() {
+    const name = localStorage.getItem('myNickname');
+    if(!name || !window.isUserApproved) {
+        document.getElementById('my-applications-list').innerHTML = "<p style='text-align:center; color:gray;'>가입 승인 완료 후 내역을 확인할 수 있습니다.</p>";
+        return;
+    }
+    
+    const snap = await getDocs(query(collection(db, "applications"), where("applicantName", "==", name)));
+    window.myApplications = [];
+    let html = '';
+    
+    for(const d of snap.docs) {
+        const appD = d.data();
+        window.myApplications.push({ id: d.id, ...appD }); 
+        const evS = await getDoc(doc(db, "events", appD.eventId));
+        if(evS.exists()) {
+            const evD = evS.data();
+            const badge = appD.status === 'approved' 
+                ? '<span style="background:#D1E7DD; color:#0F5132; padding:3px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold;">승인 완료 🎉</span>' 
+                : '<span style="background:#E9ECEF; color:#212529; padding:3px 8px; border-radius:4px; font-size:0.8rem; font-weight:bold;">대기 중 ⏳</span>';
+            const chat = appD.status === 'approved' 
+                ? `<button class="btn" style="width:100%; margin-top:10px; background:#FEE500; color:black; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="event.stopPropagation(); window.open('${evD.chatLink}')">💬 단톡방 입장하기</button>` 
+                : '';
+            
+            html += `
+            <div class="event-card" style="padding:20px;" onclick="openEventDetail('${evS.id}', 'mypage')">
+                <div style="font-weight:bold; font-size:1.1rem; margin-bottom:5px;">${evD.title}</div>
+                <div style="font-size:0.85rem; color:gray; margin-bottom:10px;">👑 주최: ${evD.host}</div>
+                ${badge}
+                ${chat}
+            </div>`;
+        }
+    }
+    if(html === '') html = "<p style='text-align:center; color:gray;'>아직 신청한 모임이 없습니다.</p>";
+    document.getElementById('my-applications-list').innerHTML = html;
+};
+
+window.onload = async () => { 
+    await checkLoginStatus(); 
+};
+</script>
+</body>
+</html>
