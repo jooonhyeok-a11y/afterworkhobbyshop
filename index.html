@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>퇴근 후 취미 상점</title>
     <style>
+        /* [1] 기본 테마 및 다크모드 변수 */
         :root {
             --primary: #2E7D32; --primary-light: #E8F5E9; --bg-color: #F8F9FA; --card-bg: #FFFFFF;
             --text-dark: #212529; --text-gray: #6C757D; --border: #DEE2E6; --danger: #DC3545;
@@ -16,11 +17,12 @@
             --skeleton: #2C2C2C; --skeleton-shine: #3A3A3A;
         }
         * { box-sizing: border-box; font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; }
-        body { background-color: var(--bg-color); color: var(--text-dark); line-height: 1.6; padding-top: 70px; transition: 0.3s; }
+        body { background-color: var(--bg-color); color: var(--text-dark); line-height: 1.6; padding-top: 70px; transition: background-color 0.3s; }
         
+        /* [2] 상단 헤더 및 네비게이션 */
         header { 
             background: var(--card-bg); padding: 10px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); 
-            display: flex; align-items: center; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; gap: 15px;
+            display: flex; align-items: center; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; gap: 15px; transition: background-color 0.3s;
         }
         .logo { font-size: 1.2rem; font-weight: bold; color: var(--primary); cursor:pointer; flex-shrink: 0; white-space: nowrap; }
         .nav-buttons { 
@@ -34,19 +36,29 @@
         .badge { position: absolute; top: -5px; right: -10px; background: var(--danger); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; display: none; }
 
         main { max-width: 1200px; margin: 0 auto; padding: 20px 20px 80px 20px; }
+        .view-section { display: none; max-width: 600px; margin: 0 auto; animation: fadeIn 0.3s ease; }
+        #list-view { display: block; max-width: 1200px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* [3] 필터 및 버튼 공통 */
         .category-filters { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 15px; -ms-overflow-style: none; scrollbar-width: none; }
         .category-filters::-webkit-scrollbar { display: none; }
         .cat-btn { padding: 6px 15px; border-radius: 20px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-gray); cursor: pointer; white-space: nowrap; font-weight: bold;}
         .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        .view-section { display: none; max-width: 600px; margin: 0 auto; }
-        #list-view { display: block; max-width: 1200px; }
+        .btn { padding: 10px 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; font-size:0.95rem; width: 100%; transition: 0.2s;}
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-apply { background: var(--primary); color: white; }
+        .btn-manage { background: #343A40; color: white; } 
+        .btn-delete { background: var(--card-bg); color: var(--danger); border: 1px solid var(--danger); margin-top: 10px; }
 
+        /* [4] 카드 디자인 (일정/게시글) */
         .grid-container { display: grid; gap: 20px; grid-template-columns: 1fr; }
         @media (min-width: 640px) { .grid-container { grid-template-columns: repeat(2, 1fr); } }
 
-        .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); overflow: hidden; display: flex; flex-direction: column; cursor: pointer; position: relative; padding: 20px;}
-        .card-img { width: 100%; height: 180px; object-fit: cover; background: var(--border); display: block; margin: -20px -20px 20px -20px; width: calc(100% + 40px); }
+        .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); display: flex; flex-direction: column; cursor: pointer; position: relative; padding: 20px; transition: transform 0.2s;}
+        .card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
+        .card-img { width: calc(100% + 40px); height: 180px; object-fit: cover; background: var(--border); display: block; margin: -20px -20px 20px -20px; border-radius: 12px 12px 0 0;}
         .card-tag { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
         .card-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 8px; line-height: 1.3;}
         .card-loc { font-size: 0.85rem; color: var(--text-dark); margin-bottom: 10px; font-weight: bold;}
@@ -55,27 +67,23 @@
         .like-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; z-index: 5;}
         .like-btn.liked { color: #FF4B4B; }
 
-        .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; font-size:0.95rem; width: 100%;}
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-apply { background: var(--primary); color: white; }
-        .btn-manage { background: #343A40; color: white; } 
-        .btn-delete { background: var(--card-bg); color: var(--danger); border: 1px solid var(--danger); margin-top: 10px; }
-        
+        /* 모자이크 효과 */
         .blur-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(var(--bg-color), 0.4); z-index: 10; display: flex; justify-content: center; align-items: center; font-weight: bold;}
-        .blur-overlay span { background: var(--card-bg); padding: 5px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .blur-overlay span { background: var(--card-bg); padding: 5px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--text-dark);}
 
+        /* [5] 상세 페이지 및 캘린더 */
         .detail-img { width: 100%; height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; background: var(--border);}
         .detail-desc { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); font-size: 1.05rem; line-height: 1.8; white-space: pre-wrap; margin-bottom: 20px;}
 
-        /* ⭐️ 캘린더 전용 스타일 복구 완료 */
         .calendar-toggle-group { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .toggle-btn { padding: 8px 20px; border: 1px solid var(--primary); background: var(--card-bg); color: var(--primary); border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 0.9rem;}
         .toggle-btn.active { background: var(--primary); color: white; }
+        
         .calendar-header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
         .calendar-header-nav button { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 5px 15px; cursor: pointer; font-weight: bold; color: var(--text-dark);}
         
         .weekly-day-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-        .weekly-day-header { font-weight: bold; font-size: 1.1rem; margin-bottom: 12px; border-bottom: 2px solid var(--bg-color); padding-bottom: 8px; }
+        .weekly-day-header { font-weight: bold; font-size: 1.1rem; margin-bottom: 12px; border-bottom: 2px solid var(--border); padding-bottom: 8px; }
         .weekly-day-header.today { color: var(--primary); }
         .weekly-event-item { padding: 12px; background: var(--primary-light); border-radius: 8px; margin-bottom: 8px; border-left: 4px solid var(--primary); cursor: pointer;}
         
@@ -84,6 +92,7 @@
         .m-day { background: var(--card-bg); border-radius: 5px; padding: 5px; border: 1px solid var(--border); min-height: 85px; font-size: 0.85rem; display:flex; flex-direction:column; gap:3px;}
         .m-event { font-size: 0.75rem; background: var(--primary-light); color: var(--primary); padding: 3px 5px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; cursor: pointer; font-weight: bold;}
 
+        /* [6] 기타 (모달, 플로팅버튼, 배너) */
         .auth-box, .profile-section { background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px;}
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; box-shadow: 0 4px 10px rgba(46,125,50,0.4); cursor: pointer; z-index: 100; border: none; }
         
@@ -141,7 +150,7 @@
                 <h3 id="calendar-month-year"></h3>
                 <button onclick="changeCalendar(1)">다음 ▶</button>
             </div>
-            <div id="calendar-grid"></div>
+            <div id="calendar-grid"></div> 
         </div>
 
         <div id="community-view" class="view-section">
@@ -219,9 +228,9 @@
             <h3>새 일정 만들기 ✍️</h3>
             <div class="input-group"><label>카테고리</label><select id="event-category"><option value="아웃도어">🏃 아웃도어</option><option value="맛집">🍣 맛집</option><option value="문화예술">🎨 문화예술</option><option value="온라인">💻 온라인</option><option value="기타">✨ 기타</option></select></div>
             <div class="input-group"><label>모임 제목</label><input type="text" id="event-title"></div>
-            <div class="input-group"><label>모이는 장소</label><input type="text" id="event-location"></div>
+            <div class="input-group"><label>모이는 장소</label><input type="text" id="event-location" placeholder="예: 여의나루역 2번 출구"></div>
             <div class="input-group"><label>날짜 및 시간</label><input type="datetime-local" id="event-date"></div>
-            <div class="input-group"><label>모집 정원</label><input type="number" id="event-max"></div>
+            <div class="input-group"><label>모집 정원 (본인 포함)</label><input type="number" id="event-max"></div>
             <div class="input-group"><label>오픈채팅방 링크</label><input type="url" id="event-chat"></div>
             <div class="input-group"><label>이미지 첨부 (선택)</label><input type="file" id="event-image-file" accept="image/*"></div>
             <div class="input-group"><label>상세 내용</label><textarea id="event-desc" style="height:100px;"></textarea></div>
@@ -239,14 +248,18 @@
             <div class="input-group"><label>날짜 및 시간</label><input type="datetime-local" id="edit-date"></div>
             <div class="input-group"><label>모집 정원</label><input type="number" id="edit-max"></div>
             <div class="input-group"><label>오픈채팅방 링크</label><input type="url" id="edit-chat"></div>
-            <div class="input-group"><label>새 이미지로 변경 (선택)</label><input type="file" id="edit-image-file" accept="image/*"></div>
+            <div class="input-group">
+                <label>새 이미지로 변경 (선택)</label>
+                <input type="file" id="edit-image-file" accept="image/*">
+                <p style="font-size:0.8rem; color:var(--primary); margin-top:5px;">* 첨부하지 않으면 기존 이미지 유지</p>
+            </div>
             <div class="input-group"><label>상세 내용</label><textarea id="edit-desc" style="height:100px;"></textarea></div>
             <button id="update-btn" class="btn btn-apply" onclick="updateEvent()">수정 완료</button>
             <button class="btn btn-delete" onclick="closeModal('editModal')">취소</button>
         </div>
     </div>
 
-    <div id="applyModal" class="modal"><div class="modal-content"><h3>참가 신청 🙋</h3><div class="input-group"><textarea id="apply-message" placeholder="참여 동기"></textarea></div><button class="btn btn-apply" onclick="submitApplication()">제출</button><button class="btn btn-delete" onclick="closeModal('applyModal')">취소</button></div></div>
+    <div id="applyModal" class="modal"><div class="modal-content"><h3>참가 신청 🙋</h3><div class="input-group"><textarea id="apply-message" placeholder="참여 동기를 적어주세요!"></textarea></div><button class="btn btn-apply" onclick="submitApplication()">제출</button><button class="btn btn-delete" onclick="closeModal('applyModal')">취소</button></div></div>
     <div id="manageModal" class="modal"><div class="modal-content"><h3>신청자 관리 👑</h3><div id="applicant-list"></div><button class="btn btn-delete" onclick="closeModal('manageModal')">닫기</button></div></div>
     <div id="userManageModal" class="modal"><div class="modal-content"><h3>가입 승인 관리 👥</h3><div id="pending-users-list"></div><button class="btn btn-delete" onclick="closeModal('userManageModal')">닫기</button></div></div>
 
@@ -264,20 +277,28 @@ const firebaseConfig = {
     appId: "1:24842731662:web:2c8da17fec5325c79209df"
 };
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app); const storage = getStorage(app); 
+const db = getFirestore(app); 
+const storage = getStorage(app); 
 
-window.allFetchedEvents = []; window.myApplications = [];
-window.previousTab = 'list'; window.isUserApproved = false; window.currentCategory = '전체'; 
+// 전역 상태 관리 변수들
+window.allFetchedEvents = []; 
+window.myApplications = [];
+window.previousTab = 'list'; 
+window.isUserApproved = false; 
+window.currentCategory = '전체'; 
 window.currentCommunityTab = 'idea';
 window.myPageTabMode = 'apps';
 window.currentEditEventId = null;
 
-// 무한스크롤 변수
-window.groupedEvents = []; window.listRenderCount = 0; window.listObserver = null;
-window.calendarMode = 'list'; window.currentCalDate = new Date();
+// 캘린더 무한 스크롤 관련 변수
+window.groupedEvents = []; 
+window.listRenderCount = 0; 
+window.listObserver = null;
+window.calendarMode = 'list'; 
+window.currentCalDate = new Date();
 
 // ==========================================
-// 공통 UI 로직
+// 1. 공통 UI & 탭 컨트롤러
 // ==========================================
 window.switchTab = function(tab) {
     document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
@@ -289,6 +310,9 @@ window.switchTab = function(tab) {
     else if(tab === 'calendar') { document.querySelectorAll('.nav-buttons button')[1].classList.add('active'); renderCalendar(); } 
     else if(tab === 'community') { document.querySelectorAll('.nav-buttons button')[2].classList.add('active'); loadCommunity(window.currentCommunityTab); }
     else if(tab === 'mypage') { document.querySelectorAll('.nav-buttons button')[3].classList.add('active'); checkLoginStatus(); }
+    
+    // 모바일에서 스크롤 최상단으로
+    window.scrollTo(0, 0);
 };
 
 window.openModal = id => document.getElementById(id).style.display = 'flex';
@@ -307,74 +331,112 @@ window.toggleTheme = function() {
 };
 if(localStorage.getItem('theme') === 'dark') { document.body.classList.add('dark-mode'); document.querySelector('.theme-btn').innerText = '🌙'; }
 
+// 알림 배지 (신규 가입자 또는 신청 대기자 확인)
 window.checkNotifications = async function() {
     const myName = localStorage.getItem('myNickname');
     const badge = document.getElementById('my-badge');
     if(!myName) return badge.style.display = 'none';
+    
     let count = 0;
-    if(myName === 'admin') {
-        count = (await getDocs(query(collection(db, "users"), where("status", "==", "pending")))).size;
-    } else {
-        const myEvSnap = await getDocs(query(collection(db, "events"), where("host", "==", myName)));
-        const myEvIds = myEvSnap.docs.map(d => d.id);
-        if(myEvIds.length > 0) {
-            (await getDocs(query(collection(db, "applications"), where("status", "==", "pending")))).forEach(d => { if(myEvIds.includes(d.data().eventId)) count++; });
+    try {
+        if(myName === 'admin') {
+            const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending")));
+            count = snap.size;
+        } else {
+            const myEvSnap = await getDocs(query(collection(db, "events"), where("host", "==", myName)));
+            const myEvIds = myEvSnap.docs.map(d => d.id);
+            if(myEvIds.length > 0) {
+                const appSnap = await getDocs(query(collection(db, "applications"), where("status", "==", "pending")));
+                appSnap.forEach(d => { if(myEvIds.includes(d.data().eventId)) count++; });
+            }
         }
-    }
-    badge.style.display = count > 0 ? 'inline-block' : 'none';
-    if(count > 0) badge.innerText = count;
+        badge.style.display = count > 0 ? 'inline-block' : 'none';
+        if(count > 0) badge.innerText = count;
+    } catch(e) { console.error(e); }
 };
 
 // ==========================================
-// 로그인 & 마이페이지
+// 2. 로그인 & 마이페이지
 // ==========================================
 window.checkLoginStatus = async function() {
     const myName = localStorage.getItem('myNickname');
     window.isUserApproved = false; 
+    const promptBanner = document.getElementById('login-prompt-banner');
+
     if(myName) {
-        document.getElementById('login-prompt-banner').style.display = 'none';
-        const userSnap = await getDoc(doc(db, "users", myName));
-        if(userSnap.exists()) {
-            window.isUserApproved = (userSnap.data().status === 'approved' || myName === 'admin');
-            document.getElementById('auth-section').style.display = 'none';
-            document.getElementById('profile-section').style.display = 'block';
-            document.getElementById('display-my-name').innerText = myName;
-            document.getElementById('admin-user-manage-btn').style.display = myName === 'admin' ? 'block' : 'none';
-            document.getElementById('display-my-role').innerText = myName === 'admin' ? "총괄 관리자 모드 🛡️" : (window.isUserApproved ? "승인 완료된 회원입니다 ✨" : "가입 승인 대기 중 ⏳");
-            document.getElementById('display-my-role').style.color = window.isUserApproved ? "var(--primary)" : "var(--text-gray)";
-            if(myName === 'admin') document.getElementById('display-my-role').style.color = "var(--danger)";
-            
-            await renderMyPageContent(); checkNotifications();
-        } else { window.logout(); return; }
+        if(promptBanner) promptBanner.style.display = 'none';
+        try {
+            const userSnap = await getDoc(doc(db, "users", myName));
+            if(userSnap.exists()) {
+                window.isUserApproved = (userSnap.data().status === 'approved' || myName === 'admin');
+                document.getElementById('auth-section').style.display = 'none';
+                document.getElementById('profile-section').style.display = 'block';
+                document.getElementById('display-my-name').innerText = myName;
+                document.getElementById('admin-user-manage-btn').style.display = myName === 'admin' ? 'block' : 'none';
+                
+                const roleText = myName === 'admin' ? "총괄 관리자 모드 🛡️" : (window.isUserApproved ? "승인 완료된 회원입니다 ✨" : "가입 승인 대기 중 ⏳");
+                const roleColor = myName === 'admin' ? "var(--danger)" : (window.isUserApproved ? "var(--primary)" : "var(--text-gray)");
+                document.getElementById('display-my-role').innerHTML = `<span style="color:${roleColor}; font-weight:bold;">${roleText}</span>`;
+                
+                await renderMyPageContent(); 
+                checkNotifications();
+            } else { window.logout(); return; }
+        } catch(e) { console.error(e); }
     } else {
-        document.getElementById('login-prompt-banner').style.display = 'flex';
+        if(promptBanner) promptBanner.style.display = 'flex';
         document.getElementById('auth-section').style.display = 'block';
         document.getElementById('profile-section').style.display = 'none';
     }
+    
     if(document.getElementById('list-view').style.display === 'block') loadEvents();
 };
 
 window.login = async function() {
-    const id = document.getElementById('auth-id').value.trim(); const pw = document.getElementById('auth-pw').value.trim();
+    const id = document.getElementById('auth-id').value.trim(); 
+    const pw = document.getElementById('auth-pw').value.trim();
     if(!id || !pw) return;
-    const userSnap = await getDoc(doc(db, "users", id));
-    if(!userSnap.exists() && id === 'admin' && pw === '0707') {
-        await setDoc(doc(db, "users", id), { password: pw, status: 'approved', createdAt: new Date() });
-        localStorage.setItem('myNickname', id); await checkLoginStatus(); return;
-    }
-    if(userSnap.exists() && userSnap.data().password === pw) { localStorage.setItem('myNickname', id); await checkLoginStatus(); }
-    else alert("정보가 틀립니다.");
+
+    try {
+        const userSnap = await getDoc(doc(db, "users", id));
+        if(!userSnap.exists() && id === 'admin' && pw === '0707') {
+            await setDoc(doc(db, "users", id), { password: pw, status: 'approved', createdAt: new Date() });
+            localStorage.setItem('myNickname', id); 
+            document.getElementById('auth-id').value = ''; document.getElementById('auth-pw').value = '';
+            await checkLoginStatus(); return;
+        }
+        if(userSnap.exists() && userSnap.data().password === pw) { 
+            localStorage.setItem('myNickname', id); 
+            document.getElementById('auth-id').value = ''; document.getElementById('auth-pw').value = '';
+            await checkLoginStatus(); 
+        } else {
+            alert("입력하신 정보가 올바르지 않습니다.");
+        }
+    } catch(e) { console.error(e); }
 };
 
 window.signup = async function() {
-    const id = document.getElementById('auth-id').value.trim(); const pw = document.getElementById('auth-pw').value.trim();
-    if(!id || !pw || (id === 'admin' && pw !== '0707')) return;
-    if((await getDoc(doc(db, "users", id))).exists()) return alert("이미 존재합니다.");
-    await setDoc(doc(db, "users", id), { password: pw, status: id === 'admin' ? 'approved' : 'pending', createdAt: new Date() });
-    localStorage.setItem('myNickname', id); alert("가입 완료!"); await checkLoginStatus();
+    const id = document.getElementById('auth-id').value.trim(); 
+    const pw = document.getElementById('auth-pw').value.trim();
+    if(!id || !pw) return alert("입력칸을 모두 채워주세요.");
+    if(id === 'admin' && pw !== '0707') return alert("관리자 계정은 생성할 수 없습니다.");
+    
+    try {
+        const userSnap = await getDoc(doc(db, "users", id));
+        if (userSnap.exists()) return alert("이미 존재하는 닉네임입니다.");
+        
+        await setDoc(doc(db, "users", id), { password: pw, status: id === 'admin' ? 'approved' : 'pending', createdAt: new Date() });
+        localStorage.setItem('myNickname', id); 
+        alert("가입이 완료되었습니다!"); 
+        document.getElementById('auth-id').value = ''; document.getElementById('auth-pw').value = '';
+        await checkLoginStatus();
+    } catch(e) { console.error(e); }
 };
 
-window.logout = function() { localStorage.setItem('myNickname', ''); window.isUserApproved = false; switchTab('list'); checkLoginStatus(); };
+window.logout = function() { 
+    localStorage.removeItem('myNickname'); window.isUserApproved = false; 
+    alert("안전하게 로그아웃 되었습니다.");
+    switchTab('list'); checkLoginStatus(); document.getElementById('my-badge').style.display = 'none';
+};
 
 window.setMyPageTab = function(mode) { 
     window.myPageTabMode = mode; 
@@ -388,36 +450,40 @@ window.setMyPageTab = function(mode) {
 window.renderMyPageContent = async function() {
     const container = document.getElementById('my-content-list');
     const myName = localStorage.getItem('myNickname');
-    if(!window.isUserApproved) return container.innerHTML = "<p style='text-align:center;'>승인 후 이용 가능합니다.</p>";
+    if(!window.isUserApproved) return container.innerHTML = "<p style='text-align:center;'>관리자 승인 후 이용 가능합니다.</p>";
     
+    container.innerHTML = "<p style='text-align:center;'>로딩 중...</p>";
     let html = '';
-    if(window.myPageTabMode === 'apps') {
-        const snap = await getDocs(query(collection(db, "applications"), where("applicantName", "==", myName)));
-        for(const d of snap.docs) {
-            const appD = d.data(); const evS = await getDoc(doc(db, "events", appD.eventId));
-            if(evS.exists()) {
-                const evD = evS.data();
-                const badge = appD.status === 'approved' ? `<span style="color:var(--primary); font-weight:bold;">[승인 완료]</span>` : `<span style="color:var(--text-gray); font-weight:bold;">[대기 중]</span>`;
-                const isPast2H = new Date() >= new Date(new Date(evD.date).getTime() + 2 * 60 * 60 * 1000);
-                
-                let actionBtn = appD.status === 'approved' ? `<button class="btn" style="background:#FEE500; color:black; margin-top:10px;" onclick="event.stopPropagation(); window.open('${evD.chatLink}')">💬 단톡방 입장</button>` : '';
-                if(appD.status === 'approved' && isPast2H && !appD.hasReviewed) {
-                    actionBtn = `<button class="btn btn-delete" style="margin-top:10px; border-color:var(--primary); color:var(--primary);" onclick="event.stopPropagation(); openPostModal('review', '${evS.id}', '${evD.title}', '${d.id}')">📝 후기 작성하기</button>`;
+    try {
+        if(window.myPageTabMode === 'apps') {
+            const snap = await getDocs(query(collection(db, "applications"), where("applicantName", "==", myName)));
+            for(const d of snap.docs) {
+                const appD = d.data(); 
+                const evS = await getDoc(doc(db, "events", appD.eventId));
+                if(evS.exists()) {
+                    const evD = evS.data();
+                    const badge = appD.status === 'approved' ? `<span style="color:var(--primary); font-weight:bold;">[승인 완료]</span>` : `<span style="color:var(--text-gray); font-weight:bold;">[대기 중]</span>`;
+                    const isPast2H = new Date() >= new Date(new Date(evD.date).getTime() + 2 * 60 * 60 * 1000);
+                    
+                    let actionBtn = appD.status === 'approved' ? `<button class="btn" style="background:#FEE500; color:black; margin-top:10px;" onclick="event.stopPropagation(); window.open('${evD.chatLink}')">💬 단톡방 입장</button>` : '';
+                    if(appD.status === 'approved' && isPast2H && !appD.hasReviewed) {
+                        actionBtn = `<button class="btn btn-delete" style="margin-top:10px; border-color:var(--primary); color:var(--primary);" onclick="event.stopPropagation(); openPostModal('review', '${evS.id}', '${evD.title}', '${d.id}')">📝 후기 작성하기</button>`;
+                    }
+                    html += `<div class="card" onclick="openEventDetail('${evS.id}', 'mypage')">
+                        <div class="card-title">${evD.title}</div><div class="card-loc">👑 주최: ${evD.host}</div>${badge}${actionBtn}
+                    </div>`;
                 }
-                html += `<div class="card" onclick="openEventDetail('${evS.id}', 'mypage')">
-                    <div class="card-title">${evD.title}</div><div class="card-loc">👑 주최: ${evD.host}</div>${badge}${actionBtn}
-                </div>`;
             }
+        } else {
+            const snap = await getDocs(query(collection(db, "events"), where("likes", "array-contains", myName)));
+            snap.forEach(d => { html += `<div class="card" onclick="openEventDetail('${d.id}', 'mypage')"><div class="card-title">❤️ ${d.data().title}</div></div>`; });
         }
-    } else {
-        const snap = await getDocs(query(collection(db, "events"), where("likes", "array-contains", myName)));
-        snap.forEach(d => { html += `<div class="card" onclick="openEventDetail('${d.id}', 'mypage')"><div class="card-title">❤️ ${d.data().title}</div></div>`; });
-    }
-    container.innerHTML = html || "<p style='text-align:center;'>내역이 없습니다.</p>";
+        container.innerHTML = html || "<p style='text-align:center; color:var(--text-gray);'>내역이 없습니다.</p>";
+    } catch(e) { console.error(e); container.innerHTML = "<p style='text-align:center;'>오류가 발생했습니다.</p>"; }
 };
 
 // ==========================================
-// 커뮤니티 (COMMUNITY)
+// 3. 커뮤니티 (COMMUNITY) - 로딩 에러 픽스됨
 // ==========================================
 window.loadCommunity = async function(category) {
     window.currentCommunityTab = category;
@@ -425,29 +491,35 @@ window.loadCommunity = async function(category) {
     document.getElementById('comm-btn-' + category).classList.add('active');
     
     const container = document.getElementById('community-posts');
-    container.innerHTML = "<p style='text-align:center;'>불러오는 중...</p>";
+    container.innerHTML = "<p style='text-align:center;'>게시글을 불러오는 중...</p>";
     
     try {
+        // 복합 인덱스 에러를 피하기 위해 조건문만 걸고 정렬은 JS에서 처리합니다.
         const snap = await getDocs(query(collection(db, "posts"), where("category", "==", category)));
         let posts = [];
         snap.forEach(d => posts.push(d.data()));
         
-        // ⭐️ JS 최신순 정렬 (파이어베이스 복합 인덱스 에러 방지)
-        posts.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
+        // 날짜가 안전하게 처리되도록 안전망 추가 후 최신순 정렬
+        posts.sort((a, b) => {
+            const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
+            const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+            return dateB - dateA;
+        });
 
         let html = '';
         posts.forEach(post => {
-            const dateStr = new Date(post.createdAt.toDate()).toLocaleDateString();
+            const dateObj = post.createdAt?.toDate ? post.createdAt.toDate() : new Date(post.createdAt);
+            const dateStr = dateObj.toLocaleDateString();
             const refHtml = post.eventTitle ? `<div style="font-size:0.8rem; color:var(--primary); margin-bottom:5px;">🔗 참조: ${post.eventTitle}</div>` : '';
             html += `<div class="card">${refHtml}<div class="card-title">${post.title}</div>
                 <div style="white-space:pre-wrap; margin-bottom:15px;">${post.content}</div>
                 <div style="font-size:0.8rem; color:var(--text-gray); text-align:right;">✍️ ${post.author} | 🕒 ${dateStr}</div>
             </div>`;
         });
-        container.innerHTML = html || "<p style='text-align:center;'>아직 작성된 글이 없습니다.</p>";
+        container.innerHTML = html || "<p style='text-align:center; color:var(--text-gray);'>아직 작성된 글이 없습니다.</p>";
     } catch(e) {
         console.error(e);
-        container.innerHTML = "<p style='text-align:center; color:red;'>데이터를 불러오는데 실패했습니다.</p>";
+        container.innerHTML = "<p style='text-align:center; color:var(--danger);'>데이터를 불러오는데 실패했습니다.</p>";
     }
 };
 
@@ -461,23 +533,41 @@ window.openPostModal = function(category, eventId = '', eventTitle = '', applyId
 };
 
 window.savePost = async function() {
-    const cat = document.getElementById('post-category').value; const title = document.getElementById('post-title').value; const content = document.getElementById('post-content').value;
+    const cat = document.getElementById('post-category').value; 
+    const title = document.getElementById('post-title').value; 
+    const content = document.getElementById('post-content').value;
     if(!title || !content) return alert("제목과 내용을 입력해주세요!");
-    await addDoc(collection(db, "posts"), { category: cat, title, content, author: localStorage.getItem('myNickname'), eventId: document.getElementById('post-event-id').value, eventTitle: document.getElementById('post-event-title').value, createdAt: new Date() });
-    if(window.currentReviewApplyId) await updateDoc(doc(db, "applications", window.currentReviewApplyId), { hasReviewed: true });
-    alert("등록 완료!"); closeModal('postModal');
-    if(window.currentReviewApplyId) switchTab('mypage'); else loadCommunity(cat);
+    
+    try {
+        await addDoc(collection(db, "posts"), { 
+            category: cat, title, content, author: localStorage.getItem('myNickname'), 
+            eventId: document.getElementById('post-event-id').value, 
+            eventTitle: document.getElementById('post-event-title').value, 
+            createdAt: new Date() 
+        });
+        if(window.currentReviewApplyId) {
+            await updateDoc(doc(db, "applications", window.currentReviewApplyId), { hasReviewed: true });
+        }
+        alert("성공적으로 등록되었습니다!"); closeModal('postModal');
+        if(window.currentReviewApplyId) switchTab('mypage'); else loadCommunity(cat);
+    } catch(e) { console.error(e); }
 };
 
 // ==========================================
-// 메인 게시판 (HOME) & 캘린더 기능
+// 4. 메인 게시판 (HOME)
 // ==========================================
-window.setCategory = function(cat) { window.currentCategory = cat; document.querySelectorAll('#list-view .cat-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(cat))); renderFilteredEvents(); };
+window.setCategory = function(cat) { 
+    window.currentCategory = cat; 
+    document.querySelectorAll('#list-view .cat-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(cat))); 
+    renderFilteredEvents(); 
+};
 
 window.loadEvents = async function() {
-    const snap = await getDocs(query(collection(db, "events"), orderBy("date", "asc")));
-    window.allFetchedEvents = snap.docs.map(d => ({id: d.id, ...d.data()}));
-    renderFilteredEvents();
+    try {
+        const snap = await getDocs(query(collection(db, "events"), orderBy("date", "asc")));
+        window.allFetchedEvents = snap.docs.map(d => ({id: d.id, ...d.data()}));
+        renderFilteredEvents();
+    } catch(e) { console.error(e); }
 };
 
 window.renderFilteredEvents = function() {
@@ -489,33 +579,61 @@ window.renderFilteredEvents = function() {
     filtered.forEach(data => {
         const isFull = (data.approvedCount || 0) >= (data.maxParticipants || 100);
         const isLiked = myName && (data.likes || []).includes(myName);
+        const dateStr = new Date(data.date).toLocaleString('ko-KR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+        
         const cardInner = `
             <div class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${data.id}', event)">${isLiked ? '❤️' : '🤍'}</div>
-            ${data.imageUrl ? `<img src="${data.imageUrl}" class="card-img">` : `<div class="card-img" style="display:flex; justify-content:center; align-items:center; font-size:2rem;">⛺</div>`}
+            ${data.imageUrl ? `<img src="${data.imageUrl}" class="card-img">` : `<div class="card-img" style="display:flex; justify-content:center; align-items:center; font-size:2rem; background:var(--bg-color);">⛺</div>`}
             <div class="event-content" style="padding:0; display:flex; flex-direction:column; flex:1;">
                 <div class="card-tag">#${data.category || '기타'}</div>
                 <div class="card-title">${data.title}</div>
-                <div class="card-loc">🕒 ${new Date(data.date).toLocaleString('ko-KR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}<br>📍 ${data.location || '미지정'}</div>
+                <div class="card-loc">🕒 ${dateStr}<br>📍 ${data.location || '장소 미지정'}</div>
                 <div class="card-info"><span>👑 ${data.host}</span><strong style="color:${isFull ? 'var(--danger)' : 'var(--primary)'}">${data.approvedCount||0}/${data.maxParticipants||100}명 ${isFull ? '(마감)' : ''}</strong></div>
             </div>`;
-        html += window.isUserApproved ? `<div class="card" onclick="openEventDetail('${data.id}', 'list')">${cardInner}</div>` : `<div class="card" onclick="alert('승인된 회원 전용입니다.')"><div class="blur-overlay-container"><div class="blur-content">${cardInner}</div><div class="blur-overlay"><span>🔒 비공개</span></div></div></div>`;
+        
+        if(!window.isUserApproved) {
+            html += `<div class="card" onclick="alert('승인된 회원 전용입니다.')"><div class="blur-overlay-container"><div class="blur-content">${cardInner}</div><div class="blur-overlay"><span>🔒 비공개 일정</span></div></div></div>`;
+        } else {
+            html += `<div class="card" onclick="openEventDetail('${data.id}', 'list')">${cardInner}</div>`;
+        }
     });
-    container.innerHTML = html || "<p style='text-align:center;'>일정이 없습니다.</p>";
+    container.innerHTML = html || "<p style='text-align:center;'>예정된 일정이 없습니다.</p>";
 };
 
-window.toggleLike = async function(id, e) { e.stopPropagation(); const myName = localStorage.getItem('myNickname'); if(!myName||!window.isUserApproved) return; const ref = doc(db, "events", id); const snap = await getDoc(ref); if(!snap.exists()) return; if((snap.data().likes||[]).includes(myName)) await updateDoc(ref, { likes: arrayRemove(myName) }); else await updateDoc(ref, { likes: arrayUnion(myName) }); loadEvents(); };
+window.toggleLike = async function(id, e) { 
+    e.stopPropagation(); 
+    const myName = localStorage.getItem('myNickname'); 
+    if(!myName||!window.isUserApproved) return alert("회원만 이용 가능합니다."); 
+    try {
+        const ref = doc(db, "events", id); 
+        const snap = await getDoc(ref); 
+        if(!snap.exists()) return; 
+        if((snap.data().likes||[]).includes(myName)) await updateDoc(ref, { likes: arrayRemove(myName) }); 
+        else await updateDoc(ref, { likes: arrayUnion(myName) }); 
+        loadEvents(); 
+    } catch(e) { console.error(e); }
+};
 
-// ⭐️ 캘린더 복구 로직
+// ==========================================
+// 5. 캘린더 (달력 복구 완료)
+// ==========================================
 window.setCalendarMode = function(mode) { 
     window.calendarMode = mode; 
     document.getElementById('btn-list').classList.toggle('active', mode === 'list'); 
     document.getElementById('btn-monthly').classList.toggle('active', mode === 'monthly'); 
     renderCalendar(); 
 };
-
 window.changeCalendar = function(offset) { 
     window.currentCalDate.setMonth(window.currentCalDate.getMonth() + offset); 
     renderCalendar(); 
+};
+
+window.setupIntersectionObserver = function() {
+    const sentinel = document.getElementById('scroll-sentinel');
+    if(!sentinel) return;
+    if(window.listObserver) window.listObserver.disconnect();
+    window.listObserver = new IntersectionObserver(e => { if(e[0].isIntersecting) renderListChunk(); });
+    window.listObserver.observe(sentinel);
 };
 
 window.renderCalendar = function() {
@@ -538,11 +656,7 @@ window.renderCalendar = function() {
         });
         window.groupedEvents = Object.values(groups).sort((a,b) => a.dateObj - b.dateObj);
         
-        if(window.listObserver) window.listObserver.disconnect();
-        window.listObserver = new IntersectionObserver(e => { if(e[0].isIntersecting) renderListChunk(); });
-        const sentinel = document.getElementById('scroll-sentinel');
-        if(sentinel) window.listObserver.observe(sentinel);
-        renderListChunk();
+        window.setupIntersectionObserver(); renderListChunk(); 
     } else {
         nav.style.display = 'flex'; 
         const curr = new Date(window.currentCalDate);
@@ -551,6 +665,7 @@ window.renderCalendar = function() {
         
         const firstDayOfWeek = new Date(year, month, 1).getDay(); 
         const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const todayObj = new Date();
         
         let html = '<div class="monthly-grid">';
         ['일','월','화','수','목','금','토'].forEach(day => html += `<div class="m-day-header">${day}</div>`);
@@ -563,7 +678,7 @@ window.renderCalendar = function() {
                 if(!window.isUserApproved) evHtml = `<div style="filter:blur(3px); user-select:none; margin-top:5px; font-size:0.7rem; color:var(--primary); font-weight:bold; text-align:center;">🔒 비공개</div>`;
                 else evHtml = evs.map(e => `<div class="m-event" onclick="event.stopPropagation(); openEventDetail('${e.id}', 'calendar')">${e.title}</div>`).join('');
             }
-            const isToday = (year === new Date().getFullYear() && month === new Date().getMonth() && d === new Date().getDate());
+            const isToday = (year === todayObj.getFullYear() && month === todayObj.getMonth() && d === todayObj.getDate());
             html += `<div class="m-day" ${!window.isUserApproved && evs.length > 0 ? "onclick=\"alert('가입 승인 후 확인할 수 있습니다.')\"" : ""}><span style="color:${isToday ? 'var(--primary)' : 'var(--text-dark)'}; font-weight:${isToday ? 'bold' : 'normal'};">${d}</span>${evHtml}</div>`;
         }
         grid.innerHTML = html + '</div>';
@@ -575,28 +690,35 @@ window.renderListChunk = function() {
     const chunk = window.groupedEvents.slice(window.listRenderCount, window.listRenderCount + 5);
     if(chunk.length === 0) {
         if(document.getElementById('scroll-sentinel')) document.getElementById('scroll-sentinel').style.display = 'none';
-        if(window.listRenderCount === 0) wrapper.innerHTML = '<p style="text-align:center;">예정된 일정이 없습니다.</p>'; return;
+        if(window.listRenderCount === 0) wrapper.innerHTML = '<p style="text-align:center; color:var(--text-gray);">예정된 일정이 없습니다.</p>'; return;
     }
     let html = '';
+    const todayStr = new Date().toDateString();
+    
     chunk.forEach(g => {
-        const d = g.dateObj; const isToday = d.toDateString() === new Date().toDateString();
-        const evHtml = g.events.map(e => window.isUserApproved ? `<div class="weekly-event-item" onclick="openEventDetail('${e.id}', 'calendar')"><div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:3px;">🕒 ${new Date(e.date).getHours().toString().padStart(2, '0')}:${new Date(e.date).getMinutes().toString().padStart(2, '0')} | 📍 ${e.location}</div><div style="font-weight:bold; color:var(--text-dark);">${e.title}</div></div>` : `<div class="weekly-event-item" onclick="alert('가입 승인 후 확인 가능합니다.')"><div style="filter:blur(4px);">비공개 일정</div></div>`).join('');
-        html += `<div class="weekly-day-card"><div class="${isToday ? 'weekly-day-header today' : 'weekly-day-header'}">${d.getMonth()+1}월 ${d.getDate()}일</div>${evHtml}</div>`;
+        const d = g.dateObj; const isToday = d.toDateString() === todayStr;
+        const evHtml = g.events.map(e => {
+            const timeStr = `${new Date(e.date).getHours().toString().padStart(2, '0')}:${new Date(e.date).getMinutes().toString().padStart(2, '0')}`;
+            if(!window.isUserApproved) return `<div class="weekly-event-item" onclick="alert('가입 승인 후 확인 가능합니다.')"><div style="filter:blur(4px);">비공개 일정입니다.</div></div>`;
+            return `<div class="weekly-event-item" onclick="openEventDetail('${e.id}', 'calendar')"><div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:3px;">🕒 ${timeStr} | 📍 ${e.location||'미지정'}</div><div style="font-weight:bold; color:var(--text-dark);">${e.title}</div></div>`;
+        }).join('');
+        html += `<div class="weekly-day-card"><div class="${isToday ? 'weekly-day-header today' : 'weekly-day-header'}">${d.getMonth()+1}월 ${d.getDate()}일 ${isToday?'(오늘)':''}</div>${evHtml}</div>`;
     });
     wrapper.insertAdjacentHTML('beforeend', html); window.listRenderCount += 5;
 };
 
 // ==========================================
-// 일정 등록 & ⭐️ 수정 로직 픽스
+// 6. 일정 등록 / 상세 / ⭐️ 수정 로직
 // ==========================================
 window.checkProfileAndOpenCreate = function() {
     document.getElementById('event-category').value = '아웃도어'; document.getElementById('event-title').value = ''; document.getElementById('event-location').value = ''; document.getElementById('event-date').value = ''; document.getElementById('event-max').value = ''; document.getElementById('event-chat').value = ''; document.getElementById('event-desc').value = '';
+    document.getElementById('event-image-file').value = '';
     openModal('createModal');
 };
 
 window.registerEvent = async function() {
     const cat = document.getElementById('event-category').value; const title = document.getElementById('event-title').value; const loc = document.getElementById('event-location').value; const date = document.getElementById('event-date').value; const max = parseInt(document.getElementById('event-max').value); const chat = document.getElementById('event-chat').value; const desc = document.getElementById('event-desc').value; const file = document.getElementById('event-image-file').files[0];
-    if(!title||!date||!loc||!max) return alert("필수 입력!");
+    if(!title||!date||!loc||!max) return alert("필수 정보를 모두 입력해주세요.");
     
     document.getElementById('reg-btn').innerText = "업로드 중...";
     try {
@@ -610,32 +732,34 @@ window.registerEvent = async function() {
 window.openEventDetail = function(eventId, fromTab) {
     if(fromTab) window.previousTab = fromTab;
     const event = window.allFetchedEvents.find(e => e.id === eventId); if(!event) return;
+    
     const myName = localStorage.getItem('myNickname'); const isHost = (myName === event.host || myName === 'admin');
     const isFull = (event.approvedCount||0) >= (event.maxParticipants||100);
     
     let btns = '';
     if(isHost) {
-        btns = `<button class="btn btn-manage" style="background:var(--primary);" onclick="openEditModal('${event.id}')">✏️ 수정하기</button><button class="btn btn-manage" onclick="openManageModal('${event.id}')">👑 신청자 관리</button><button class="btn btn-delete" onclick="deleteEvent('${event.id}')">🗑️ 삭제하기</button>`;
+        btns = `<button class="btn btn-manage" style="background:var(--primary);" onclick="openEditModal('${event.id}')">✏️ 수정하기</button>
+                <button class="btn btn-manage" onclick="openManageModal('${event.id}')">👑 신청자 관리</button>
+                <button class="btn btn-delete" onclick="deleteEvent('${event.id}')">🗑️ 삭제하기</button>`;
     } else {
         const app = window.myApplications.find(a => a.eventId === event.id);
         if(app) btns = `<button class="btn btn-delete" onclick="cancelApplication('${app.id}')">❌ 신청 취소</button>`;
         else btns = isFull ? `<button class="btn" disabled>정원 마감</button>` : `<button class="btn btn-apply" onclick="openApplyModal('${event.id}')">🙋 신청하기</button>`;
     }
 
-    const detailHtml = `
+    document.getElementById('detail-content').innerHTML = `
         ${event.imageUrl ? `<img src="${event.imageUrl}" class="detail-img">` : ''}
         <div class="card-tag">#${event.category || '기타'}</div>
         <h2 style="font-size: 1.5rem; margin-bottom: 10px;">${event.title}</h2>
         <div style="font-size: 1rem; color: var(--primary); font-weight: bold; margin-bottom: 5px;">🕒 ${new Date(event.date).toLocaleString()}</div>
-        <div style="font-size: 1rem; font-weight: bold; margin-bottom: 15px;">📍 ${event.location}</div>
+        <div style="font-size: 1rem; font-weight: bold; margin-bottom: 15px;">📍 ${event.location || '미지정'}</div>
         <div style="display:flex; justify-content:space-between; margin-bottom:20px; color:var(--text-gray);"><span>👑 ${event.host}</span><span style="color:${isFull?'var(--danger)':'var(--primary)'}; font-weight:bold;">${event.approvedCount||0}/${event.maxParticipants}명</span></div>
         <div class="detail-desc">${event.description}</div>
         <div style="display:flex; flex-direction: column; gap: 10px;">${btns}</div>`;
-    document.getElementById('detail-content').innerHTML = detailHtml;
     switchTab('detail');
 };
 
-// ⭐️ 데이터 불러와서 입력칸 채우기 완벽 픽스
+// ⭐️ 일정 수정 로직 안전하게 복원 완료
 window.openEditModal = function(id) {
     const ev = window.allFetchedEvents.find(e => e.id === id); 
     window.currentEditEventId = id;
@@ -644,11 +768,10 @@ window.openEditModal = function(id) {
     document.getElementById('edit-title').value = ev.title || ''; 
     document.getElementById('edit-location').value = ev.location || ''; 
     
-    // HTML datetime-local 포맷(YYYY-MM-DDThh:mm) 맞추기
+    // HTML datetime-local 포맷 맞추기 (타임존 보정)
     if(ev.date) {
         const dt = new Date(ev.date);
-        const tzOffset = dt.getTimezoneOffset() * 60000;
-        const localISOTime = (new Date(dt - tzOffset)).toISOString().substring(0, 16);
+        const localISOTime = new Date(dt.getTime() - dt.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
         document.getElementById('edit-date').value = localISOTime;
     } else {
         document.getElementById('edit-date').value = '';
@@ -665,6 +788,7 @@ window.openEditModal = function(id) {
 window.updateEvent = async function() {
     const cat = document.getElementById('edit-category').value; const title = document.getElementById('edit-title').value; const loc = document.getElementById('edit-location').value; const date = document.getElementById('edit-date').value; const max = parseInt(document.getElementById('edit-max').value); const chat = document.getElementById('edit-chat').value; const desc = document.getElementById('edit-desc').value; const file = document.getElementById('edit-image-file').files[0];
     if(!title||!date||!loc||!max) return alert("필수 입력!");
+    
     document.getElementById('update-btn').innerText = "수정 중...";
     try {
         let upData = { category: cat, title, location: loc, date, maxParticipants: max, chatLink: chat, description: desc };
@@ -677,7 +801,7 @@ window.updateEvent = async function() {
 window.deleteEvent = async function(id) { if(!confirm("삭제하시겠습니까?")) return; await deleteDoc(doc(db, "events", id)); loadEvents(); switchTab('list'); };
 
 // ==========================================
-// 신청 및 승인 
+// 7. 신청, 관리자, 승인 로직
 // ==========================================
 window.openApplyModal = function(id) { window.currentApplyEventId = id; openModal('applyModal'); };
 window.submitApplication = async function() {
@@ -716,11 +840,12 @@ window.openUserManageModal = async function() {
     const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending")));
     let html = '';
     snap.forEach(d => { html += `<div style="padding:15px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;"><div><strong style="font-size:1.1rem; color:var(--text-dark);">${d.id}</strong></div><button class="btn btn-apply" style="padding:8px 15px;" onclick="approveUser('${d.id}')">승인</button></div>`; });
-    container.innerHTML = html || '<p style="text-align:center; color:gray; padding:10px;">대기 회원이 없습니다.</p>'; 
+    container.innerHTML = html || '<p style="text-align:center; color:var(--text-gray); padding:10px;">대기 회원이 없습니다.</p>'; 
 };
 
 window.approveUser = async function(userId) { await updateDoc(doc(db, "users", userId), { status: "approved" }); alert(`${userId} 님의 가입이 승인되었습니다!`); openUserManageModal(); checkNotifications(); };
 
+// 실행 시작점
 window.onload = async () => { await checkLoginStatus(); };
 </script>
 </body>
