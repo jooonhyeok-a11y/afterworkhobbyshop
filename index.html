@@ -18,7 +18,6 @@
         * { box-sizing: border-box; font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg-color); color: var(--text-dark); line-height: 1.6; padding-top: 70px; transition: 0.3s; }
         
-        /* ⭐️ 모바일 상단 메뉴 좌우 스와이프 적용 및 가려짐 픽스 */
         header { 
             background: var(--card-bg); padding: 10px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); 
             display: flex; align-items: center; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; gap: 15px;
@@ -395,7 +394,7 @@ window.renderMyPageContent = async function() {
 };
 
 // ==========================================
-// 커뮤니티 (COMMUNITY)
+// ⭐️ 커뮤니티 (COMMUNITY) - 로딩 버그 픽스
 // ==========================================
 window.loadCommunity = async function(category) {
     window.currentCommunityTab = category;
@@ -403,17 +402,31 @@ window.loadCommunity = async function(category) {
     document.getElementById('comm-btn-' + category).classList.add('active');
     
     const container = document.getElementById('community-posts');
-    const snap = await getDocs(query(collection(db, "posts"), where("category", "==", category), orderBy("createdAt", "desc")));
-    let html = '';
-    snap.forEach(d => {
-        const post = d.data();
-        const refHtml = post.eventTitle ? `<div style="font-size:0.8rem; color:var(--primary); margin-bottom:5px;">🔗 참조: ${post.eventTitle}</div>` : '';
-        html += `<div class="card">${refHtml}<div class="card-title">${post.title}</div>
-            <div style="white-space:pre-wrap; margin-bottom:15px;">${post.content}</div>
-            <div style="font-size:0.8rem; color:var(--text-gray); text-align:right;">✍️ ${post.author} | 🕒 ${new Date(post.createdAt.toDate()).toLocaleDateString()}</div>
-        </div>`;
-    });
-    container.innerHTML = html || "<p style='text-align:center;'>아직 작성된 글이 없습니다.</p>";
+    container.innerHTML = "<p style='text-align:center;'>불러오는 중...</p>";
+    
+    try {
+        // 복합 인덱스 에러를 피하기 위해 카테고리만 가져오고, 정렬은 자바스크립트로 처리
+        const snap = await getDocs(query(collection(db, "posts"), where("category", "==", category)));
+        let posts = [];
+        snap.forEach(d => posts.push(d.data()));
+        
+        // 최신순 정렬 (자바스크립트 내장 기능 사용)
+        posts.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
+
+        let html = '';
+        posts.forEach(post => {
+            const dateStr = new Date(post.createdAt.toDate()).toLocaleDateString();
+            const refHtml = post.eventTitle ? `<div style="font-size:0.8rem; color:var(--primary); margin-bottom:5px;">🔗 참조: ${post.eventTitle}</div>` : '';
+            html += `<div class="card">${refHtml}<div class="card-title">${post.title}</div>
+                <div style="white-space:pre-wrap; margin-bottom:15px;">${post.content}</div>
+                <div style="font-size:0.8rem; color:var(--text-gray); text-align:right;">✍️ ${post.author} | 🕒 ${dateStr}</div>
+            </div>`;
+        });
+        container.innerHTML = html || "<p style='text-align:center;'>아직 작성된 글이 없습니다.</p>";
+    } catch(e) {
+        console.error(e);
+        container.innerHTML = "<p style='text-align:center; color:red;'>데이터를 불러오는데 실패했습니다.</p>";
+    }
 };
 
 window.openPostModal = function(category, eventId = '', eventTitle = '', applyId = '') {
@@ -470,7 +483,6 @@ window.renderFilteredEvents = function() {
 
 window.toggleLike = async function(id, e) { e.stopPropagation(); const myName = localStorage.getItem('myNickname'); if(!myName||!window.isUserApproved) return; const ref = doc(db, "events", id); const snap = await getDoc(ref); if(!snap.exists()) return; if((snap.data().likes||[]).includes(myName)) await updateDoc(ref, { likes: arrayRemove(myName) }); else await updateDoc(ref, { likes: arrayUnion(myName) }); loadEvents(); };
 
-// 캘린더 (무한 스크롤)
 window.renderCalendar = function() {
     const grid = document.getElementById('calendar-grid');
     window.listRenderCount = 0;
@@ -511,7 +523,7 @@ window.renderListChunk = function() {
 };
 
 // ==========================================
-// 일정 CRUD 및 신청
+// ⭐️ 일정 CRUD 및 수정 오류 픽스
 // ==========================================
 window.checkProfileAndOpenCreate = function() {
     document.getElementById('event-category').value = '아웃도어'; document.getElementById('event-title').value = ''; document.getElementById('event-location').value = ''; document.getElementById('event-date').value = ''; document.getElementById('event-max').value = ''; document.getElementById('event-chat').value = ''; document.getElementById('event-desc').value = '';
@@ -539,26 +551,50 @@ window.openEventDetail = function(eventId, fromTab) {
     
     let btns = '';
     if(isHost) {
-        btns = `<button class="btn btn-manage" style="background:var(--primary);" onclick="openEditModal('${event.id}')">✏️ 수정</button><button class="btn btn-manage" onclick="openManageModal('${event.id}')">👑 신청자 관리</button><button class="btn btn-delete" onclick="deleteEvent('${event.id}')">🗑️ 삭제</button>`;
+        btns = `<button class="btn btn-manage" style="background:var(--primary);" onclick="openEditModal('${event.id}')">✏️ 수정하기</button><button class="btn btn-manage" onclick="openManageModal('${event.id}')">👑 신청자 관리</button><button class="btn btn-delete" onclick="deleteEvent('${event.id}')">🗑️ 삭제하기</button>`;
     } else {
         const app = window.myApplications.find(a => a.eventId === event.id);
         if(app) btns = `<button class="btn btn-delete" onclick="cancelApplication('${app.id}')">❌ 신청 취소</button>`;
         else btns = isFull ? `<button class="btn" disabled>정원 마감</button>` : `<button class="btn btn-apply" onclick="openApplyModal('${event.id}')">🙋 신청하기</button>`;
     }
-    document.getElementById('detail-content').innerHTML = `
+
+    const detailHtml = `
         ${event.imageUrl ? `<img src="${event.imageUrl}" class="detail-img">` : ''}
-        <h2 style="margin-bottom:10px;">${event.title}</h2>
-        <div style="color:var(--primary); font-weight:bold;">🕒 ${new Date(event.date).toLocaleString()}</div>
-        <div style="font-weight:bold; margin-bottom:15px;">📍 ${event.location}</div>
+        <div class="card-tag">#${event.category || '기타'}</div>
+        <h2 style="font-size: 1.5rem; margin-bottom: 10px;">${event.title}</h2>
+        <div style="font-size: 1rem; color: var(--primary); font-weight: bold; margin-bottom: 5px;">🕒 ${new Date(event.date).toLocaleString()}</div>
+        <div style="font-size: 1rem; font-weight: bold; margin-bottom: 15px;">📍 ${event.location}</div>
         <div style="display:flex; justify-content:space-between; margin-bottom:20px; color:var(--text-gray);"><span>👑 ${event.host}</span><span style="color:${isFull?'var(--danger)':'var(--primary)'}; font-weight:bold;">${event.approvedCount||0}/${event.maxParticipants}명</span></div>
         <div class="detail-desc">${event.description}</div>
-        <div style="display:flex; flex-direction:column; gap:10px;">${btns}</div>`;
+        <div style="display:flex; flex-direction: column; gap: 10px;">${btns}</div>`;
+    document.getElementById('detail-content').innerHTML = detailHtml;
     switchTab('detail');
 };
 
+// ⭐️ 데이터 불러와서 입력칸 채우기 완벽 픽스
 window.openEditModal = function(id) {
-    const ev = window.allFetchedEvents.find(e => e.id === id); window.currentEditEventId = id;
-    document.getElementById('edit-category').value = ev.category; document.getElementById('edit-title').value = ev.title; document.getElementById('edit-location').value = ev.location; document.getElementById('edit-date').value = ev.date; document.getElementById('edit-max').value = ev.maxParticipants; document.getElementById('edit-chat').value = ev.chatLink; document.getElementById('edit-desc').value = ev.description;
+    const ev = window.allFetchedEvents.find(e => e.id === id); 
+    window.currentEditEventId = id;
+    
+    document.getElementById('edit-category').value = ev.category || '기타'; 
+    document.getElementById('edit-title').value = ev.title || ''; 
+    document.getElementById('edit-location').value = ev.location || ''; 
+    
+    // HTML datetime-local 포맷(YYYY-MM-DDThh:mm) 맞추기
+    if(ev.date) {
+        const dt = new Date(ev.date);
+        const tzOffset = dt.getTimezoneOffset() * 60000;
+        const localISOTime = (new Date(dt - tzOffset)).toISOString().substring(0, 16);
+        document.getElementById('edit-date').value = localISOTime;
+    } else {
+        document.getElementById('edit-date').value = '';
+    }
+    
+    document.getElementById('edit-max').value = ev.maxParticipants || ''; 
+    document.getElementById('edit-chat').value = ev.chatLink || ''; 
+    document.getElementById('edit-desc').value = ev.description || '';
+    document.getElementById('edit-image-file').value = '';
+    
     openModal('editModal');
 };
 
@@ -570,12 +606,15 @@ window.updateEvent = async function() {
         let upData = { category: cat, title, location: loc, date, maxParticipants: max, chatLink: chat, description: desc };
         if(file) { const sRef = ref(storage, 'events/' + Date.now() + '_' + file.name); await uploadBytes(sRef, file); upData.imageUrl = await getDownloadURL(sRef); }
         await updateDoc(doc(db, "events", window.currentEditEventId), upData);
-        alert("수정 완료!"); closeModal('editModal'); loadEvents(); switchTab('list');
+        alert("수정 완료!"); closeModal('editModal'); await loadEvents(); openEventDetail(window.currentEditEventId);
     } catch(e) { console.error(e); } finally { document.getElementById('update-btn').innerText = "수정 완료"; }
 };
 
 window.deleteEvent = async function(id) { if(!confirm("삭제하시겠습니까?")) return; await deleteDoc(doc(db, "events", id)); loadEvents(); switchTab('list'); };
 
+// ==========================================
+// 신청 및 승인 
+// ==========================================
 window.openApplyModal = function(id) { window.currentApplyEventId = id; openModal('applyModal'); };
 window.submitApplication = async function() {
     const msg = document.getElementById('apply-message').value; if(!msg) return;
@@ -606,6 +645,17 @@ window.approveApp = async function(appId, eventId) {
     await updateDoc(evRef, { approvedCount: increment(1) });
     alert("수락 완료!"); loadEvents(); openManageModal(eventId); checkNotifications();
 };
+
+window.openUserManageModal = async function() {
+    openModal('userManageModal');
+    const container = document.getElementById('pending-users-list');
+    const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending")));
+    let html = '';
+    snap.forEach(d => { html += `<div style="padding:15px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;"><div><strong style="font-size:1.1rem; color:var(--text-dark);">${d.id}</strong></div><button class="btn btn-apply" style="padding:8px 15px;" onclick="approveUser('${d.id}')">승인</button></div>`; });
+    container.innerHTML = html || '<p style="text-align:center; color:gray; padding:10px;">대기 회원이 없습니다.</p>'; 
+};
+
+window.approveUser = async function(userId) { await updateDoc(doc(db, "users", userId), { status: "approved" }); alert(`${userId} 님의 가입이 승인되었습니다!`); openUserManageModal(); checkNotifications(); };
 
 window.onload = async () => { await checkLoginStatus(); };
 </script>
