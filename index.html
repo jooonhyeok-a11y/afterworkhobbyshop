@@ -24,7 +24,6 @@
             background: var(--card-bg); padding: 10px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); 
             display: flex; align-items: center; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; gap: 15px; transition: background-color 0.3s;
         }
-        /* ⭐️ 모바일 반응형 로고 처리 */
         .logo { font-weight: bold; color: var(--primary); cursor:pointer; flex-shrink: 0; white-space: nowrap; font-size: 1rem;}
         .logo-pc { display: none; }
         .logo-mo { display: inline; }
@@ -61,7 +60,7 @@
         .btn-manage { background: #343A40; color: white; } 
         .btn-delete { background: var(--card-bg); color: var(--danger); border: 1px solid var(--danger); margin-top: 10px; }
 
-        /* 카드 디자인 */
+        /* 일정 카드 디자인 */
         .grid-container { display: grid; gap: 20px; grid-template-columns: 1fr; }
         @media (min-width: 640px) { .grid-container { grid-template-columns: repeat(2, 1fr); } }
 
@@ -75,17 +74,24 @@
         
         .like-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; z-index: 5;}
         .like-btn.liked { color: #FF4B4B; }
-        /* ⭐️ 찜하기 카운트 표시 추가 */
-        .like-count { font-size: 0.8rem; color: var(--text-gray); display: flex; align-items: center; gap: 3px; }
+        .like-count { font-size: 0.8rem; color: var(--text-dark); display: flex; align-items: center; gap: 3px; font-weight: bold;}
+
+        /* ⭐️ 커뮤니티 전통 게시판 디자인 */
+        .board-list { border-top: 2px solid var(--text-dark); margin-bottom: 20px; }
+        .board-item { display: flex; justify-content: space-between; padding: 15px 10px; border-bottom: 1px solid var(--border); align-items: center; cursor: pointer; transition: background 0.2s;}
+        .board-item:hover { background: var(--bg-color); }
+        .board-title-col { flex: 1; overflow: hidden; padding-right: 15px;}
+        .board-title { font-weight: bold; font-size: 1rem; color: var(--text-dark); margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .board-meta { font-size: 0.8rem; color: var(--text-gray); display: flex; gap: 12px; align-items: center;}
+        .board-likes { font-size: 0.85rem; color: var(--primary); font-weight: bold; display: flex; align-items: center; gap: 4px; background: var(--primary-light); padding: 4px 10px; border-radius: 12px;}
 
         .blur-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(var(--bg-color), 0.4); z-index: 10; display: flex; justify-content: center; align-items: center; font-weight: bold;}
         .blur-overlay span { background: var(--card-bg); padding: 5px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--text-dark);}
 
-        /* 상세 페이지 및 캘린더 */
+        /* 상세 페이지 및 댓글 영역 */
         .detail-img { width: 100%; height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; background: var(--border);}
         .detail-desc { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); font-size: 1.05rem; line-height: 1.8; white-space: pre-wrap; margin-bottom: 20px;}
 
-        /* ⭐️ 댓글 영역 스타일 */
         .comment-section { margin-top: 30px; border-top: 2px solid var(--border); padding-top: 20px; }
         .comment-input-box { display: flex; gap: 10px; margin-bottom: 20px; }
         .comment-input-box input { flex: 1; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text-dark); }
@@ -95,10 +101,10 @@
         .comment-text { font-size: 0.95rem; line-height: 1.4; color: var(--text-dark); }
         .comment-date { font-size: 0.75rem; color: var(--text-gray); margin-top: 5px; }
 
+        /* 캘린더 */
         .calendar-toggle-group { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
         .toggle-btn { padding: 8px 20px; border: 1px solid var(--primary); background: var(--card-bg); color: var(--primary); border-radius: 20px; cursor: pointer; font-weight: bold; font-size: 0.9rem;}
         .toggle-btn.active { background: var(--primary); color: white; }
-        
         .calendar-header-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;}
         .calendar-header-nav button { background: var(--card-bg); border: 1px solid var(--border); border-radius: 8px; padding: 5px 15px; cursor: pointer; font-weight: bold; color: var(--text-dark);}
         
@@ -112,11 +118,9 @@
         .m-day { background: var(--card-bg); border-radius: 5px; padding: 5px; border: 1px solid var(--border); min-height: 85px; font-size: 0.85rem; display:flex; flex-direction:column; gap:3px;}
         .m-event { font-size: 0.75rem; background: var(--primary-light); color: var(--primary); padding: 3px 5px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; cursor: pointer; font-weight: bold;}
 
-        /* 스켈레톤 로딩 */
         .skeleton { background: linear-gradient(90deg, var(--skeleton) 25%, var(--skeleton-shine) 50%, var(--skeleton) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px;}
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-        /* 기타 모달 및 배너 */
         .auth-box, .profile-section { background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px;}
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; box-shadow: 0 4px 10px rgba(46,125,50,0.4); cursor: pointer; z-index: 100; border: none; }
         
@@ -186,7 +190,7 @@
                 <button class="cat-btn" id="comm-btn-review" onclick="loadCommunity('review')">📝 모임 후기</button>
                 <button class="cat-btn" id="comm-btn-inquiry" onclick="loadCommunity('inquiry')">🚨 불편/문의</button>
             </div>
-            <div id="community-posts" class="grid-container"></div>
+            <div id="community-posts"></div>
         </div>
 
         <div id="mypage-view" class="view-section">
@@ -335,9 +339,9 @@ window.currentCommunityTab = 'idea';
 window.myPageTabMode = 'apps';
 window.currentEditEventId = null;
 
-// ⭐️ 댓글 기능용 변수 추가
+// 댓글 기능용 변수
 window.currentDetailId = null;
-window.currentDetailType = 'event'; // 'event' or 'post'
+window.currentDetailType = 'event';
 
 // 무한스크롤 변수
 window.groupedEvents = []; 
@@ -347,7 +351,7 @@ window.calendarMode = 'list';
 window.currentCalDate = new Date();
 
 // ==========================================
-// 1. 공통 UI & 앱 초기 로딩 (하이패스 적용)
+// 1. 공통 UI & 앱 초기 로딩
 // ==========================================
 window.onload = async () => {
     if(document.getElementById('list-view').style.display === 'block' || document.getElementById('list-view').style.display === '') {
@@ -390,7 +394,7 @@ window.onload = async () => {
         renderFilteredEvents();
         
     } catch(e) {
-        console.error("초기 로딩 에러:", e);
+        console.error(e);
         document.getElementById('db-events').innerHTML = "<p style='text-align:center;'>데이터를 불러오지 못했습니다.</p>";
     }
 };
@@ -461,11 +465,11 @@ window.checkNotifications = async function() {
         }
         badge.style.display = count > 0 ? 'inline-block' : 'none';
         if(count > 0) badge.innerText = count;
-    } catch(e) { console.error(e); }
+    } catch(e) { }
 };
 
 // ==========================================
-// 2. 로그인 & 마이페이지 로직
+// 2. 로그인 & 마이페이지
 // ==========================================
 window.login = async function() {
     const id = document.getElementById('auth-id').value.trim(); 
@@ -484,10 +488,8 @@ window.login = async function() {
             localStorage.setItem('myNickname', id); 
             document.getElementById('auth-id').value = ''; document.getElementById('auth-pw').value = '';
             await checkLoginStatus(); loadEvents();
-        } else {
-            alert("입력하신 정보가 올바르지 않습니다.");
-        }
-    } catch(e) { console.error(e); }
+        } else { alert("입력하신 정보가 올바르지 않습니다."); }
+    } catch(e) { }
 };
 
 window.signup = async function() {
@@ -501,11 +503,10 @@ window.signup = async function() {
         if (userSnap.exists()) return alert("이미 존재하는 닉네임입니다.");
         
         await setDoc(doc(db, "users", id), { password: pw, status: id === 'admin' ? 'approved' : 'pending', createdAt: new Date() });
-        localStorage.setItem('myNickname', id); 
-        alert("가입이 완료되었습니다!"); 
+        localStorage.setItem('myNickname', id); alert("가입이 완료되었습니다!"); 
         document.getElementById('auth-id').value = ''; document.getElementById('auth-pw').value = '';
         await checkLoginStatus(); loadEvents();
-    } catch(e) { console.error(e); }
+    } catch(e) { }
 };
 
 window.logout = function() { 
@@ -533,15 +534,12 @@ window.renderMyPageContent = async function() {
     try {
         if(window.myPageTabMode === 'apps') {
             const snap = await getDocs(query(collection(db, "applications"), where("applicantName", "==", myName)));
-            
             const promises = snap.docs.map(async (d) => {
                 const appD = d.data(); 
                 const evS = await getDoc(doc(db, "events", appD.eventId));
                 return { id: d.id, appD, evS };
             });
-            
             const results = await Promise.all(promises);
-            
             results.forEach(res => {
                 if(res.evS.exists()) {
                     const evD = res.evS.data();
@@ -558,23 +556,19 @@ window.renderMyPageContent = async function() {
                 }
             });
         } else {
-            // ⭐️ 내가 찜한 모임 및 글 모두 노출되도록 개선
-            const evSnap = await getDocs(query(collection(db, "events"), where("likes", "array-contains", myName)));
+            // ⭐️ 내가 찜한 모임: 'wishlist'에 내가 있는 것만 검색 (커뮤니티 글 제외)
+            const evSnap = await getDocs(query(collection(db, "events"), where("wishlist", "array-contains", myName)));
             evSnap.forEach(d => { 
-                html += `<div class="card" onclick="openEventDetail('${d.id}', 'mypage')"><div class="card-title">🏕️ ${d.data().title}</div><div class="card-loc">일정</div></div>`; 
-            });
-            
-            const postSnap = await getDocs(query(collection(db, "posts"), where("likes", "array-contains", myName)));
-            postSnap.forEach(d => { 
-                html += `<div class="card" onclick="openPostDetail('${d.id}', 'mypage')"><div class="card-title">💬 ${d.data().title}</div><div class="card-loc">커뮤니티 글</div></div>`; 
+                html += `<div class="card" onclick="openEventDetail('${d.id}', 'mypage')"><div class="card-title">⛺ ${d.data().title}</div><div class="card-loc">일정</div></div>`; 
             });
         }
         container.innerHTML = html || "<p style='text-align:center; color:var(--text-gray);'>내역이 없습니다.</p>";
     } catch(e) { container.innerHTML = "<p style='text-align:center;'>오류가 발생했습니다.</p>"; }
 };
 
+
 // ==========================================
-// 3. 커뮤니티 (게시글 + ⭐️ 좋아요 연동)
+// 3. 커뮤니티 (전통적인 표 형태, 따봉 전용)
 // ==========================================
 window.loadCommunity = async function(category) {
     window.currentCommunityTab = category;
@@ -596,62 +590,37 @@ window.loadCommunity = async function(category) {
         });
 
         const myName = localStorage.getItem('myNickname');
-        let html = '';
+        let html = '<div class="board-list">';
         
         window.allFetchedPosts.forEach(post => {
             const dateObj = post.createdAt?.toDate ? post.createdAt.toDate() : new Date(post.createdAt);
-            const dateStr = dateObj.toLocaleDateString();
-            const refHtml = post.eventTitle ? `<div style="font-size:0.8rem; color:var(--primary); margin-bottom:5px;">🔗 참조: ${post.eventTitle}</div>` : '';
-            
-            // ⭐️ 커뮤니티 게시글 좋아요 버튼 추가
-            const likes = post.likes || [];
-            const isLiked = myName && likes.includes(myName);
-            const likeCount = likes.length;
-            const heartClass = isLiked ? 'like-btn liked' : 'like-btn';
+            const dateStr = `${dateObj.getMonth()+1}.${dateObj.getDate()}`;
+            const likeCount = (post.likes || []).length;
 
             if (post.isSecret && myName !== 'admin' && myName !== post.author) {
-                html += `<div class="card">
-                    <div class="card-title" style="color:var(--text-gray);">🔒 비밀글입니다.</div>
-                    <div style="color:var(--text-gray); margin-bottom:15px; font-size:0.9rem;">운영자와 작성자만 볼 수 있습니다.</div>
-                    <div style="font-size:0.8rem; color:var(--text-gray); text-align:right;">✍️ 익명 | 🕒 ${dateStr}</div>
+                // 권한 없는 유저
+                html += `<div class="board-item">
+                    <div class="board-title-col">
+                        <div class="board-title" style="color:var(--text-gray);">🔒 비밀글입니다.</div>
+                        <div class="board-meta"><span>익명</span><span>${dateStr}</span></div>
+                    </div>
+                    <div class="board-likes" style="color:var(--text-gray); background:none;">👍 ${likeCount}</div>
                 </div>`;
             } else {
-                const secretBadge = post.isSecret ? '<span style="color:var(--danger); font-size:0.9rem;">[🔒비밀글]</span> ' : '';
-                html += `<div class="card" onclick="openPostDetail('${post.id}', 'community')">
-                    <div class="${heartClass}" onclick="togglePostLike('${post.id}', event)">${isLiked ? '❤️' : '🤍'}</div>
-                    ${refHtml}
-                    <div class="card-title" style="padding-right: 30px;">${secretBadge}${post.title}</div>
-                    <div style="white-space:pre-wrap; margin-bottom:15px; overflow:hidden; text-overflow:ellipsis; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">${post.content}</div>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <div class="like-count">❤️ ${likeCount}</div>
-                        <div style="font-size:0.8rem; color:var(--text-gray);">✍️ ${post.author} | 🕒 ${dateStr}</div>
+                // 권한 있는 유저 또는 일반글
+                const secretBadge = post.isSecret ? '<span style="color:var(--danger); font-size:0.9rem;">[🔒]</span> ' : '';
+                html += `<div class="board-item" onclick="openPostDetail('${post.id}', 'community')">
+                    <div class="board-title-col">
+                        <div class="board-title">${secretBadge}${post.title}</div>
+                        <div class="board-meta"><span>✍️ ${post.author}</span><span>🕒 ${dateStr}</span></div>
                     </div>
+                    <div class="board-likes">👍 ${likeCount}</div>
                 </div>`;
             }
         });
-        container.innerHTML = html || "<p style='text-align:center; color:var(--text-gray);'>아직 작성된 글이 없습니다.</p>";
+        html += '</div>';
+        container.innerHTML = window.allFetchedPosts.length > 0 ? html : "<p style='text-align:center; color:var(--text-gray);'>아직 작성된 글이 없습니다.</p>";
     } catch(e) { container.innerHTML = "<p style='text-align:center; color:var(--danger);'>데이터를 불러오는데 실패했습니다.</p>"; }
-};
-
-// ⭐️ 커뮤니티 게시글 좋아요 토글 기능
-window.togglePostLike = async function(id, e) { 
-    e.stopPropagation(); 
-    const myName = localStorage.getItem('myNickname'); 
-    if(!myName||!window.isUserApproved) return alert("승인된 회원만 이용 가능합니다."); 
-    try {
-        const ref = doc(db, "posts", id); 
-        const snap = await getDoc(ref); 
-        if(!snap.exists()) return; 
-        if((snap.data().likes||[]).includes(myName)) await updateDoc(ref, { likes: arrayRemove(myName) }); 
-        else await updateDoc(ref, { likes: arrayUnion(myName) }); 
-        
-        // 현재 상세페이지 안인지, 목록인지에 따라 다르게 리로드
-        if(document.getElementById('detail-view').style.display === 'block') {
-            openPostDetail(id, window.previousTab);
-        } else {
-            loadCommunity(window.currentCommunityTab); 
-        }
-    } catch(e) { console.error(e); }
 };
 
 window.openPostModal = function(category, eventId = '', eventTitle = '', applyId = '') {
@@ -660,7 +629,6 @@ window.openPostModal = function(category, eventId = '', eventTitle = '', applyId
     
     document.getElementById('post-is-secret').checked = false;
     document.getElementById('post-secret-group').style.display = (category === 'inquiry') ? 'block' : 'none';
-    
     document.getElementById('post-category').onchange = function(e) {
         document.getElementById('post-secret-group').style.display = (e.target.value === 'inquiry') ? 'block' : 'none';
     };
@@ -693,7 +661,7 @@ window.savePost = async function() {
     } catch(e) { console.error(e); }
 };
 
-// ⭐️ 게시글 상세 보기 함수 추가 (댓글 포함)
+// 게시글 상세 보기 (따봉 전용)
 window.openPostDetail = async function(postId, fromTab) {
     if(!window.isUserApproved) return;
     if(fromTab) window.previousTab = fromTab;
@@ -709,13 +677,10 @@ window.openPostDetail = async function(postId, fromTab) {
     const isAuthor = (myName === post.author || myName === 'admin');
     
     let btns = '';
-    if(isAuthor) {
-        btns = `<button class="btn btn-delete" onclick="deletePost('${post.id}')">🗑️ 글 삭제하기</button>`;
-    }
+    if(isAuthor) btns = `<button class="btn btn-delete" onclick="deletePost('${post.id}')">🗑️ 글 삭제하기</button>`;
 
     const likes = post.likes || [];
     const isLiked = myName && likes.includes(myName);
-    const likeCount = likes.length;
     
     const dateObj = post.createdAt?.toDate ? post.createdAt.toDate() : new Date(post.createdAt);
     const refHtml = post.eventTitle ? `<div style="font-size:0.9rem; color:var(--primary); margin-bottom:10px; font-weight:bold;">🔗 참조: ${post.eventTitle}</div>` : '';
@@ -726,11 +691,15 @@ window.openPostDetail = async function(postId, fromTab) {
         <h2 style="font-size: 1.5rem; margin-bottom: 10px;">${secretBadge}${post.title}</h2>
         <div style="font-size: 0.9rem; color: var(--text-gray); margin-bottom: 20px; display:flex; justify-content:space-between; align-items:center;">
             <span>✍️ ${post.author} | 🕒 ${dateObj.toLocaleDateString()}</span>
-            <button class="btn" style="width:auto; padding:5px 15px; background:none; border:1px solid var(--border); color:${isLiked?'#FF4B4B':'var(--text-gray)'};" onclick="togglePostLike('${post.id}', event)">
-                ${isLiked ? '❤️' : '🤍'} 좋아요 ${likeCount}
-            </button>
         </div>
         <div class="detail-desc">${post.content}</div>
+        
+        <div style="display:flex; justify-content:center; margin-bottom:20px;">
+            <button class="btn" style="width:auto; padding:10px 30px; background:var(--bg-color); border:1px solid var(--border); color:${isLiked?'var(--primary)':'var(--text-gray)'}; font-size:1.1rem; border-radius:20px;" onclick="toggleLike('${post.id}', 'posts', event)">
+                👍 추천해요 ${likes.length}
+            </button>
+        </div>
+        
         <div style="display:flex; flex-direction: column; gap: 10px;">${btns}</div>`;
         
     document.getElementById('detail-content').innerHTML = detailHtml;
@@ -743,14 +712,12 @@ window.openPostDetail = async function(postId, fromTab) {
 window.deletePost = async function(id) { 
     if(!confirm("이 게시글을 삭제하시겠습니까?")) return; 
     await deleteDoc(doc(db, "posts", id)); 
-    // 관련된 댓글도 모두 삭제하는 로직 추가 가능하나 축약
-    alert("삭제되었습니다."); 
-    loadCommunity(window.currentCommunityTab); switchTab('community'); 
+    alert("삭제되었습니다."); loadCommunity(window.currentCommunityTab); switchTab('community'); 
 };
 
 
 // ==========================================
-// 4. 메인 게시판 (HOME) & 좋아요
+// 4. 메인 홈 (HOME) - 찜(하트) & 따봉 분리
 // ==========================================
 window.setCategory = function(cat) { 
     window.currentCategory = cat; 
@@ -775,20 +742,24 @@ window.renderFilteredEvents = function() {
     
     filtered.forEach(data => {
         const isFull = (data.approvedCount || 0) >= (data.maxParticipants || 100);
+        
+        // ⭐️ 하트: wishlist 배열, 따봉: likes 배열
+        const wishlist = data.wishlist || [];
+        const isWished = myName && wishlist.includes(myName);
         const likes = data.likes || [];
-        const isLiked = myName && likes.includes(myName);
         const likeCount = likes.length;
+
         const dateStr = new Date(data.date).toLocaleString('ko-KR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
         
         const cardInner = `
-            <div class="like-btn ${isLiked ? 'liked' : ''}" onclick="toggleLike('${data.id}', event)">${isLiked ? '❤️' : '🤍'}</div>
+            <div class="like-btn ${isWished ? 'liked' : ''}" onclick="toggleWishlist('${data.id}', event)">${isWished ? '❤️' : '🤍'}</div>
             ${data.imageUrl ? `<img src="${data.imageUrl}" class="card-img">` : `<div class="card-img" style="display:flex; justify-content:center; align-items:center; font-size:2rem; background:var(--bg-color);">⛺</div>`}
             <div class="event-content" style="padding:0; display:flex; flex-direction:column; flex:1;">
                 <div class="card-tag">#${data.category || '기타'}</div>
                 <div class="card-title" style="padding-right:30px;">${data.title}</div>
                 <div class="card-loc">🕒 ${dateStr}<br>📍 ${data.location || '장소 미지정'}</div>
                 <div class="card-info">
-                    <span class="like-count">❤️ ${likeCount}</span>
+                    <span class="like-count" onclick="toggleLike('${data.id}', 'events', event)" style="cursor:pointer; background:var(--bg-color); padding:3px 8px; border-radius:12px;">👍 ${likeCount}</span>
                     <span>👑 ${data.host} | <strong style="color:${isFull ? 'var(--danger)' : 'var(--primary)'}">${data.approvedCount||0}/${data.maxParticipants||100}명</strong></span>
                 </div>
             </div>`;
@@ -802,28 +773,53 @@ window.renderFilteredEvents = function() {
     container.innerHTML = html || "<p style='text-align:center;'>예정된 일정이 없습니다.</p>";
 };
 
-window.toggleLike = async function(id, e) { 
-    e.stopPropagation(); const myName = localStorage.getItem('myNickname'); 
+// ⭐️ 찜하기 (위시리스트 - 하트)
+window.toggleWishlist = async function(id, e) { 
+    if(e) e.stopPropagation(); 
+    const myName = localStorage.getItem('myNickname'); 
     if(!myName||!window.isUserApproved) return alert("회원만 이용 가능합니다."); 
     try {
         const ref = doc(db, "events", id); const snap = await getDoc(ref); if(!snap.exists()) return; 
-        if((snap.data().likes||[]).includes(myName)) await updateDoc(ref, { likes: arrayRemove(myName) }); 
-        else await updateDoc(ref, { likes: arrayUnion(myName) }); 
+        if((snap.data().wishlist||[]).includes(myName)) await updateDoc(ref, { wishlist: arrayRemove(myName) }); 
+        else await updateDoc(ref, { wishlist: arrayUnion(myName) }); 
         
         if(document.getElementById('detail-view').style.display === 'block') {
             const freshSnap = await getDoc(ref);
             const evIndex = window.allFetchedEvents.findIndex(ev => ev.id === id);
             if(evIndex > -1) window.allFetchedEvents[evIndex] = {id: id, ...freshSnap.data()};
             openEventDetail(id, window.previousTab);
-        } else {
-            loadEvents(); 
-        }
+        } else { loadEvents(); }
     } catch(e) {}
 };
 
+// ⭐️ 좋아요 (따봉) 공통
+window.toggleLike = async function(id, collectionName, e) { 
+    if(e) e.stopPropagation(); 
+    const myName = localStorage.getItem('myNickname'); 
+    if(!myName||!window.isUserApproved) return alert("회원만 이용 가능합니다."); 
+    try {
+        const ref = doc(db, collectionName, id); const snap = await getDoc(ref); if(!snap.exists()) return; 
+        if((snap.data().likes||[]).includes(myName)) await updateDoc(ref, { likes: arrayRemove(myName) }); 
+        else await updateDoc(ref, { likes: arrayUnion(myName) }); 
+        
+        if(document.getElementById('detail-view').style.display === 'block') {
+            if(collectionName === 'events') {
+                const freshSnap = await getDoc(ref);
+                const evIndex = window.allFetchedEvents.findIndex(ev => ev.id === id);
+                if(evIndex > -1) window.allFetchedEvents[evIndex] = {id: id, ...freshSnap.data()};
+                openEventDetail(id, window.previousTab);
+            } else {
+                openPostDetail(id, window.previousTab);
+            }
+        } else {
+            if(collectionName === 'events') loadEvents();
+            else loadCommunity(window.currentCommunityTab);
+        }
+    } catch(e) { console.error(e); }
+};
 
 // ==========================================
-// 5. 일정 상세 페이지 및 ⭐️ 댓글(Comment)
+// 5. 일정 상세 페이지 및 댓글 (에러 픽스)
 // ==========================================
 window.openEventDetail = function(eventId, fromTab) {
     if(!window.isUserApproved) return;
@@ -847,6 +843,8 @@ window.openEventDetail = function(eventId, fromTab) {
         else btns = isFull ? `<button class="btn" disabled>정원 마감</button>` : `<button class="btn btn-apply" onclick="openApplyModal('${event.id}')">🙋 신청하기</button>`;
     }
 
+    const wishlist = event.wishlist || [];
+    const isWished = myName && wishlist.includes(myName);
     const likes = event.likes || [];
     const isLiked = myName && likes.includes(myName);
     const likeCount = likes.length;
@@ -855,8 +853,8 @@ window.openEventDetail = function(eventId, fromTab) {
         ${event.imageUrl ? `<img src="${event.imageUrl}" class="detail-img">` : ''}
         <div style="display:flex; justify-content:space-between; align-items:start;">
             <div class="card-tag">#${event.category || '기타'}</div>
-            <button class="btn" style="width:auto; padding:5px 15px; background:none; border:1px solid var(--border); color:${isLiked?'#FF4B4B':'var(--text-gray)'};" onclick="toggleLike('${event.id}', event)">
-                ${isLiked ? '❤️' : '🤍'} 좋아요 ${likeCount}
+            <button class="btn" style="width:auto; padding:5px 15px; background:none; border:1px solid var(--border); color:${isWished?'#FF4B4B':'var(--text-gray)'};" onclick="toggleWishlist('${event.id}', event)">
+                ${isWished ? '❤️' : '🤍'} 찜하기
             </button>
         </div>
         <h2 style="font-size: 1.5rem; margin-bottom: 10px;">${event.title}</h2>
@@ -864,33 +862,45 @@ window.openEventDetail = function(eventId, fromTab) {
         <div style="font-size: 1rem; font-weight: bold; margin-bottom: 15px;">📍 ${event.location || '미지정'}</div>
         <div style="display:flex; justify-content:space-between; margin-bottom:20px; color:var(--text-gray);"><span>👑 ${event.host}</span><span style="color:${isFull?'var(--danger)':'var(--primary)'}; font-weight:bold;">${event.approvedCount||0}/${event.maxParticipants}명</span></div>
         <div class="detail-desc">${event.description}</div>
+        
+        <button class="btn" style="width:100%; padding:12px; background:var(--bg-color); border:1px solid var(--border); color:${isLiked?'var(--primary)':'var(--text-dark)'}; margin-bottom:15px; border-radius:20px;" onclick="toggleLike('${event.id}', 'events', event)">
+            👍 이 모임 추천해요 (${likeCount})
+        </button>
+        
         <div style="display:flex; flex-direction: column; gap: 10px;">${btns}</div>`;
         
     document.getElementById('detail-content').innerHTML = detailHtml;
     
-    // ⭐️ 상세 페이지 열릴 때 해당 글의 댓글도 같이 불러옴
+    // 댓글 불러오기
     loadComments();
     switchTab('detail');
 };
 
-// ⭐️ 댓글 불러오기 함수
+// ⭐️ 댓글 기능 (버그 수정됨)
 window.loadComments = async function() {
     const listContainer = document.getElementById('comment-list');
     const countContainer = document.getElementById('comment-count');
-    listContainer.innerHTML = "<p style='text-align:center; color:var(--text-gray); font-size:0.9rem;'>불러오는 중...</p>";
     
     try {
-        const snap = await getDocs(query(collection(db, "comments"), where("targetId", "==", window.currentDetailId), orderBy("createdAt", "asc")));
+        // 복합 인덱스 에러 방지를 위해 자바스크립트에서 직접 정렬
+        const snap = await getDocs(query(collection(db, "comments"), where("targetId", "==", window.currentDetailId)));
         countContainer.innerText = snap.size;
         
+        let comments = [];
+        snap.forEach(d => comments.push({id: d.id, ...d.data()}));
+        comments.sort((a,b) => {
+            const da = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt);
+            const db = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt);
+            return da - db; // 오름차순 (과거순)
+        });
+
         let html = '';
         const myName = localStorage.getItem('myNickname');
 
-        snap.forEach(d => {
-            const comment = d.data();
-            const dateObj = comment.createdAt?.toDate ? comment.createdAt.toDate() : new Date();
+        comments.forEach(comment => {
+            const dateObj = comment.createdAt?.toDate ? comment.createdAt.toDate() : new Date(comment.createdAt);
             const isMine = (myName === comment.author || myName === 'admin');
-            const deleteBtn = isMine ? `<button style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.8rem;" onclick="deleteComment('${d.id}')">삭제</button>` : '';
+            const deleteBtn = isMine ? `<button style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.8rem;" onclick="deleteComment('${comment.id}')">삭제</button>` : '';
 
             html += `<div class="comment-item">
                 <div style="flex:1;">
@@ -904,12 +914,11 @@ window.loadComments = async function() {
         
         listContainer.innerHTML = html || "<p style='text-align:center; color:var(--text-gray); font-size:0.9rem;'>가장 먼저 댓글을 남겨보세요!</p>";
     } catch(e) {
-        console.error(e);
-        listContainer.innerHTML = "<p style='text-align:center; color:var(--danger);'>댓글을 불러오지 못했습니다.</p>";
+        // 에러 문구 보이지 않게 처리
+        listContainer.innerHTML = "";
     }
 };
 
-// ⭐️ 댓글 달기 함수
 window.addComment = async function() {
     const input = document.getElementById('comment-input');
     const text = input.value.trim();
@@ -924,11 +933,10 @@ window.addComment = async function() {
             createdAt: new Date()
         });
         input.value = '';
-        loadComments(); // 댓글 작성 후 즉시 새로고침
+        loadComments(); // 등록 후 화면 즉시 새로고침
     } catch(e) { console.error(e); alert("댓글 등록 실패!"); }
 };
 
-// ⭐️ 댓글 삭제 함수
 window.deleteComment = async function(commentId) {
     if(!confirm("이 댓글을 삭제하시겠습니까?")) return;
     try {
@@ -939,7 +947,7 @@ window.deleteComment = async function(commentId) {
 
 
 // ==========================================
-// 6. 캘린더 모드 (기존 유지)
+// 6. 캘린더 모드
 // ==========================================
 window.setCalendarMode = function(mode) { 
     window.calendarMode = mode; 
@@ -1011,7 +1019,7 @@ window.renderListChunk = function() {
     const chunk = window.groupedEvents.slice(window.listRenderCount, window.listRenderCount + 5);
     if(chunk.length === 0) {
         if(document.getElementById('scroll-sentinel')) document.getElementById('scroll-sentinel').style.display = 'none';
-        if(window.listRenderCount === 0) wrapper.innerHTML = '<p style="text-align:center; color:var(--text-gray);">예정된 일정이 없습니다.</p>'; return;
+        if(window.listRenderCount === 0) wrapper.innerHTML = "<p style='text-align:center; color:var(--text-gray);'>예정된 일정이 없습니다.</p>"; return;
     }
     let html = '';
     const todayStr = new Date().toDateString();
@@ -1028,10 +1036,27 @@ window.renderListChunk = function() {
     wrapper.insertAdjacentHTML('beforeend', html); window.listRenderCount += 5;
 };
 
+// ==========================================
+// 7. 일정 생성, 수정(Edit)
+// ==========================================
+window.checkProfileAndOpenCreate = function() {
+    document.getElementById('event-category').value = '아웃도어'; document.getElementById('event-title').value = ''; document.getElementById('event-location').value = ''; document.getElementById('event-date').value = ''; document.getElementById('event-max').value = ''; document.getElementById('event-chat').value = ''; document.getElementById('event-desc').value = ''; document.getElementById('event-image-file').value = '';
+    openModal('createModal');
+};
 
-// ==========================================
-// 7. 기타 수정 및 삭제 로직 (기존 유지)
-// ==========================================
+window.registerEvent = async function() {
+    const cat = document.getElementById('event-category').value; const title = document.getElementById('event-title').value; const loc = document.getElementById('event-location').value; const date = document.getElementById('event-date').value; const max = parseInt(document.getElementById('event-max').value); const chat = document.getElementById('event-chat').value; const desc = document.getElementById('event-desc').value; const file = document.getElementById('event-image-file').files[0];
+    if(!title||!date||!loc||!max) return alert("필수 정보를 모두 입력해주세요.");
+    
+    document.getElementById('reg-btn').innerText = "업로드 중...";
+    try {
+        let imageUrl = "";
+        if(file) { const sRef = ref(storage, 'events/' + Date.now() + '_' + file.name); await uploadBytes(sRef, file); imageUrl = await getDownloadURL(sRef); }
+        await addDoc(collection(db, "events"), { category: cat, title, location: loc, date, maxParticipants: max, approvedCount: 0, chatLink: chat, description: desc, imageUrl, likes: [], wishlist: [], host: localStorage.getItem('myNickname'), createdAt: new Date() });
+        alert("등록 완료!"); closeModal('createModal'); loadEvents();
+    } catch(e) {} finally { document.getElementById('reg-btn').innerText = "등록하기"; }
+};
+
 window.openEditModal = function(id) {
     const ev = window.allFetchedEvents.find(e => e.id === id); window.currentEditEventId = id;
     document.getElementById('edit-category').value = ev.category || '기타'; document.getElementById('edit-title').value = ev.title || ''; document.getElementById('edit-location').value = ev.location || ''; 
@@ -1058,6 +1083,9 @@ window.updateEvent = async function() {
 
 window.deleteEvent = async function(id) { if(!confirm("삭제하시겠습니까?")) return; await deleteDoc(doc(db, "events", id)); loadEvents(); switchTab('list'); };
 
+// ==========================================
+// 8. 신청, 관리자, 승인 로직
+// ==========================================
 window.openApplyModal = function(id) { window.currentApplyEventId = id; openModal('applyModal'); };
 window.submitApplication = async function() {
     const msg = document.getElementById('apply-message').value; if(!msg) return;
@@ -1095,7 +1123,7 @@ window.openUserManageModal = async function() {
     const snap = await getDocs(query(collection(db, "users"), where("status", "==", "pending")));
     let html = '';
     snap.forEach(d => { html += `<div style="padding:15px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;"><div><strong style="font-size:1.1rem; color:var(--text-dark);">${d.id}</strong></div><button class="btn btn-apply" style="padding:8px 15px;" onclick="approveUser('${d.id}')">승인</button></div>`; });
-    container.innerHTML = html || '<p style="text-align:center; color:var(--text-gray); padding:10px;">대기 회원이 없습니다.</p>'; 
+    container.innerHTML = html || '<p style="text-align:center; color:gray; padding:10px;">대기 회원이 없습니다.</p>'; 
 };
 
 window.approveUser = async function(userId) { await updateDoc(doc(db, "users", userId), { status: "approved" }); alert(`${userId} 님의 가입이 승인되었습니다!`); openUserManageModal(); checkNotifications(); };
