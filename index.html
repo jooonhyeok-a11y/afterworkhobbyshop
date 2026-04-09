@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>퇴근 후 취미 상점</title>
     <style>
-        /* ⭐️ 다크모드를 지원하는 동적 변수 설정 */
         :root {
             --primary: #2E7D32; 
             --primary-light: #E8F5E9; 
@@ -43,12 +42,10 @@
         .nav-buttons button.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
         .theme-btn { font-size: 1.2rem; cursor: pointer; border: none; background: none; padding: 5px; margin-left: 5px;}
 
-        /* ⭐️ 알림 배지 스타일 */
         .badge { position: absolute; top: -2px; right: -5px; background: var(--danger); color: white; font-size: 0.65rem; padding: 2px 6px; border-radius: 10px; display: none; }
 
         main { max-width: 1200px; margin: 0 auto; padding: 20px 20px 80px 20px; }
 
-        /* ⭐️ 카테고리 필터 스타일 */
         .category-filters { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 15px; }
         .category-filters::-webkit-scrollbar { display: none; }
         .cat-btn { padding: 6px 15px; border-radius: 20px; border: 1px solid var(--border); background: var(--card-bg); color: var(--text-gray); cursor: pointer; white-space: nowrap; font-weight: bold; transition: 0.2s;}
@@ -66,10 +63,10 @@
         .event-img { width: 100%; height: 180px; object-fit: cover; background: var(--border); display: block; }
         .event-content { padding: 20px; display: flex; flex-direction: column; flex: 1; }
         .event-cat-tag { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
-        .event-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 10px; line-height: 1.3;}
-        .event-info { display: flex; justify-content: space-between; color: var(--text-gray); font-size: 0.85rem; margin-bottom: 15px; align-items: center;}
+        .event-title { font-size: 1.2rem; font-weight: bold; margin-bottom: 8px; line-height: 1.3;}
+        .event-loc { font-size: 0.85rem; color: var(--text-dark); margin-bottom: 10px; font-weight: bold;}
+        .event-info { display: flex; justify-content: space-between; color: var(--text-gray); font-size: 0.85rem; align-items: center;}
         
-        /* ⭐️ 찜하기 하트 버튼 */
         .like-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; cursor: pointer; transition: 0.2s; z-index: 5;}
         .like-btn.liked { color: #FF4B4B; }
         .like-btn:active { transform: scale(0.8); }
@@ -89,7 +86,6 @@
         .detail-img { width: 100%; height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; background: var(--border);}
         .detail-desc { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); font-size: 1.05rem; line-height: 1.8; white-space: pre-wrap; margin-bottom: 20px;}
 
-        /* ⭐️ 스켈레톤 로딩 애니메이션 */
         .skeleton { background: linear-gradient(90deg, var(--skeleton) 25%, var(--skeleton-shine) 50%, var(--skeleton) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px;}
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
@@ -227,6 +223,7 @@
                 </select>
             </div>
             <div class="input-group"><label>모임 제목</label><input type="text" id="event-title" placeholder="예: 따릉이 타실 분!"></div>
+            <div class="input-group"><label>모이는 장소</label><input type="text" id="event-location" placeholder="예: 여의나루역 2번 출구 앞"></div>
             <div class="input-group"><label>날짜 및 시간</label><input type="datetime-local" id="event-date"></div>
             <div class="input-group"><label>모집 정원 (본인 포함)</label><input type="number" id="event-max" placeholder="예: 4" min="2" max="100"></div>
             <div class="input-group"><label>오픈채팅방 링크</label><input type="url" id="event-chat" placeholder="https://open.kakao.com/o/..."></div>
@@ -235,6 +232,36 @@
             
             <button id="reg-btn" class="btn btn-apply" style="width:100%" onclick="registerEvent()">일정 등록하기</button>
             <button class="btn" style="width:100%; margin-top:10px; background:var(--border); color:var(--text-dark);" onclick="closeModal('createModal')">취소</button>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h3>일정 수정하기 ✏️</h3>
+            <div class="input-group">
+                <label>카테고리</label>
+                <select id="edit-category">
+                    <option value="아웃도어">🏃 아웃도어</option>
+                    <option value="맛집">🍣 맛집</option>
+                    <option value="문화예술">🎨 문화예술</option>
+                    <option value="온라인">💻 온라인</option>
+                    <option value="기타">✨ 기타</option>
+                </select>
+            </div>
+            <div class="input-group"><label>모임 제목</label><input type="text" id="edit-title"></div>
+            <div class="input-group"><label>모이는 장소</label><input type="text" id="edit-location"></div>
+            <div class="input-group"><label>날짜 및 시간</label><input type="datetime-local" id="edit-date"></div>
+            <div class="input-group"><label>모집 정원 (본인 포함)</label><input type="number" id="edit-max" min="2" max="100"></div>
+            <div class="input-group"><label>오픈채팅방 링크</label><input type="url" id="edit-chat"></div>
+            <div class="input-group">
+                <label>새 이미지로 변경 (선택)</label>
+                <input type="file" id="edit-image-file" accept="image/*">
+                <p class="help-text">* 파일을 선택하지 않으면 기존 이미지가 유지됩니다.</p>
+            </div>
+            <div class="input-group"><label>상세 내용</label><textarea id="edit-desc" style="height:100px;"></textarea></div>
+            
+            <button id="update-btn" class="btn btn-apply" style="width:100%" onclick="updateEvent()">수정 완료</button>
+            <button class="btn" style="width:100%; margin-top:10px; background:var(--border); color:var(--text-dark);" onclick="closeModal('editModal')">취소</button>
         </div>
     </div>
 
@@ -264,7 +291,6 @@
     </div>
 
 <script type="module">
-// ⭐️ arrayUnion, arrayRemove, increment 기능 추가 수입
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, query, orderBy, doc, updateDoc, where, getDoc, setDoc, deleteDoc, arrayUnion, arrayRemove, increment } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
@@ -290,9 +316,14 @@ window.previousTab = 'list';
 window.calendarMode = 'list'; 
 window.isUserApproved = false; 
 window.currentCategory = '전체'; 
+window.currentEditEventId = null; // 수정 중인 이벤트 ID 저장
+
+window.groupedEvents = [];
+window.listRenderCount = 0;
+window.listObserver = null;
 
 // ==========================================
-// 0. 다크 모드 & 테마
+// 0. 다크 모드 & 기본 탭 로직
 // ==========================================
 window.toggleTheme = function() {
     const isDark = document.body.classList.toggle('dark-mode');
@@ -536,7 +567,7 @@ window.toggleLike = async function(eventId, eventObj) {
     if(isLiked) { await updateDoc(evRef, { likes: arrayRemove(myName) }); } 
     else { await updateDoc(evRef, { likes: arrayUnion(myName) }); }
     
-    loadEvents(); // 카드 리렌더링
+    loadEvents(); 
 };
 
 // ==========================================
@@ -598,11 +629,13 @@ window.renderFilteredEvents = function() {
         const maxCount = data.maxParticipants || 100;
         const isFull = currentCount >= maxCount;
         
-        // 찜 버튼
         const likes = data.likes || [];
         const isLiked = myName && likes.includes(myName);
         const heartClass = isLiked ? 'like-btn liked' : 'like-btn';
         
+        // ⭐️ 장소가 입력되어 있으면 장소를 렌더링
+        const locHtml = data.location ? `<div class="event-loc">📍 ${data.location}</div>` : '';
+
         const cardInner = `
             <div class="${heartClass}" onclick="toggleLike('${data.id}', event)">${isLiked ? '❤️' : '🤍'}</div>
             ${imgHtml}
@@ -610,6 +643,7 @@ window.renderFilteredEvents = function() {
                 <div class="event-cat-tag">#${data.category || '분류없음'}</div>
                 <div class="event-date">${dateStr}</div>
                 <div class="event-title">${data.title}</div>
+                ${locHtml}
                 <div class="event-info">
                     <span>👑 ${data.host}</span>
                     <strong style="color:${isFull ? 'var(--danger)' : 'var(--primary)'}">${currentCount}/${maxCount}명 ${isFull ? '(마감)' : ''}</strong>
@@ -628,14 +662,16 @@ window.renderFilteredEvents = function() {
 
 
 // ==========================================
-// 5. 일정 개설 및 상세
+// 5. 일정 개설 & 수정 (Edit) & 상세뷰
 // ==========================================
 window.checkProfileAndOpenCreate = function() {
     if(!window.isUserApproved) { alert("가입 승인 후 일정을 개설할 수 있습니다."); return; }
+    document.getElementById('event-category').value = '아웃도어';
     document.getElementById('event-title').value = '';
+    document.getElementById('event-location').value = '';
     document.getElementById('event-date').value = '';
-    document.getElementById('event-chat').value = '';
     document.getElementById('event-max').value = '';
+    document.getElementById('event-chat').value = '';
     document.getElementById('event-image-file').value = ''; 
     document.getElementById('event-desc').value = '';
     openModal('createModal');
@@ -644,13 +680,15 @@ window.checkProfileAndOpenCreate = function() {
 window.registerEvent = async function() {
     const cat = document.getElementById('event-category').value;
     const title = document.getElementById('event-title').value;
+    const loc = document.getElementById('event-location').value;
     const date = document.getElementById('event-date').value;
     const max = parseInt(document.getElementById('event-max').value);
     const chat = document.getElementById('event-chat').value;
     const desc = document.getElementById('event-desc').value;
     const file = document.getElementById('event-image-file').files[0];
 
-    if(!title || !date || !chat || !max) { alert("필수 정보를 모두 입력해주세요!"); return; }
+    // ⭐️ 장소(loc) 필수 검사 추가
+    if(!title || !date || !loc || !chat || !max) { alert("필수 정보를 모두 입력해주세요!"); return; }
 
     const regBtn = document.getElementById('reg-btn');
     regBtn.innerText = "업로드 중... ⏳"; regBtn.disabled = true;
@@ -664,12 +702,72 @@ window.registerEvent = async function() {
         }
 
         await addDoc(collection(db, "events"), { 
-            category: cat, title, date, maxParticipants: max, approvedCount: 0, chatLink: chat, description: desc, imageUrl: imageUrl, likes: [], 
+            category: cat, title, location: loc, date, maxParticipants: max, approvedCount: 0, chatLink: chat, description: desc, imageUrl: imageUrl, likes: [], 
             createdAt: new Date(), host: localStorage.getItem('myNickname') 
         });
-        alert("일정 등록이 완료되었습니다!"); closeModal('createModal'); switchTab('list');
+        alert("일정 등록이 완료되었습니다!"); closeModal('createModal'); await loadEvents(); switchTab('list');
     } catch(e) { console.error(e); } 
     finally { regBtn.innerText = "일정 등록하기"; regBtn.disabled = false; }
+};
+
+// ⭐️ 게시물 수정(Edit) 창 열기
+window.openEditModal = function(eventId) {
+    const ev = window.allFetchedEvents.find(e => e.id === eventId);
+    if(!ev) return;
+    
+    window.currentEditEventId = eventId;
+    document.getElementById('edit-category').value = ev.category || '기타';
+    document.getElementById('edit-title').value = ev.title || '';
+    document.getElementById('edit-location').value = ev.location || '';
+    document.getElementById('edit-date').value = ev.date || '';
+    document.getElementById('edit-max').value = ev.maxParticipants || '';
+    document.getElementById('edit-chat').value = ev.chatLink || '';
+    document.getElementById('edit-desc').value = ev.description || '';
+    document.getElementById('edit-image-file').value = ''; // 파일 선택창은 보안상 항상 비워둡니다
+    
+    openModal('editModal');
+};
+
+// ⭐️ 게시물 수정 데이터 DB에 반영하기
+window.updateEvent = async function() {
+    const cat = document.getElementById('edit-category').value;
+    const title = document.getElementById('edit-title').value;
+    const loc = document.getElementById('edit-location').value;
+    const date = document.getElementById('edit-date').value;
+    const max = parseInt(document.getElementById('edit-max').value);
+    const chat = document.getElementById('edit-chat').value;
+    const desc = document.getElementById('edit-desc').value;
+    const file = document.getElementById('edit-image-file').files[0];
+
+    if(!title || !date || !loc || !chat || !max) { alert("필수 정보를 모두 입력해주세요!"); return; }
+
+    const upBtn = document.getElementById('update-btn');
+    upBtn.innerText = "수정 중... ⏳"; upBtn.disabled = true;
+
+    try {
+        const evRef = doc(db, "events", window.currentEditEventId);
+        let updateData = { category: cat, title: title, location: loc, date: date, maxParticipants: max, chatLink: chat, description: desc };
+
+        // ⭐️ 새로운 이미지를 올린 경우에만 덮어쓰기
+        if(file) {
+            const storageRef = ref(storage, 'events/' + Date.now() + '_' + file.name);
+            await uploadBytes(storageRef, file);
+            updateData.imageUrl = await getDownloadURL(storageRef);
+        }
+
+        await updateDoc(evRef, updateData);
+        alert("일정이 성공적으로 수정되었습니다!");
+        closeModal('editModal');
+        
+        await loadEvents(); // 데이터 갱신
+        openEventDetail(window.currentEditEventId); // 갱신된 데이터로 상세페이지 다시 열기
+
+    } catch(e) {
+        console.error(e);
+        alert("수정 중 오류가 발생했습니다.");
+    } finally {
+        upBtn.innerText = "수정 완료"; upBtn.disabled = false;
+    }
 };
 
 window.openEventDetail = function(eventId, fromTab) {
@@ -688,9 +786,12 @@ window.openEventDetail = function(eventId, fromTab) {
 
     let actionButtons = '';
     if (myName === event.host || myName === 'admin') {
+        const adminBadge = (myName === 'admin' && myName !== event.host) ? ' (관리자)' : '';
+        // ⭐️ 주최자/관리자에게 수정 버튼 추가
         actionButtons = `
+            <button class="btn btn-manage" style="background:var(--primary);" onclick="openEditModal('${event.id}')">✏️ 일정 수정하기${adminBadge}</button>
             <button class="btn btn-manage" onclick="openManageModal('${event.id}')">👑 신청자 관리하기 (${currentCount}/${maxCount}명)</button>
-            <button class="btn btn-delete" onclick="deleteEvent('${event.id}')">🗑️ 이 일정 삭제하기</button>
+            <button class="btn btn-delete" onclick="deleteEvent('${event.id}')">🗑️ 일정 삭제하기${adminBadge}</button>
         `;
     } else {
         const existingApplication = window.myApplications.find(app => app.eventId === event.id);
@@ -702,11 +803,13 @@ window.openEventDetail = function(eventId, fromTab) {
         }
     }
 
+    // ⭐️ 상세 뷰에 장소 정보 표시 추가
     const detailHtml = `
         ${imgHtml}
         <div class="event-cat-tag">#${event.category || '분류없음'}</div>
         <h2 style="font-size: 1.5rem; margin-bottom: 10px; color: var(--text-dark);">${event.title}</h2>
-        <div style="font-size: 1rem; color: var(--primary); font-weight: bold; margin-bottom: 15px;">🕒 ${dateStr}</div>
+        <div style="font-size: 1rem; color: var(--primary); font-weight: bold; margin-bottom: 5px;">🕒 ${dateStr}</div>
+        <div style="font-size: 1rem; color: var(--text-dark); font-weight: bold; margin-bottom: 15px;">📍 ${event.location || '장소 미지정'}</div>
         <div style="margin-bottom: 25px; color: var(--text-gray); display:flex; justify-content:space-between;">
             <span>👑 주최자: <strong>${event.host}</strong></span>
             <span style="color:${isFull ? 'var(--danger)' : 'var(--primary)'}; font-weight:bold;">현재 ${currentCount}/${maxCount}명 참여</span>
@@ -720,7 +823,7 @@ window.openEventDetail = function(eventId, fromTab) {
 
 
 // ==========================================
-// 6. 신청, 취소 및 관리 (정원 로직 포함)
+// 6. 신청, 취소 및 관리 
 // ==========================================
 window.openApplyModal = function(id) { window.currentApplyEventId = id; openModal('applyModal'); };
 window.submitApplication = async function() {
@@ -741,7 +844,7 @@ window.cancelApplication = async function(appId) {
             await updateDoc(doc(db, "events", appSnap.data().eventId), { approvedCount: increment(-1) });
         }
         await deleteDoc(doc(db, "applications", appId));
-        alert("취소되었습니다."); await loadMyApplications(); loadEvents(); switchTab('mypage'); 
+        alert("취소되었습니다."); await loadMyApplications(); await loadEvents(); switchTab('mypage'); 
     } catch (e) { console.error(e); }
 };
 
@@ -777,15 +880,13 @@ window.approveApp = async function(appId, eventId) {
         await updateDoc(doc(db, "applications", appId), { status: "approved" });
         await updateDoc(evRef, { approvedCount: increment(1) });
         alert("수락되었습니다!"); 
-        loadEvents(); openManageModal(eventId); checkNotifications();
+        await loadEvents(); openManageModal(eventId); checkNotifications();
     } catch(e) { console.error(e); }
 };
 
 // ==========================================
-// 7. 무한스크롤 & 캘린더 (기존 로직 유지)
+// 7. 무한스크롤 & 캘린더 
 // ==========================================
-window.groupedEvents = []; window.listRenderCount = 0; window.listObserver = null;
-
 window.setCalendarMode = function(mode) { window.calendarMode = mode; document.getElementById('btn-list').classList.toggle('active', mode === 'list'); document.getElementById('btn-monthly').classList.toggle('active', mode === 'monthly'); renderCalendar(); };
 window.changeCalendar = function(offset) { window.currentCalDate.setMonth(window.currentCalDate.getMonth() + offset); renderCalendar(); };
 
@@ -819,7 +920,7 @@ window.renderListChunk = function() {
         if(!window.isUserApproved) {
             evHtml = group.events.map(e => `<div class="weekly-event-item" onclick="alert('가입 승인 후 확인할 수 있습니다.')"><div class="blur-overlay-container"><div class="blur-content"><div style="font-size:0.8rem; font-weight:bold; margin-bottom:3px;">🕒 00:00 | 👑 비공개</div><div style="font-weight:bold; font-size:1.05rem; color:var(--text-dark);">비공개 일정입니다.</div></div><div class="blur-overlay"><span>🔒 비공개</span></div></div></div>`).join('');
         } else {
-            evHtml = group.events.map(e => `<div class="weekly-event-item" onclick="openEventDetail('${e.id}', 'calendar')"><div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:3px;">🕒 ${new Date(e.date).getHours().toString().padStart(2, '0')}:${new Date(e.date).getMinutes().toString().padStart(2, '0')} | 👑 ${e.host}</div><div style="font-weight:bold; font-size:1.05rem; color:var(--text-dark);">${e.title}</div></div>`).join('');
+            evHtml = group.events.map(e => `<div class="weekly-event-item" onclick="openEventDetail('${e.id}', 'calendar')"><div style="font-size:0.8rem; color:var(--primary); font-weight:bold; margin-bottom:3px;">🕒 ${new Date(e.date).getHours().toString().padStart(2, '0')}:${new Date(e.date).getMinutes().toString().padStart(2, '0')} | 📍 ${e.location || '미지정'}</div><div style="font-weight:bold; font-size:1.05rem; color:var(--text-dark);">${e.title}</div></div>`).join('');
         }
         html += `<div class="weekly-day-card"><div class="${isToday ? 'weekly-day-header today' : 'weekly-day-header'}" style="color:var(--text-dark);">${dateHeader}</div>${evHtml}</div>`;
     });
