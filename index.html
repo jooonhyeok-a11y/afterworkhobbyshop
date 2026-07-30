@@ -138,7 +138,7 @@
         
         .monthly-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
         .m-day-header { font-weight: bold; text-align: center; margin-bottom: 5px; color: var(--text-gray); font-size: 0.9rem;}
-        .m-day { background: var(--card-bg); border-radius: 5px; padding: 5px; border: 1px solid var(--border); min-height: 85px; font-size: 0.85rem; display:flex; flex-direction:column; gap:3px;}
+        .m-day { border-radius: 5px; padding: 5px; border: 1px solid var(--border); min-height: 85px; font-size: 0.85rem; display:flex; flex-direction:column; gap:3px;}
         .m-event { font-size: 0.75rem; background: var(--primary-light); color: var(--primary); padding: 3px 5px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; cursor: pointer; font-weight: bold; white-space: nowrap;}
 
         .skeleton { background: linear-gradient(90deg, var(--skeleton) 25%, var(--skeleton-shine) 50%, var(--skeleton) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px;}
@@ -203,9 +203,10 @@
         </div>
 
         <div id="calendar-view" class="view-section">
+            <!-- ⭐️ 토글 순서 및 텍스트 수정 (월간 달력이 먼저 오도록 변경) -->
             <div class="calendar-toggle-group">
-                <button id="btn-list" class="toggle-btn active" onclick="setCalendarMode('list')">일정 목록</button>
-                <button id="btn-monthly" class="toggle-btn" onclick="setCalendarMode('monthly')">월간 달력</button>
+                <button id="btn-monthly" class="toggle-btn active" onclick="setCalendarMode('monthly')">월간 달력</button>
+                <button id="btn-list" class="toggle-btn" onclick="setCalendarMode('list')">전체 일정</button>
             </div>
             
             <div class="calendar-header-nav" id="calendar-header-nav" style="display:none;">
@@ -234,7 +235,6 @@
                     <button class="btn btn-apply" onclick="login()">로그인</button>
                     <button class="btn" style="background:var(--border); color:var(--text-dark);" onclick="signup()">새로 가입</button>
                 </div>
-                <!-- ⭐️ 아이디/비밀번호 찾기 버튼 추가 -->
                 <button class="btn" style="background:none; color:var(--text-gray); margin-top:10px; font-size:0.9rem; text-decoration:underline; width:100%; text-align:center;" onclick="alert('jooonhyeok@gmail.com으로 문의하세요.')">아이디 / 비밀번호 찾기</button>
             </div>
 
@@ -313,7 +313,6 @@
             
             <div class="input-group">
                 <label>사진 첨부 (선택)</label>
-                <!-- ⭐️ 게시글 다중 사진 업로드 추가 고려 (기존 코드 유지) -->
                 <input type="file" id="post-image-file" accept="image/*">
             </div>
 
@@ -331,7 +330,6 @@
             <div class="input-group"><label>날짜 및 시간</label><input type="datetime-local" id="event-date"></div>
             <div class="input-group"><label>모집 정원 (본인 포함)</label><input type="number" id="event-max"></div>
             <div class="input-group"><label>오픈채팅방 링크</label><input type="url" id="event-chat"></div>
-            <!-- ⭐️ 다중 사진 첨부를 위해 multiple 추가 -->
             <div class="input-group"><label>이미지 첨부 (여러 장 가능)</label><input type="file" id="event-image-file" accept="image/*" multiple></div>
             <div class="input-group"><label>상세 내용</label><textarea id="event-desc" style="height:100px;"></textarea></div>
             <button id="reg-btn" class="btn btn-apply" onclick="registerEvent()">등록하기</button>
@@ -349,7 +347,6 @@
             <div class="input-group"><label>모집 정원</label><input type="number" id="edit-max"></div>
             <div class="input-group"><label>오픈채팅방 링크</label><input type="url" id="edit-chat"></div>
             <div class="input-group">
-                <!-- ⭐️ 다중 사진 첨부를 위해 multiple 추가 -->
                 <label>새 이미지로 변경 (여러 장 가능)</label>
                 <input type="file" id="edit-image-file" accept="image/*" multiple>
                 <p style="font-size:0.8rem; color:var(--primary); margin-top:5px;">* 첨부하지 않으면 기존 이미지 유지</p>
@@ -397,7 +394,8 @@ window.currentDetailType = 'event';
 window.groupedEvents = []; 
 window.listRenderCount = 0; 
 window.listObserver = null;
-window.calendarMode = 'list'; 
+// ⭐️ 기본 모드를 '월간 달력'으로 변경
+window.calendarMode = 'monthly'; 
 window.currentCalDate = new Date();
 
 window.fetchMyApplications = async function() {
@@ -1014,7 +1012,6 @@ window.openEventDetail = function(eventId, fromTab) {
     const isLiked = myName && likes.includes(myName);
     const likeCount = likes.length;
 
-    // ⭐️ 여러 장의 이미지가 있으면 반복해서 렌더링하도록 처리
     let imagesHtml = '';
     if (event.imageUrls && event.imageUrls.length > 0) {
         imagesHtml = event.imageUrls.map(url => `<img src="${url}" class="detail-img">`).join('');
@@ -1131,7 +1128,7 @@ window.deleteComment = async function(commentId) {
 };
 
 // ==========================================
-// 6. 캘린더 모드
+// 6. 캘린더 모드 ⭐️ 달력 배경색 로직 추가
 // ==========================================
 window.setCalendarMode = function(mode) { 
     window.calendarMode = mode; 
@@ -1181,9 +1178,24 @@ window.renderCalendar = function() {
         const todayObj = new Date();
         
         let html = '<div class="monthly-grid">';
-        ['일','월','화','수','목','금','토'].forEach(day => html += `<div class="m-day-header">${day}</div>`);
-        for(let i=0; i<firstDayOfWeek; i++) html += '<div class="m-day empty"></div>';
         
+        // 상단 요일 헤더 렌더링 (일요일, 토요일 색상 지정)
+        ['일','월','화','수','목','금','토'].forEach((day, idx) => {
+            let color = 'var(--text-gray)';
+            if (idx === 0) color = 'rgba(220, 53, 69, 0.8)'; // 일요일 헤더 색
+            if (idx === 6) color = 'rgba(13, 110, 253, 0.8)'; // 토요일 헤더 색
+            html += `<div class="m-day-header" style="color:${color};">${day}</div>`;
+        });
+        
+        // 1일 이전 빈 칸 렌더링
+        for(let i=0; i<firstDayOfWeek; i++) {
+            let bg = 'var(--card-bg)';
+            if (i === 0) bg = 'rgba(220, 53, 69, 0.05)';
+            if (i === 6) bg = 'rgba(13, 110, 253, 0.05)';
+            html += `<div class="m-day empty" style="background:${bg}; border:none;"></div>`;
+        }
+        
+        // 날짜 렌더링
         for(let d=1; d<=daysInMonth; d++) {
             let evs = window.allFetchedEvents.filter(e => { const ed = new Date(e.date); return ed.getFullYear() === year && ed.getMonth() === month && ed.getDate() === d; });
             let evHtml = '';
@@ -1192,14 +1204,33 @@ window.renderCalendar = function() {
                     evHtml = `<div style="filter:blur(3px); user-select:none; margin-top:5px; font-size:0.7rem; color:var(--primary); font-weight:bold; text-align:center;">🔒 비공개</div>`;
                 } else {
                     evHtml = evs.map(e => {
-                        // ⭐️ 일정 제목 10글자 초과 시 말줄임 처리
                         const displayTitle = e.title.length > 10 ? e.title.substring(0, 10) + '...' : e.title;
                         return `<div class="m-event" onclick="event.stopPropagation(); openEventDetail('${e.id}', 'calendar')">${displayTitle}</div>`;
                     }).join('');
                 }
             }
+            
+            const currentIterDate = new Date(year, month, d);
+            const dayOfWeek = currentIterDate.getDay();
             const isToday = (year === todayObj.getFullYear() && month === todayObj.getMonth() && d === todayObj.getDate());
-            html += `<div class="m-day" ${!window.isUserApproved && evs.length > 0 ? "onclick=\"alert('가입 승인 후 확인할 수 있습니다.')\"" : ""}><span style="color:${isToday ? 'var(--primary)' : 'var(--text-dark)'}; font-weight:${isToday ? 'bold' : 'normal'};">${d}</span>${evHtml}</div>`;
+            
+            // ⭐️ 요일별 아주 연한 배경색 및 텍스트 색상 처리
+            let bg = 'var(--card-bg)';
+            let dayColor = 'var(--text-dark)';
+            
+            if (dayOfWeek === 0) { // 일요일
+                bg = 'rgba(220, 53, 69, 0.05)';
+                dayColor = 'rgba(220, 53, 69, 0.8)';
+            }
+            if (dayOfWeek === 6) { // 토요일
+                bg = 'rgba(13, 110, 253, 0.05)';
+                dayColor = 'rgba(13, 110, 253, 0.8)';
+            }
+            if (isToday) { // 오늘 날짜면 강조색 덮어쓰기
+                dayColor = 'var(--primary)';
+            }
+
+            html += `<div class="m-day" style="background:${bg};" ${!window.isUserApproved && evs.length > 0 ? "onclick=\"alert('가입 승인 후 확인할 수 있습니다.')\"" : ""}><span style="color:${dayColor}; font-weight:${isToday ? 'bold' : 'normal'};">${d}</span>${evHtml}</div>`;
         }
         grid.innerHTML = html + '</div>';
     }
@@ -1235,7 +1266,7 @@ window.checkProfileAndOpenCreate = function() {
     openModal('createModal');
 };
 
-// ⭐️ 여러 장 사진 업로드를 위해 로직 대폭 수정 (안전한 파일명 및 반복문)
+// ⭐️ 텍스트 '업로드 중...'으로 수정
 window.registerEvent = async function() {
     const cat = document.getElementById('event-category').value; 
     const title = document.getElementById('event-title').value; 
@@ -1244,18 +1275,16 @@ window.registerEvent = async function() {
     const max = parseInt(document.getElementById('event-max').value); 
     const chat = document.getElementById('event-chat').value; 
     const desc = document.getElementById('event-desc').value; 
-    const files = document.getElementById('event-image-file').files; // 배열 형태로 받아오기
+    const files = document.getElementById('event-image-file').files;
     
     if(!title||!date||!loc||!max) return alert("필수 정보를 모두 입력해주세요.");
     
-    document.getElementById('reg-btn').innerText = "사진 업로드 중... (잠시만 기다려주세요)";
+    document.getElementById('reg-btn').innerText = "업로드 중... (잠시만 기다려주세요)";
     
     try {
         let imageUrls = [];
-        // 파일이 있으면 반복하면서 모두 업로드
         if(files.length > 0) {
             for(let i=0; i<files.length; i++) {
-                // 모바일 파일명 오류 방지를 위해 안전한 랜덤 문자열 생성
                 const safeName = Date.now() + '_' + Math.random().toString(36).substring(2, 8);
                 const sRef = ref(storage, 'events/' + safeName);
                 await uploadBytes(sRef, files[i]);
@@ -1264,7 +1293,6 @@ window.registerEvent = async function() {
             }
         }
         
-        // 대표 썸네일(imageUrl)은 배열의 첫 번째 이미지로, 전체 리스트는 imageUrls에 저장
         const imageUrl = imageUrls.length > 0 ? imageUrls[0] : "";
 
         await addDoc(collection(db, "events"), { 
@@ -1297,7 +1325,7 @@ window.openEditModal = function(id) {
     openModal('editModal');
 };
 
-// ⭐️ 일정 수정 시 여러 사진 업로드 및 모바일 버그 완벽 대응
+// ⭐️ 텍스트 '수정 중...'으로 수정
 window.updateEvent = async function() {
     const cat = document.getElementById('edit-category').value; 
     const title = document.getElementById('edit-title').value; 
@@ -1310,7 +1338,7 @@ window.updateEvent = async function() {
     
     if(!title||!date||!loc||!max) return alert("필수 정보를 입력해주세요!");
     
-    document.getElementById('update-btn').innerText = "수정 중... (사진 업로드 진행 중)";
+    document.getElementById('update-btn').innerText = "수정 중...";
     
     try {
         let upData = { category: cat, title, location: loc, date, maxParticipants: max, chatLink: chat, description: desc };
