@@ -68,7 +68,7 @@
 
         .card { background: var(--card-bg); border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border); display: flex; flex-direction: column; cursor: pointer; position: relative; padding: 20px; transition: transform 0.2s;}
         .card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
-        .card.closed { opacity: 0.6; filter: grayscale(50%); } /* 마감된 일정 스타일 */
+        .card.closed { opacity: 0.6; filter: grayscale(50%); } 
         
         .card-img { width: calc(100% + 40px); height: 180px; object-fit: cover; background: var(--border); display: block; margin: -20px -20px 20px -20px; border-radius: 12px 12px 0 0;}
         .card-tag { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
@@ -111,8 +111,8 @@
         .blur-overlay span { background: var(--card-bg); padding: 5px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--text-dark);}
 
         /* 상세 페이지 및 댓글 영역 */
-        .detail-img { width: 100%; height: 300px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; background: var(--border);}
-        @media (max-width: 639px) { .detail-img { height: 200px; } }
+        .detail-img { width: 100%; max-height: 400px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; background: var(--border);}
+        @media (max-width: 639px) { .detail-img { max-height: 250px; } }
         .detail-desc { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); font-size: 1.05rem; line-height: 1.8; white-space: pre-wrap; margin-bottom: 20px;}
 
         .comment-section { margin-top: 30px; border-top: 2px solid var(--border); padding-top: 20px; }
@@ -139,7 +139,7 @@
         .monthly-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
         .m-day-header { font-weight: bold; text-align: center; margin-bottom: 5px; color: var(--text-gray); font-size: 0.9rem;}
         .m-day { background: var(--card-bg); border-radius: 5px; padding: 5px; border: 1px solid var(--border); min-height: 85px; font-size: 0.85rem; display:flex; flex-direction:column; gap:3px;}
-        .m-event { font-size: 0.75rem; background: var(--primary-light); color: var(--primary); padding: 3px 5px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; cursor: pointer; font-weight: bold;}
+        .m-event { font-size: 0.75rem; background: var(--primary-light); color: var(--primary); padding: 3px 5px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; cursor: pointer; font-weight: bold; white-space: nowrap;}
 
         .skeleton { background: linear-gradient(90deg, var(--skeleton) 25%, var(--skeleton-shine) 50%, var(--skeleton) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px;}
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
@@ -234,6 +234,8 @@
                     <button class="btn btn-apply" onclick="login()">로그인</button>
                     <button class="btn" style="background:var(--border); color:var(--text-dark);" onclick="signup()">새로 가입</button>
                 </div>
+                <!-- ⭐️ 아이디/비밀번호 찾기 버튼 추가 -->
+                <button class="btn" style="background:none; color:var(--text-gray); margin-top:10px; font-size:0.9rem; text-decoration:underline; width:100%; text-align:center;" onclick="alert('jooonhyeok@gmail.com으로 문의하세요.')">아이디 / 비밀번호 찾기</button>
             </div>
 
             <div id="profile-section" style="display:none;">
@@ -311,6 +313,7 @@
             
             <div class="input-group">
                 <label>사진 첨부 (선택)</label>
+                <!-- ⭐️ 게시글 다중 사진 업로드 추가 고려 (기존 코드 유지) -->
                 <input type="file" id="post-image-file" accept="image/*">
             </div>
 
@@ -328,7 +331,8 @@
             <div class="input-group"><label>날짜 및 시간</label><input type="datetime-local" id="event-date"></div>
             <div class="input-group"><label>모집 정원 (본인 포함)</label><input type="number" id="event-max"></div>
             <div class="input-group"><label>오픈채팅방 링크</label><input type="url" id="event-chat"></div>
-            <div class="input-group"><label>이미지 첨부 (선택)</label><input type="file" id="event-image-file" accept="image/*"></div>
+            <!-- ⭐️ 다중 사진 첨부를 위해 multiple 추가 -->
+            <div class="input-group"><label>이미지 첨부 (여러 장 가능)</label><input type="file" id="event-image-file" accept="image/*" multiple></div>
             <div class="input-group"><label>상세 내용</label><textarea id="event-desc" style="height:100px;"></textarea></div>
             <button id="reg-btn" class="btn btn-apply" onclick="registerEvent()">등록하기</button>
             <button class="btn btn-delete" onclick="closeModal('createModal')">취소</button>
@@ -345,8 +349,9 @@
             <div class="input-group"><label>모집 정원</label><input type="number" id="edit-max"></div>
             <div class="input-group"><label>오픈채팅방 링크</label><input type="url" id="edit-chat"></div>
             <div class="input-group">
-                <label>새 이미지로 변경 (선택)</label>
-                <input type="file" id="edit-image-file" accept="image/*">
+                <!-- ⭐️ 다중 사진 첨부를 위해 multiple 추가 -->
+                <label>새 이미지로 변경 (여러 장 가능)</label>
+                <input type="file" id="edit-image-file" accept="image/*" multiple>
                 <p style="font-size:0.8rem; color:var(--primary); margin-top:5px;">* 첨부하지 않으면 기존 이미지 유지</p>
             </div>
             <div class="input-group"><label>상세 내용</label><textarea id="edit-desc" style="height:100px;"></textarea></div>
@@ -701,7 +706,7 @@ window.loadCommunity = async function(category) {
             const dateObj = post.createdAt?.toDate ? post.createdAt.toDate() : new Date(post.createdAt);
             const dateStr = `${dateObj.getMonth()+1}.${dateObj.getDate()}`;
             const likeCount = (post.likes || []).length;
-            const imgIcon = post.imageUrl ? ' 🖼️' : ''; // 사진 아이콘 표시
+            const imgIcon = post.imageUrl ? ' 🖼️' : ''; 
 
             if (post.isSecret && myName !== 'admin' && myName !== post.author) {
                 html += `<div class="board-item">
@@ -730,7 +735,7 @@ window.loadCommunity = async function(category) {
 window.openPostModal = function(category, eventId = '', eventTitle = '', applyId = '') {
     document.getElementById('post-category').value = category;
     document.getElementById('post-title').value = ''; document.getElementById('post-content').value = '';
-    document.getElementById('post-image-file').value = ''; // 사진 초기화
+    document.getElementById('post-image-file').value = ''; 
     
     document.getElementById('post-is-secret').checked = false;
     document.getElementById('post-secret-group').style.display = (category === 'inquiry') ? 'block' : 'none';
@@ -745,7 +750,6 @@ window.openPostModal = function(category, eventId = '', eventTitle = '', applyId
     openModal('postModal');
 };
 
-// ⭐️ 게시글 작성 시 이미지 스토리지 업로드 로직 추가
 window.savePost = async function() {
     const cat = document.getElementById('post-category').value; 
     const title = document.getElementById('post-title').value; 
@@ -804,7 +808,6 @@ window.openPostDetail = async function(postId, fromTab) {
     const refHtml = post.eventTitle ? `<div style="font-size:0.9rem; color:var(--primary); margin-bottom:10px; font-weight:bold;">🔗 참조: ${post.eventTitle}</div>` : '';
     const secretBadge = post.isSecret ? '<span style="color:var(--danger); font-size:1rem;">[🔒비밀글]</span> ' : '';
     
-    // 사진이 있으면 보여주기
     const postImageHtml = post.imageUrl ? `<img src="${post.imageUrl}" class="detail-img" style="margin-bottom:15px; border-radius:8px; height:auto; max-height:400px;">` : '';
 
     const detailHtml = `
@@ -840,7 +843,7 @@ window.deletePost = async function(id) {
 
 
 // ==========================================
-// 4. 메인 홈 (HOME) - ⭐️ 검색, 마감 분리, D-Day
+// 4. 메인 홈 (HOME)
 // ==========================================
 window.setCategory = function(cat) { 
     window.currentCategory = cat; 
@@ -863,7 +866,6 @@ window.renderFilteredEvents = function() {
     const closedSection = document.getElementById('closed-events-section');
     const myName = localStorage.getItem('myNickname');
     
-    // 검색어 필터링 적용
     const searchQuery = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : '';
 
     let filtered = window.currentCategory === '전체' ? window.allFetchedEvents : window.allFetchedEvents.filter(e => e.category === window.currentCategory);
@@ -883,7 +885,6 @@ window.renderFilteredEvents = function() {
         const isPast = eventDate < now;
         const isClosed = isFull || isPast;
 
-        // ⭐️ D-Day 계산 로직
         const todayObj = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const eventDateObj = new Date(eventDate.getFullYear(), eventDate.getMonth(), eventDate.getDate());
         const diffTime = eventDateObj - todayObj;
@@ -1013,8 +1014,16 @@ window.openEventDetail = function(eventId, fromTab) {
     const isLiked = myName && likes.includes(myName);
     const likeCount = likes.length;
 
+    // ⭐️ 여러 장의 이미지가 있으면 반복해서 렌더링하도록 처리
+    let imagesHtml = '';
+    if (event.imageUrls && event.imageUrls.length > 0) {
+        imagesHtml = event.imageUrls.map(url => `<img src="${url}" class="detail-img">`).join('');
+    } else if (event.imageUrl) {
+        imagesHtml = `<img src="${event.imageUrl}" class="detail-img">`;
+    }
+
     const detailHtml = `
-        ${event.imageUrl ? `<img src="${event.imageUrl}" class="detail-img">` : ''}
+        ${imagesHtml}
         <div style="display:flex; justify-content:space-between; align-items:start;">
             <div class="card-tag">#${event.category || '기타'}</div>
             <button class="btn" style="width:auto; padding:5px 15px; background:none; border:1px solid var(--border); color:${isWished?'#FF4B4B':'var(--text-gray)'};" onclick="toggleWishlist('${event.id}', event)">
@@ -1179,8 +1188,15 @@ window.renderCalendar = function() {
             let evs = window.allFetchedEvents.filter(e => { const ed = new Date(e.date); return ed.getFullYear() === year && ed.getMonth() === month && ed.getDate() === d; });
             let evHtml = '';
             if(evs.length > 0) {
-                if(!window.isUserApproved) evHtml = `<div style="filter:blur(3px); user-select:none; margin-top:5px; font-size:0.7rem; color:var(--primary); font-weight:bold; text-align:center;">🔒 비공개</div>`;
-                else evHtml = evs.map(e => `<div class="m-event" onclick="event.stopPropagation(); openEventDetail('${e.id}', 'calendar')">${e.title}</div>`).join('');
+                if(!window.isUserApproved) {
+                    evHtml = `<div style="filter:blur(3px); user-select:none; margin-top:5px; font-size:0.7rem; color:var(--primary); font-weight:bold; text-align:center;">🔒 비공개</div>`;
+                } else {
+                    evHtml = evs.map(e => {
+                        // ⭐️ 일정 제목 10글자 초과 시 말줄임 처리
+                        const displayTitle = e.title.length > 10 ? e.title.substring(0, 10) + '...' : e.title;
+                        return `<div class="m-event" onclick="event.stopPropagation(); openEventDetail('${e.id}', 'calendar')">${displayTitle}</div>`;
+                    }).join('');
+                }
             }
             const isToday = (year === todayObj.getFullYear() && month === todayObj.getMonth() && d === todayObj.getDate());
             html += `<div class="m-day" ${!window.isUserApproved && evs.length > 0 ? "onclick=\"alert('가입 승인 후 확인할 수 있습니다.')\"" : ""}><span style="color:${isToday ? 'var(--primary)' : 'var(--text-dark)'}; font-weight:${isToday ? 'bold' : 'normal'};">${d}</span>${evHtml}</div>`;
@@ -1219,17 +1235,54 @@ window.checkProfileAndOpenCreate = function() {
     openModal('createModal');
 };
 
+// ⭐️ 여러 장 사진 업로드를 위해 로직 대폭 수정 (안전한 파일명 및 반복문)
 window.registerEvent = async function() {
-    const cat = document.getElementById('event-category').value; const title = document.getElementById('event-title').value; const loc = document.getElementById('event-location').value; const date = document.getElementById('event-date').value; const max = parseInt(document.getElementById('event-max').value); const chat = document.getElementById('event-chat').value; const desc = document.getElementById('event-desc').value; const file = document.getElementById('event-image-file').files[0];
+    const cat = document.getElementById('event-category').value; 
+    const title = document.getElementById('event-title').value; 
+    const loc = document.getElementById('event-location').value; 
+    const date = document.getElementById('event-date').value; 
+    const max = parseInt(document.getElementById('event-max').value); 
+    const chat = document.getElementById('event-chat').value; 
+    const desc = document.getElementById('event-desc').value; 
+    const files = document.getElementById('event-image-file').files; // 배열 형태로 받아오기
+    
     if(!title||!date||!loc||!max) return alert("필수 정보를 모두 입력해주세요.");
     
-    document.getElementById('reg-btn').innerText = "업로드 중...";
+    document.getElementById('reg-btn').innerText = "사진 업로드 중... (잠시만 기다려주세요)";
+    
     try {
-        let imageUrl = "";
-        if(file) { const sRef = ref(storage, 'events/' + Date.now() + '_' + file.name); await uploadBytes(sRef, file); imageUrl = await getDownloadURL(sRef); }
-        await addDoc(collection(db, "events"), { category: cat, title, location: loc, date, maxParticipants: max, approvedCount: 0, chatLink: chat, description: desc, imageUrl, likes: [], wishlist: [], host: localStorage.getItem('myNickname'), createdAt: new Date() });
-        alert("등록 완료!"); closeModal('createModal'); loadEvents();
-    } catch(e) {} finally { document.getElementById('reg-btn').innerText = "등록하기"; }
+        let imageUrls = [];
+        // 파일이 있으면 반복하면서 모두 업로드
+        if(files.length > 0) {
+            for(let i=0; i<files.length; i++) {
+                // 모바일 파일명 오류 방지를 위해 안전한 랜덤 문자열 생성
+                const safeName = Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+                const sRef = ref(storage, 'events/' + safeName);
+                await uploadBytes(sRef, files[i]);
+                const url = await getDownloadURL(sRef);
+                imageUrls.push(url);
+            }
+        }
+        
+        // 대표 썸네일(imageUrl)은 배열의 첫 번째 이미지로, 전체 리스트는 imageUrls에 저장
+        const imageUrl = imageUrls.length > 0 ? imageUrls[0] : "";
+
+        await addDoc(collection(db, "events"), { 
+            category: cat, title, location: loc, date, maxParticipants: max, 
+            approvedCount: 0, chatLink: chat, description: desc, 
+            imageUrl: imageUrl, imageUrls: imageUrls, 
+            likes: [], wishlist: [], host: localStorage.getItem('myNickname'), createdAt: new Date() 
+        });
+        
+        alert("일정 등록이 완료되었습니다!"); 
+        closeModal('createModal'); 
+        loadEvents();
+    } catch(e) { 
+        console.error("등록 에러:", e);
+        alert("사진 업로드 중 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally { 
+        document.getElementById('reg-btn').innerText = "등록하기"; 
+    }
 };
 
 window.openEditModal = function(id) {
@@ -1244,16 +1297,48 @@ window.openEditModal = function(id) {
     openModal('editModal');
 };
 
+// ⭐️ 일정 수정 시 여러 사진 업로드 및 모바일 버그 완벽 대응
 window.updateEvent = async function() {
-    const cat = document.getElementById('edit-category').value; const title = document.getElementById('edit-title').value; const loc = document.getElementById('edit-location').value; const date = document.getElementById('edit-date').value; const max = parseInt(document.getElementById('edit-max').value); const chat = document.getElementById('edit-chat').value; const desc = document.getElementById('edit-desc').value; const file = document.getElementById('edit-image-file').files[0];
-    if(!title||!date||!loc||!max) return alert("필수 입력!");
-    document.getElementById('update-btn').innerText = "수정 중...";
+    const cat = document.getElementById('edit-category').value; 
+    const title = document.getElementById('edit-title').value; 
+    const loc = document.getElementById('edit-location').value; 
+    const date = document.getElementById('edit-date').value; 
+    const max = parseInt(document.getElementById('edit-max').value); 
+    const chat = document.getElementById('edit-chat').value; 
+    const desc = document.getElementById('edit-desc').value; 
+    const files = document.getElementById('edit-image-file').files;
+    
+    if(!title||!date||!loc||!max) return alert("필수 정보를 입력해주세요!");
+    
+    document.getElementById('update-btn').innerText = "수정 중... (사진 업로드 진행 중)";
+    
     try {
         let upData = { category: cat, title, location: loc, date, maxParticipants: max, chatLink: chat, description: desc };
-        if(file) { const sRef = ref(storage, 'events/' + Date.now() + '_' + file.name); await uploadBytes(sRef, file); upData.imageUrl = await getDownloadURL(sRef); }
+        
+        if(files.length > 0) { 
+            let imageUrls = [];
+            for(let i=0; i<files.length; i++) {
+                const safeName = Date.now() + '_' + Math.random().toString(36).substring(2, 8);
+                const sRef = ref(storage, 'events/' + safeName);
+                await uploadBytes(sRef, files[i]);
+                const url = await getDownloadURL(sRef);
+                imageUrls.push(url);
+            }
+            upData.imageUrl = imageUrls[0];
+            upData.imageUrls = imageUrls;
+        }
+        
         await updateDoc(doc(db, "events", window.currentEditEventId), upData);
-        alert("수정 완료!"); closeModal('editModal'); await loadEvents(); openEventDetail(window.currentEditEventId);
-    } catch(e) {} finally { document.getElementById('update-btn').innerText = "수정 완료"; }
+        alert("수정이 완료되었습니다!"); 
+        closeModal('editModal'); 
+        await loadEvents(); 
+        openEventDetail(window.currentEditEventId);
+    } catch(e) { 
+        console.error("수정 에러:", e);
+        alert("업로드 도중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    } finally { 
+        document.getElementById('update-btn').innerText = "수정 완료"; 
+    }
 };
 
 window.deleteEvent = async function(id) { if(!confirm("삭제하시겠습니까?")) return; await deleteDoc(doc(db, "events", id)); loadEvents(); switchTab('list'); };
