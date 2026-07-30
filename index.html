@@ -164,11 +164,12 @@
             <span class="logo-pc">⛺ 퇴근 후 취미 상점</span>
             <span class="logo-mo">⛺ 취미상점</span>
         </div>
+        <!-- ⭐️ 상단 메뉴 텍스트 및 이모지 변경 -->
         <div class="nav-buttons">
-            <button class="active" onclick="switchTab('list')">HOME</button>
-            <button onclick="switchTab('calendar')">CALENDAR</button>
-            <button onclick="switchTab('community')">COMMUNITY</button>
-            <button onclick="switchTab('mypage')">MY <span id="my-badge" class="badge"></span></button>
+            <button class="active" onclick="switchTab('list')">홈</button>
+            <button onclick="switchTab('calendar')">일정</button>
+            <button onclick="switchTab('community')">게시판</button>
+            <button onclick="switchTab('mypage')">👤 <span id="my-badge" class="badge"></span></button>
             <button class="theme-btn" onclick="toggleTheme()">☀️</button>
         </div>
     </header>
@@ -203,7 +204,6 @@
         </div>
 
         <div id="calendar-view" class="view-section">
-            <!-- ⭐️ 토글 순서 및 텍스트 수정 (월간 달력이 먼저 오도록 변경) -->
             <div class="calendar-toggle-group">
                 <button id="btn-monthly" class="toggle-btn active" onclick="setCalendarMode('monthly')">월간 달력</button>
                 <button id="btn-list" class="toggle-btn" onclick="setCalendarMode('list')">전체 일정</button>
@@ -394,7 +394,6 @@ window.currentDetailType = 'event';
 window.groupedEvents = []; 
 window.listRenderCount = 0; 
 window.listObserver = null;
-// ⭐️ 기본 모드를 '월간 달력'으로 변경
 window.calendarMode = 'monthly'; 
 window.currentCalDate = new Date();
 
@@ -1128,7 +1127,7 @@ window.deleteComment = async function(commentId) {
 };
 
 // ==========================================
-// 6. 캘린더 모드 ⭐️ 달력 배경색 로직 추가
+// 6. 캘린더 모드
 // ==========================================
 window.setCalendarMode = function(mode) { 
     window.calendarMode = mode; 
@@ -1179,15 +1178,13 @@ window.renderCalendar = function() {
         
         let html = '<div class="monthly-grid">';
         
-        // 상단 요일 헤더 렌더링 (일요일, 토요일 색상 지정)
         ['일','월','화','수','목','금','토'].forEach((day, idx) => {
             let color = 'var(--text-gray)';
-            if (idx === 0) color = 'rgba(220, 53, 69, 0.8)'; // 일요일 헤더 색
-            if (idx === 6) color = 'rgba(13, 110, 253, 0.8)'; // 토요일 헤더 색
+            if (idx === 0) color = 'rgba(220, 53, 69, 0.8)'; 
+            if (idx === 6) color = 'rgba(13, 110, 253, 0.8)'; 
             html += `<div class="m-day-header" style="color:${color};">${day}</div>`;
         });
         
-        // 1일 이전 빈 칸 렌더링
         for(let i=0; i<firstDayOfWeek; i++) {
             let bg = 'var(--card-bg)';
             if (i === 0) bg = 'rgba(220, 53, 69, 0.05)';
@@ -1195,7 +1192,6 @@ window.renderCalendar = function() {
             html += `<div class="m-day empty" style="background:${bg}; border:none;"></div>`;
         }
         
-        // 날짜 렌더링
         for(let d=1; d<=daysInMonth; d++) {
             let evs = window.allFetchedEvents.filter(e => { const ed = new Date(e.date); return ed.getFullYear() === year && ed.getMonth() === month && ed.getDate() === d; });
             let evHtml = '';
@@ -1214,19 +1210,18 @@ window.renderCalendar = function() {
             const dayOfWeek = currentIterDate.getDay();
             const isToday = (year === todayObj.getFullYear() && month === todayObj.getMonth() && d === todayObj.getDate());
             
-            // ⭐️ 요일별 아주 연한 배경색 및 텍스트 색상 처리
             let bg = 'var(--card-bg)';
             let dayColor = 'var(--text-dark)';
             
-            if (dayOfWeek === 0) { // 일요일
+            if (dayOfWeek === 0) { 
                 bg = 'rgba(220, 53, 69, 0.05)';
                 dayColor = 'rgba(220, 53, 69, 0.8)';
             }
-            if (dayOfWeek === 6) { // 토요일
+            if (dayOfWeek === 6) { 
                 bg = 'rgba(13, 110, 253, 0.05)';
                 dayColor = 'rgba(13, 110, 253, 0.8)';
             }
-            if (isToday) { // 오늘 날짜면 강조색 덮어쓰기
+            if (isToday) { 
                 dayColor = 'var(--primary)';
             }
 
@@ -1266,7 +1261,6 @@ window.checkProfileAndOpenCreate = function() {
     openModal('createModal');
 };
 
-// ⭐️ 텍스트 '업로드 중...'으로 수정
 window.registerEvent = async function() {
     const cat = document.getElementById('event-category').value; 
     const title = document.getElementById('event-title').value; 
@@ -1325,7 +1319,6 @@ window.openEditModal = function(id) {
     openModal('editModal');
 };
 
-// ⭐️ 텍스트 '수정 중...'으로 수정
 window.updateEvent = async function() {
     const cat = document.getElementById('edit-category').value; 
     const title = document.getElementById('edit-title').value; 
