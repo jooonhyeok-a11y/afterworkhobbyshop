@@ -48,6 +48,26 @@
         #list-view { display: block; max-width: 1200px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* ⭐️ 자동 롤링 배너 스타일 */
+        .banner-container {
+            width: 100%; overflow-x: auto; display: flex; gap: 15px; padding-bottom: 10px; margin-bottom: 20px;
+            scroll-snap-type: x mandatory; -ms-overflow-style: none; scrollbar-width: none; scroll-behavior: smooth;
+        }
+        .banner-container::-webkit-scrollbar { display: none; }
+        .banner-item {
+            flex: 0 0 85%; height: 220px; border-radius: 12px; position: relative; scroll-snap-align: center; 
+            overflow: hidden; cursor: pointer; background: var(--border); box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        @media (min-width: 640px) { .banner-item { flex: 0 0 45%; height: 250px; } }
+        .banner-img { width: 100%; height: 100%; object-fit: cover; }
+        .banner-overlay {
+            position: absolute; bottom: 0; left: 0; width: 100%; padding: 50px 20px 15px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.85)); color: white;
+            display: flex; flex-direction: column; gap: 5px;
+        }
+        .banner-title { font-weight: bold; font-size: 1.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .banner-date { font-size: 0.85rem; color: #E0E0E0; }
+
         /* 검색창 및 필터 */
         .search-box { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 10px; background: var(--card-bg); color: var(--text-dark); margin-bottom: 15px; font-size: 0.95rem; }
         .category-filters { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 15px; margin-bottom: 5px; -ms-overflow-style: none; scrollbar-width: none; }
@@ -76,7 +96,6 @@
         .card-loc { font-size: 0.85rem; color: var(--text-dark); margin-bottom: 10px; font-weight: bold;}
         .card-info { display: flex; justify-content: space-between; color: var(--text-gray); font-size: 0.85rem; align-items: center; margin-top: auto;}
         
-        /* D-Day 배지 및 하트 버튼 */
         .d-day-badge { position: absolute; top: 10px; left: 10px; background: var(--primary); color: white; padding: 4px 10px; border-radius: 20px; font-weight: bold; font-size: 0.8rem; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.2);}
         .d-day-badge.today { background: #FF9800; color: #000; }
         .d-day-badge.closed { background: var(--text-gray); }
@@ -85,7 +104,6 @@
         .like-btn.liked { color: #FF4B4B; }
         .like-count { font-size: 0.8rem; color: var(--text-dark); display: flex; align-items: center; gap: 3px; font-weight: bold;}
 
-        /* 모바일 전용 UI 개선 (가로 배치 리스트) */
         @media (max-width: 639px) {
             .card { flex-direction: row; padding: 15px; gap: 15px; align-items: stretch; min-height: 120px; }
             .card-img { width: 90px; height: 90px; margin: 0; border-radius: 12px; flex-shrink: 0; }
@@ -98,7 +116,6 @@
             .d-day-badge { top: 5px; left: 5px; font-size: 0.7rem; padding: 3px 8px;}
         }
 
-        /* 커뮤니티 게시판 표 형태 */
         .board-list { border-top: 2px solid var(--text-dark); margin-bottom: 20px; }
         .board-item { display: flex; justify-content: space-between; padding: 15px 10px; border-bottom: 1px solid var(--border); align-items: center; cursor: pointer; transition: background 0.2s;}
         .board-item:hover { background: var(--bg-color); }
@@ -110,9 +127,8 @@
         .blur-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(var(--bg-color), 0.4); z-index: 10; display: flex; justify-content: center; align-items: center; font-weight: bold; border-radius: 12px;}
         .blur-overlay span { background: var(--card-bg); padding: 5px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--text-dark);}
 
-        /* 상세 페이지 및 댓글 영역 */
-        .detail-img { width: 100%; max-height: 400px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; background: var(--border);}
-        @media (max-width: 639px) { .detail-img { max-height: 250px; } }
+        /* ⭐️ 상세 페이지 사진 (원본 크기) 설정 */
+        .detail-full-img { width: 100%; height: auto; border-radius: 12px; margin-top: 15px; display: block; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .detail-desc { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); font-size: 1.05rem; line-height: 1.8; white-space: pre-wrap; margin-bottom: 20px;}
 
         .comment-section { margin-top: 30px; border-top: 2px solid var(--border); padding-top: 20px; }
@@ -164,7 +180,6 @@
             <span class="logo-pc">⛺ 퇴근 후 취미 상점</span>
             <span class="logo-mo">⛺ 취미상점</span>
         </div>
-        <!-- ⭐️ 상단 메뉴 텍스트 및 이모지 변경 -->
         <div class="nav-buttons">
             <button class="active" onclick="switchTab('list')">홈</button>
             <button onclick="switchTab('calendar')">일정</button>
@@ -183,6 +198,9 @@
                 </div>
                 <button class="btn btn-apply" onclick="switchTab('mypage')">로그인 / 가입하기</button>
             </div>
+            
+            <!-- ⭐️ 자동 롤링 배너 영역 -->
+            <div id="home-banner-container" class="banner-container" style="display:none;"></div>
             
             <input type="text" id="search-input" class="search-box" placeholder="🔍 일정 제목이나 지역으로 검색해보세요" oninput="renderFilteredEvents()">
             
@@ -229,11 +247,12 @@
         <div id="mypage-view" class="view-section">
             <div id="auth-section" class="auth-box">
                 <h3>환영합니다! 👋</h3>
-                <div class="input-group"><label>닉네임</label><input type="text" id="auth-id"></div>
+                <div class="input-group"><label>아이디 (닉네임)</label><input type="text" id="auth-id"></div>
                 <div class="input-group"><label>비밀번호</label><input type="password" id="auth-pw"></div>
                 <div style="display:flex; gap:10px; margin-top:25px;">
                     <button class="btn btn-apply" onclick="login()">로그인</button>
-                    <button class="btn" style="background:var(--border); color:var(--text-dark);" onclick="signup()">새로 가입</button>
+                    <!-- ⭐️ 새로 가입 버튼 클릭 시 팝업 띄우기 -->
+                    <button class="btn" style="background:var(--border); color:var(--text-dark);" onclick="openModal('signupModal')">새로 가입</button>
                 </div>
                 <button class="btn" style="background:none; color:var(--text-gray); margin-top:10px; font-size:0.9rem; text-decoration:underline; width:100%; text-align:center;" onclick="alert('jooonhyeok@gmail.com으로 문의하세요.')">아이디 / 비밀번호 찾기</button>
             </div>
@@ -277,6 +296,27 @@
     </main>
 
     <button class="fab" onclick="handleFabClick()">+</button>
+
+    <!-- ⭐️ 회원가입 팝업 모달 -->
+    <div id="signupModal" class="modal">
+        <div class="modal-content">
+            <h3>회원가입 📝</h3>
+            <div class="input-group">
+                <label>아이디 (닉네임)</label>
+                <input type="text" id="signup-id" placeholder="사용할 닉네임을 입력하세요">
+            </div>
+            <div class="input-group">
+                <label>비밀번호</label>
+                <input type="password" id="signup-pw" placeholder="비밀번호를 입력하세요">
+            </div>
+            <div class="input-group">
+                <label>비밀번호 확인</label>
+                <input type="password" id="signup-pw-confirm" placeholder="비밀번호를 다시 한 번 입력하세요">
+            </div>
+            <button class="btn btn-apply" onclick="processSignup()">가입하기</button>
+            <button class="btn btn-delete" onclick="closeModal('signupModal')">취소</button>
+        </div>
+    </div>
 
     <div id="notiModal" class="modal">
         <div class="modal-content">
@@ -329,7 +369,7 @@
             <div class="input-group"><label>일정 장소</label><input type="text" id="event-location" placeholder="예: 여의나루역 2번 출구"></div>
             <div class="input-group"><label>날짜 및 시간</label><input type="datetime-local" id="event-date"></div>
             <div class="input-group"><label>모집 정원 (본인 포함)</label><input type="number" id="event-max"></div>
-            <div class="input-group"><label>오픈채팅방 링크</label><input type="url" id="event-chat"></div>
+            <div class="input-group"><label>오픈채팅방 링크</label><input type="url" id="event-chat" placeholder="당근 연동을 위한 오픈채팅방 링크"></div>
             <div class="input-group"><label>이미지 첨부 (여러 장 가능)</label><input type="file" id="event-image-file" accept="image/*" multiple></div>
             <div class="input-group"><label>상세 내용</label><textarea id="event-desc" style="height:100px;"></textarea></div>
             <button id="reg-btn" class="btn btn-apply" onclick="registerEvent()">등록하기</button>
@@ -357,7 +397,6 @@
         </div>
     </div>
 
-    <div id="applyModal" class="modal"><div class="modal-content"><h3>참가 신청 🙋</h3><div class="input-group"><textarea id="apply-message" placeholder="참여 동기를 적어주세요!"></textarea></div><button class="btn btn-apply" onclick="submitApplication()">제출</button><button class="btn btn-delete" onclick="closeModal('applyModal')">취소</button></div></div>
     <div id="manageModal" class="modal"><div class="modal-content"><h3>신청자 관리 👑</h3><div id="applicant-list"></div><button class="btn btn-delete" onclick="closeModal('manageModal')">닫기</button></div></div>
     <div id="userManageModal" class="modal"><div class="modal-content"><h3>가입 승인 관리 👥</h3><div id="pending-users-list"></div><button class="btn btn-delete" onclick="closeModal('userManageModal')">닫기</button></div></div>
 
@@ -396,6 +435,7 @@ window.listRenderCount = 0;
 window.listObserver = null;
 window.calendarMode = 'monthly'; 
 window.currentCalDate = new Date();
+window.bannerInterval = null; // 롤링 배너 타이머
 
 window.fetchMyApplications = async function() {
     const myName = localStorage.getItem('myNickname');
@@ -591,19 +631,23 @@ window.login = async function() {
     } catch(e) { alert("로그인 중 오류가 발생했습니다."); }
 };
 
-window.signup = async function() {
-    const id = document.getElementById('auth-id').value.trim(); 
-    const pw = document.getElementById('auth-pw').value.trim();
-    if(!id || !pw) return alert("입력칸을 모두 채워주세요.");
+// ⭐️ 새로운 팝업창을 통한 회원가입 처리 로직
+window.processSignup = async function() {
+    const id = document.getElementById('signup-id').value.trim(); 
+    const pw = document.getElementById('signup-pw').value.trim();
+    const pwConfirm = document.getElementById('signup-pw-confirm').value.trim();
+    
+    if(!id || !pw || !pwConfirm) return alert("모든 칸을 입력해주세요.");
+    if(pw !== pwConfirm) return alert("비밀번호가 일치하지 않습니다.");
     if(id === 'admin' && pw !== '0707') return alert("관리자 계정은 생성할 수 없습니다.");
     
     try {
         const userSnap = await getDoc(doc(db, "users", id));
-        if (userSnap.exists()) return alert("이미 존재하는 닉네임입니다.");
+        if (userSnap.exists()) return alert("이미 존재하는 아이디(닉네임)입니다.");
         
         await setDoc(doc(db, "users", id), { password: pw, status: id === 'admin' ? 'approved' : 'pending', createdAt: new Date() });
         localStorage.setItem('myNickname', id); 
-        alert("가입이 완료되었습니다! 승인 대기 상태로 전환됩니다."); 
+        alert("가입이 완료되었습니다! 관리자의 승인을 기다려주세요."); 
         location.reload();
     } catch(e) { alert("가입 중 오류가 발생했습니다."); }
 };
@@ -805,7 +849,7 @@ window.openPostDetail = async function(postId, fromTab) {
     const refHtml = post.eventTitle ? `<div style="font-size:0.9rem; color:var(--primary); margin-bottom:10px; font-weight:bold;">🔗 참조: ${post.eventTitle}</div>` : '';
     const secretBadge = post.isSecret ? '<span style="color:var(--danger); font-size:1rem;">[🔒비밀글]</span> ' : '';
     
-    const postImageHtml = post.imageUrl ? `<img src="${post.imageUrl}" class="detail-img" style="margin-bottom:15px; border-radius:8px; height:auto; max-height:400px;">` : '';
+    const postImageHtml = post.imageUrl ? `<img src="${post.imageUrl}" style="width:100%; height:auto; border-radius:12px; margin-bottom:15px;">` : '';
 
     const detailHtml = `
         ${refHtml}
@@ -840,7 +884,7 @@ window.deletePost = async function(id) {
 
 
 // ==========================================
-// 4. 메인 홈 (HOME)
+// 4. 메인 홈 (HOME) & 자동 배너
 // ==========================================
 window.setCategory = function(cat) { 
     window.currentCategory = cat; 
@@ -857,12 +901,60 @@ window.loadEvents = async function() {
     } catch(e) {}
 };
 
+// ⭐️ 메인 화면 롤링 배너 렌더링 함수
+window.renderBanner = function() {
+    const container = document.getElementById('home-banner-container');
+    if(!container || !window.isUserApproved) { container.style.display = 'none'; return; }
+    
+    const now = new Date();
+    // 다가오는 미래의 일정 중 날짜가 가까운 순서대로 3개 추출
+    let upcoming = window.allFetchedEvents
+        .filter(e => new Date(e.date) >= now && (e.approvedCount || 0) < (e.maxParticipants || 100))
+        .sort((a,b) => new Date(a.date) - new Date(b.date))
+        .slice(0, 3);
+        
+    if(upcoming.length === 0) {
+        container.style.display = 'none'; return;
+    }
+    
+    let html = '';
+    upcoming.forEach(e => {
+        const imgUrl = e.imageUrl || 'https://via.placeholder.com/400x200/F8F9FA/6C757D?text=No+Image';
+        const dateStr = new Date(e.date).toLocaleString('ko-KR', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+        html += `
+            <div class="banner-item" onclick="openEventDetail('${e.id}', 'list')">
+                <img src="${imgUrl}" class="banner-img">
+                <div class="banner-overlay">
+                    <span class="banner-title">${e.title}</span>
+                    <span class="banner-date">🕒 ${dateStr} | 📍 ${e.location || '미지정'}</span>
+                </div>
+            </div>`;
+    });
+    
+    container.innerHTML = html;
+    container.style.display = 'flex';
+    
+    // 자동 롤링 스크롤 로직
+    if(window.bannerInterval) clearInterval(window.bannerInterval);
+    let scrollPos = 0;
+    window.bannerInterval = setInterval(() => {
+        if(!container.children.length) return;
+        const itemWidth = container.children[0].offsetWidth + 15; // 아이템 폭 + 간격
+        scrollPos += itemWidth;
+        if(scrollPos >= container.scrollWidth - container.offsetWidth + 10) {
+            scrollPos = 0; // 끝에 도달하면 처음으로
+        }
+        container.scrollTo({left: scrollPos, behavior: 'smooth'});
+    }, 3500); // 3.5초마다 이동
+};
+
 window.renderFilteredEvents = function() {
+    renderBanner(); // 배너부터 렌더링
+    
     const container = document.getElementById('db-events');
     const closedContainer = document.getElementById('closed-events');
     const closedSection = document.getElementById('closed-events-section');
     const myName = localStorage.getItem('myNickname');
-    
     const searchQuery = document.getElementById('search-input') ? document.getElementById('search-input').value.toLowerCase() : '';
 
     let filtered = window.currentCategory === '전체' ? window.allFetchedEvents : window.allFetchedEvents.filter(e => e.category === window.currentCategory);
@@ -995,13 +1087,11 @@ window.openEventDetail = function(eventId, fromTab) {
                 <button class="btn btn-manage" onclick="openManageModal('${event.id}')">👑 신청자 관리</button>
                 <button class="btn btn-delete" onclick="deleteEvent('${event.id}')">🗑️ 삭제하기</button>`;
     } else {
-        const app = window.myApplications.find(a => a.eventId === event.id);
-        if(app) {
-            btns = `<button class="btn" disabled style="background:var(--border); color:var(--text-gray); cursor:not-allowed;">✅ 신청완료!</button>`;
-        } else if (isClosed) {
+        // ⭐️ 당근마켓 신청 버튼으로 연동 (오픈채팅방 새창 열기)
+        if (isClosed) {
             btns = `<button class="btn" disabled style="background:var(--border); color:var(--text-gray); cursor:not-allowed;">마감된 일정입니다</button>`;
         } else {
-            btns = `<button class="btn btn-apply" onclick="openApplyModal('${event.id}')">🙋 신청하기</button>`;
+            btns = `<button class="btn btn-apply" style="background:#FF8A3D;" onclick="event.chatLink ? window.open('${event.chatLink}', '_blank') : alert('주최자가 오픈채팅방 링크를 입력하지 않았습니다.')">🥕 당근에서 신청하기</button>`;
         }
     }
 
@@ -1011,15 +1101,15 @@ window.openEventDetail = function(eventId, fromTab) {
     const isLiked = myName && likes.includes(myName);
     const likeCount = likes.length;
 
+    // ⭐️ 원본 이미지 그대로 본문 아래쪽에 배치할 HTML 구성
     let imagesHtml = '';
     if (event.imageUrls && event.imageUrls.length > 0) {
-        imagesHtml = event.imageUrls.map(url => `<img src="${url}" class="detail-img">`).join('');
+        imagesHtml = event.imageUrls.map(url => `<img src="${url}" class="detail-full-img">`).join('');
     } else if (event.imageUrl) {
-        imagesHtml = `<img src="${event.imageUrl}" class="detail-img">`;
+        imagesHtml = `<img src="${event.imageUrl}" class="detail-full-img">`;
     }
 
     const detailHtml = `
-        ${imagesHtml}
         <div style="display:flex; justify-content:space-between; align-items:start;">
             <div class="card-tag">#${event.category || '기타'}</div>
             <button class="btn" style="width:auto; padding:5px 15px; background:none; border:1px solid var(--border); color:${isWished?'#FF4B4B':'var(--text-gray)'};" onclick="toggleWishlist('${event.id}', event)">
@@ -1030,7 +1120,14 @@ window.openEventDetail = function(eventId, fromTab) {
         <div style="font-size: 1rem; color: var(--primary); font-weight: bold; margin-bottom: 5px;">🕒 ${new Date(event.date).toLocaleString()}</div>
         <div style="font-size: 1rem; font-weight: bold; margin-bottom: 15px;">📍 ${event.location || '미지정'}</div>
         <div style="display:flex; justify-content:space-between; margin-bottom:20px; color:var(--text-gray);"><span>👑 ${event.host}</span><span style="color:${isClosed?'var(--danger)':'var(--primary)'}; font-weight:bold;">${event.approvedCount||0}/${event.maxParticipants}명</span></div>
-        <div class="detail-desc">${event.description}</div>
+        
+        <div class="detail-desc">
+            ${event.description}
+            <!-- ⭐️ 본문 내용 아래에 이미지를 세로로 잘림없이 배치 -->
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                ${imagesHtml}
+            </div>
+        </div>
         
         <button class="btn" style="width:100%; padding:12px; background:var(--bg-color); border:1px solid var(--border); color:${isLiked?'var(--primary)':'var(--text-dark)'}; margin-bottom:15px; border-radius:20px;" onclick="toggleLike('${event.id}', 'events', event)">
             👍 이 일정 추천해요 (${likeCount})
@@ -1365,7 +1462,7 @@ window.updateEvent = async function() {
 window.deleteEvent = async function(id) { if(!confirm("삭제하시겠습니까?")) return; await deleteDoc(doc(db, "events", id)); loadEvents(); switchTab('list'); };
 
 // ==========================================
-// 8. 신청, 관리자, 승인 로직
+// 8. 신청, 관리자, 승인 로직 (기존 앱 내부 신청 관련, 현재는 비활성 상태 유지)
 // ==========================================
 window.openApplyModal = function(id) { 
     window.currentApplyEventId = id; 
