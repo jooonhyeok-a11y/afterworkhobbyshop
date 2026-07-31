@@ -48,7 +48,7 @@
         #list-view { display: block; max-width: 1200px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ⭐️ 자동 롤링 배너 및 화살표 스타일 */
+        /* 자동 롤링 배너 및 화살표 스타일 */
         #home-banner-wrapper { position: relative; margin-bottom: 20px; display: none; }
         .banner-container {
             width: 100%; overflow-x: auto; display: flex; gap: 15px; padding-bottom: 10px;
@@ -80,7 +80,7 @@
         .banner-arrow.left { left: 5px; }
         .banner-arrow.right { right: 5px; }
         .banner-arrow:hover { background: rgba(0,0,0,0.8); }
-        @media (max-width: 639px) { .banner-arrow { display: none; } } /* 모바일에서는 터치가 편하므로 숨김 */
+        @media (max-width: 639px) { .banner-arrow { display: none; } }
 
         /* 검색창 및 필터 */
         .search-box { width: 100%; padding: 12px 15px; border: 1px solid var(--border); border-radius: 10px; background: var(--card-bg); color: var(--text-dark); margin-bottom: 15px; font-size: 0.95rem; }
@@ -141,7 +141,7 @@
         .blur-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(var(--bg-color), 0.4); z-index: 10; display: flex; justify-content: center; align-items: center; font-weight: bold; border-radius: 12px;}
         .blur-overlay span { background: var(--card-bg); padding: 5px 15px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); color: var(--text-dark);}
 
-        /* 상세 페이지 사진 (원본 크기) 설정 */
+        /* 상세 페이지 사진 설정 */
         .detail-full-img { width: 100%; height: auto; border-radius: 12px; margin-top: 15px; display: block; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
         .detail-desc { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); font-size: 1.05rem; line-height: 1.8; white-space: pre-wrap; margin-bottom: 20px;}
 
@@ -177,8 +177,19 @@
         .auth-box, .profile-section { background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px;}
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; box-shadow: 0 4px 10px rgba(46,125,50,0.4); cursor: pointer; z-index: 100; border: none; }
         
+        /* ⭐️ 모달(팝업) 관련 스타일 강화 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 200; }
-        .modal-content { background: var(--card-bg); padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; color: var(--text-dark);}
+        .modal-content { position: relative; background: var(--card-bg); padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; color: var(--text-dark);}
+        
+        /* 모달 닫기 버튼 (X) */
+        .modal-close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.8rem; line-height: 1; cursor: pointer; color: var(--text-gray); padding: 5px; z-index: 10;}
+        .modal-close-btn:hover { color: var(--danger); }
+        
+        /* PC버전(화면이 넓을 때) 일정 만들기/수정 팝업을 가득 차게 설정 */
+        @media (min-width: 640px) {
+            .modal-large .modal-content { max-width: 800px; width: 95%; }
+        }
+
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.95rem; }
         .input-group input, .input-group textarea, .input-group select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--input-bg); color: var(--text-dark);}
@@ -213,7 +224,6 @@
                 <button class="btn btn-apply" onclick="switchTab('mypage')">로그인 / 가입하기</button>
             </div>
             
-            <!-- ⭐️ 자동 롤링 배너 래퍼 영역 (PC용 좌우 화살표 포함) -->
             <div id="home-banner-wrapper">
                 <button class="banner-arrow left" onclick="scrollBanner(-1)">❮</button>
                 <div id="home-banner-container" class="banner-container"></div>
@@ -296,10 +306,6 @@
         </div>
 
         <div id="detail-view" class="view-section">
-            <div style="margin-bottom: 20px;">
-                <!-- ⭐️ 뒤로가기 버튼 기능 History API 연동 (기존 목록으로 이동) -->
-                <button onclick="history.back()" style="background:none; border:none; font-size:1rem; cursor:pointer; font-weight:bold; color:var(--text-gray);">← 뒤로 가기</button>
-            </div>
             <div id="detail-content"></div>
             
             <div class="comment-section" id="comment-section">
@@ -310,6 +316,13 @@
                 </div>
                 <div id="comment-list"></div>
             </div>
+            
+            <!-- ⭐️ 뒤로 가기 버튼을 페이지 최하단(댓글 아래)으로 이동 -->
+            <div style="margin-top: 40px; margin-bottom: 20px; display: flex; justify-content: center;">
+                <button onclick="history.back()" style="background:var(--card-bg); border:1px solid var(--border); padding:12px 40px; border-radius:25px; font-size:1.05rem; cursor:pointer; font-weight:bold; color:var(--text-dark); box-shadow:0 4px 10px rgba(0,0,0,0.05); transition:transform 0.2s;">
+                    ← 이전 목록으로 돌아가기
+                </button>
+            </div>
         </div>
     </main>
 
@@ -318,6 +331,7 @@
     <!-- 회원가입 팝업 모달 -->
     <div id="signupModal" class="modal">
         <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeModal('signupModal')">&times;</button>
             <h3>회원가입 📝</h3>
             <div class="input-group">
                 <label>아이디 (닉네임)</label>
@@ -332,20 +346,22 @@
                 <input type="password" id="signup-pw-confirm" placeholder="비밀번호를 다시 한 번 입력하세요">
             </div>
             <button class="btn btn-apply" onclick="processSignup()">가입하기</button>
-            <button class="btn btn-delete" onclick="closeModal('signupModal')">취소</button>
+            <button class="btn btn-delete" style="margin-top:0;" onclick="closeModal('signupModal')">취소</button>
         </div>
     </div>
 
     <div id="notiModal" class="modal">
         <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeModal('notiModal')">&times;</button>
             <h3>🔔 알림함</h3>
             <div id="noti-list" style="max-height: 60vh; overflow-y: auto; margin-bottom:15px;"></div>
-            <button class="btn btn-delete" onclick="closeModal('notiModal')">닫기</button>
+            <button class="btn btn-delete" style="margin-top:0;" onclick="closeModal('notiModal')">닫기</button>
         </div>
     </div>
 
-    <div id="postModal" class="modal">
+    <div id="postModal" class="modal modal-large">
         <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeModal('postModal')">&times;</button>
             <h3>게시글 작성 ✍️</h3>
             <div class="input-group">
                 <label>게시판 선택</label>
@@ -367,6 +383,7 @@
                 <input type="hidden" id="post-event-id">
             </div>
             <div class="input-group"><label>제목</label><input type="text" id="post-title"></div>
+            <!-- 빈틈없이 태그를 붙여 띄어쓰기 문제 완벽 방지 -->
             <div class="input-group"><label>내용</label><textarea id="post-content" style="height:120px;"></textarea></div>
             
             <div class="input-group">
@@ -375,12 +392,14 @@
             </div>
 
             <button id="post-reg-btn" class="btn btn-apply" onclick="savePost()">등록하기</button>
-            <button class="btn btn-delete" onclick="closeModal('postModal')">취소</button>
         </div>
     </div>
 
-    <div id="createModal" class="modal">
+    <!-- ⭐️ PC에서 크게 보이도록 modal-large 클래스 추가 -->
+    <div id="createModal" class="modal modal-large">
         <div class="modal-content">
+            <!-- ⭐️ 닫기(X) 버튼 -->
+            <button class="modal-close-btn" onclick="closeModal('createModal')">&times;</button>
             <h3>새 일정 만들기 ✍️</h3>
             <div class="input-group"><label>카테고리</label><select id="event-category"><option value="아웃도어">🏃 아웃도어</option><option value="맛집">🍣 맛집</option><option value="문화예술">🎨 문화예술</option><option value="온라인">💻 온라인</option><option value="기타">✨ 기타</option></select></div>
             <div class="input-group"><label>일정 제목</label><input type="text" id="event-title"></div>
@@ -389,14 +408,16 @@
             <div class="input-group"><label>모집 정원 (본인 포함)</label><input type="number" id="event-max"></div>
             <div class="input-group"><label>오픈채팅방 링크</label><input type="url" id="event-chat" placeholder="당근 연동을 위한 오픈채팅방 링크"></div>
             <div class="input-group"><label>이미지 첨부 (여러 장 가능)</label><input type="file" id="event-image-file" accept="image/*" multiple></div>
+            <!-- 빈틈없이 태그를 붙여 띄어쓰기 문제 완벽 방지 -->
             <div class="input-group"><label>상세 내용</label><textarea id="event-desc" style="height:100px;"></textarea></div>
             <button id="reg-btn" class="btn btn-apply" onclick="registerEvent()">등록하기</button>
-            <button class="btn btn-delete" onclick="closeModal('createModal')">취소</button>
         </div>
     </div>
 
-    <div id="editModal" class="modal">
+    <!-- ⭐️ PC에서 크게 보이도록 modal-large 클래스 추가 -->
+    <div id="editModal" class="modal modal-large">
         <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeModal('editModal')">&times;</button>
             <h3>일정 수정하기 ✏️</h3>
             <div class="input-group"><label>카테고리</label><select id="edit-category"><option value="아웃도어">🏃 아웃도어</option><option value="맛집">🍣 맛집</option><option value="문화예술">🎨 문화예술</option><option value="온라인">💻 온라인</option><option value="기타">✨ 기타</option></select></div>
             <div class="input-group"><label>일정 제목</label><input type="text" id="edit-title"></div>
@@ -409,14 +430,27 @@
                 <input type="file" id="edit-image-file" accept="image/*" multiple>
                 <p style="font-size:0.8rem; color:var(--primary); margin-top:5px;">* 첨부하지 않으면 기존 이미지 유지</p>
             </div>
+            <!-- 빈틈없이 태그를 붙여 띄어쓰기 문제 완벽 방지 -->
             <div class="input-group"><label>상세 내용</label><textarea id="edit-desc" style="height:100px;"></textarea></div>
             <button id="update-btn" class="btn btn-apply" onclick="updateEvent()">수정 완료</button>
-            <button class="btn btn-delete" onclick="closeModal('editModal')">취소</button>
         </div>
     </div>
 
-    <div id="manageModal" class="modal"><div class="modal-content"><h3>신청자 관리 👑</h3><div id="applicant-list"></div><button class="btn btn-delete" onclick="closeModal('manageModal')">닫기</button></div></div>
-    <div id="userManageModal" class="modal"><div class="modal-content"><h3>가입 승인 관리 👥</h3><div id="pending-users-list"></div><button class="btn btn-delete" onclick="closeModal('userManageModal')">닫기</button></div></div>
+    <div id="manageModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeModal('manageModal')">&times;</button>
+            <h3>신청자 관리 👑</h3>
+            <div id="applicant-list"></div>
+        </div>
+    </div>
+    
+    <div id="userManageModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeModal('userManageModal')">&times;</button>
+            <h3>가입 승인 관리 👥</h3>
+            <div id="pending-users-list"></div>
+        </div>
+    </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
@@ -455,12 +489,10 @@ window.calendarMode = 'monthly';
 window.currentCalDate = new Date();
 window.bannerInterval = null; 
 
-// ⭐️ 브라우저/스마트폰 물리적 뒤로가기 버튼 지원 로직
+// 브라우저/스마트폰 물리적 뒤로가기 버튼 지원 로직
 window.addEventListener('popstate', (e) => {
-    // 팝업(모달)이 열려있다면 닫기 우선 수행
     document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
     
-    // 상태(state)가 있으면 해당 탭으로 화면 전환 (히스토리 스택 추가 안함)
     if (e.state && e.state.tab) {
         switchTab(e.state.tab, false);
     } else {
@@ -481,7 +513,6 @@ window.fetchMyApplications = async function() {
 // 1. 공통 UI & 앱 초기 로딩
 // ==========================================
 window.onload = async () => {
-    // 접속하자마자 기본 리스트 뷰를 첫 히스토리에 기록
     history.replaceState({ tab: 'list' }, null, "");
 
     if(document.getElementById('list-view').style.display === 'block' || document.getElementById('list-view').style.display === '') {
@@ -577,7 +608,6 @@ window.switchTab = function(tab, pushHistory = true) {
         if(localStorage.getItem('myNickname')) renderMyPageContent(); 
     }
     
-    // 뒤로가기를 위한 History API 상태 추가
     if (pushHistory) {
         history.pushState({ tab: tab }, null, "");
     }
@@ -840,7 +870,8 @@ window.openPostModal = function(category, eventId = '', eventTitle = '', applyId
 window.savePost = async function() {
     const cat = document.getElementById('post-category').value; 
     const title = document.getElementById('post-title').value; 
-    const content = document.getElementById('post-content').value;
+    // ⭐️ .trim() 추가로 앞뒤 무의미한 공백이나 줄바꿈(엔터) 제거
+    const content = document.getElementById('post-content').value.trim();
     const isSecret = document.getElementById('post-is-secret').checked;
     const file = document.getElementById('post-image-file').files[0];
     
@@ -874,9 +905,8 @@ window.savePost = async function() {
 window.openPostDetail = async function(postId, fromTab) {
     if(!window.isUserApproved) return;
     
-    // 디테일 페이지 이동 시 History PUSH (뒤로가기 지원용)
     history.pushState({ tab: 'detail' }, null, "");
-    switchTab('detail', false); // pushHistory는 false
+    switchTab('detail', false);
     
     if(fromTab) window.previousTab = fromTab;
     
@@ -891,7 +921,7 @@ window.openPostDetail = async function(postId, fromTab) {
     const isAuthor = (myName === post.author || myName === 'admin');
     
     let btns = '';
-    if(isAuthor) btns = `<button class="btn btn-delete" onclick="deletePost('${post.id}')">🗑️ 글 삭제하기</button>`;
+    if(isAuthor) btns = `<button class="btn btn-delete" style="width:100%;" onclick="deletePost('${post.id}')">🗑️ 글 삭제하기</button>`;
 
     const likes = post.likes || [];
     const isLiked = myName && likes.includes(myName);
@@ -919,7 +949,7 @@ window.openPostDetail = async function(postId, fromTab) {
             </button>
         </div>
         
-        <div style="display:flex; flex-direction: column; gap: 10px;">${btns}</div>`;
+        ${btns}`;
         
     document.getElementById('detail-content').innerHTML = detailHtml;
     
@@ -937,16 +967,14 @@ window.deletePost = async function(id) {
 // 4. 메인 홈 (HOME) & 자동 배너
 // ==========================================
 
-// ⭐️ 배너 화살표 수동 클릭 스크롤 
 window.scrollBanner = function(direction) {
     const container = document.getElementById('home-banner-container');
     if(!container || !container.children.length) return;
     const itemWidth = container.children[0].offsetWidth + 15;
     container.scrollBy({ left: direction * itemWidth, behavior: 'smooth' });
-    resetBannerTimer(); // 유저가 수동으로 넘기면 타이머 초기화 (자연스럽게)
+    resetBannerTimer(); 
 };
 
-// ⭐️ 배너 자동 롤링 타이머 세팅
 window.resetBannerTimer = function() {
     if(window.bannerInterval) clearInterval(window.bannerInterval);
     window.bannerInterval = setInterval(() => {
@@ -954,7 +982,6 @@ window.resetBannerTimer = function() {
         if(!container || !container.children.length) return;
         const itemWidth = container.children[0].offsetWidth + 15;
         let scrollPos = container.scrollLeft + itemWidth;
-        // 끝까지 스크롤 되면 처음으로 되돌리기
         if(scrollPos >= container.scrollWidth - container.offsetWidth + 10) {
             scrollPos = 0; 
         }
@@ -968,7 +995,6 @@ window.renderBanner = function() {
     if(!wrapper || !window.isUserApproved) { wrapper.style.display = 'none'; return; }
     
     const now = new Date();
-    // 다가오는 미래의 일정 중 날짜가 가까운 순서대로 3개 추출
     let upcoming = window.allFetchedEvents
         .filter(e => new Date(e.date) >= now && (e.approvedCount || 0) < (e.maxParticipants || 100))
         .sort((a,b) => new Date(a.date) - new Date(b.date))
@@ -1134,9 +1160,8 @@ window.toggleLike = async function(id, collectionName, e) {
 window.openEventDetail = function(eventId, fromTab) {
     if(!window.isUserApproved) return;
     
-    // ⭐️ 디테일 페이지 이동 시 브라우저 History Push 
     history.pushState({ tab: 'detail' }, null, "");
-    switchTab('detail', false); // DOM만 변경, History 푸시 건너뛰기
+    switchTab('detail', false); 
     
     if(fromTab) window.previousTab = fromTab;
     
@@ -1152,11 +1177,13 @@ window.openEventDetail = function(eventId, fromTab) {
     
     let btns = '';
     if(isHost) {
-        btns = `<button class="btn btn-manage" style="background:var(--primary);" onclick="openEditModal('${event.id}')">✏️ 수정하기</button>
-                <button class="btn btn-manage" onclick="openManageModal('${event.id}')">👑 신청자 관리</button>
-                <button class="btn btn-delete" onclick="deleteEvent('${event.id}')">🗑️ 삭제하기</button>`;
+        // ⭐️ 주최자 관리 버튼을 세로(column)에서 가로(row) 1줄로 배치
+        btns = `<div style="display:flex; gap:10px;">
+                    <button class="btn btn-manage" style="background:var(--primary); flex:1; margin:0;" onclick="openEditModal('${event.id}')">✏️ 수정</button>
+                    <button class="btn btn-manage" style="flex:1; margin:0;" onclick="openManageModal('${event.id}')">👑 신청자 관리</button>
+                    <button class="btn btn-delete" style="flex:1; margin:0;" onclick="deleteEvent('${event.id}')">🗑️ 삭제</button>
+                </div>`;
     } else {
-        // ⭐️ 당근마켓 연동 수정 (event 변수 스코프 충돌 방지)
         const chatLinkUrl = event.chatLink || '';
         if (isClosed) {
             btns = `<button class="btn" disabled style="background:var(--border); color:var(--text-gray); cursor:not-allowed;">마감된 일정입니다</button>`;
@@ -1178,31 +1205,37 @@ window.openEventDetail = function(eventId, fromTab) {
         imagesHtml = `<img src="${event.imageUrl}" class="detail-full-img">`;
     }
 
+    // ⭐️ 찜하기 버튼을 상단에서 제거하고, 본문 아래 '이 일정 추천해요' 버튼 왼쪽에 배치
     const detailHtml = `
-        <div style="display:flex; justify-content:space-between; align-items:start;">
-            <div class="card-tag">#${event.category || '기타'}</div>
-            <button class="btn" style="width:auto; padding:5px 15px; background:none; border:1px solid var(--border); color:${isWished?'#FF4B4B':'var(--text-gray)'};" onclick="toggleWishlist('${event.id}', event)">
-                ${isWished ? '❤️' : '🤍'} 찜하기
-            </button>
+        <div style="margin-bottom: 5px;">
+            <span class="card-tag">#${event.category || '기타'}</span>
         </div>
         <h2 style="font-size: 1.5rem; margin-bottom: 10px;">${event.title}</h2>
         <div style="font-size: 1rem; color: var(--primary); font-weight: bold; margin-bottom: 5px;">🕒 ${new Date(event.date).toLocaleString()}</div>
         <div style="font-size: 1rem; font-weight: bold; margin-bottom: 15px;">📍 ${event.location || '미지정'}</div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:20px; color:var(--text-gray);"><span>👑 ${event.host}</span><span style="color:${isClosed?'var(--danger)':'var(--primary)'}; font-weight:bold;">${event.approvedCount||0}/${event.maxParticipants}명</span></div>
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px; color:var(--text-gray);">
+            <span>👑 ${event.host}</span>
+            <span style="color:${isClosed?'var(--danger)':'var(--primary)'}; font-weight:bold;">${event.approvedCount||0}/${event.maxParticipants}명</span>
+        </div>
         
         <div class="detail-desc">
             ${event.description}
-            <!-- ⭐️ 원본 이미지들을 세로로 모두 나열 -->
             <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
                 ${imagesHtml}
             </div>
         </div>
         
-        <button class="btn" style="width:100%; padding:12px; background:var(--bg-color); border:1px solid var(--border); color:${isLiked?'var(--primary)':'var(--text-dark)'}; margin-bottom:15px; border-radius:20px;" onclick="toggleLike('${event.id}', 'events', event)">
-            👍 이 일정 추천해요 (${likeCount})
-        </button>
+        <!-- ⭐️ 찜하기 버튼과 추천 버튼이 한 줄에 나란히 들어갑니다 -->
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <button class="btn" style="width:auto; padding:12px 20px; background:var(--bg-color); border:1px solid var(--border); color:${isWished?'#FF4B4B':'var(--text-gray)'}; border-radius:20px; white-space:nowrap; flex-shrink:0;" onclick="toggleWishlist('${event.id}', event)">
+                ${isWished ? '❤️ 찜됨' : '🤍 찜하기'}
+            </button>
+            <button class="btn" style="flex:1; padding:12px; background:var(--bg-color); border:1px solid var(--border); color:${isLiked?'var(--primary)':'var(--text-dark)'}; border-radius:20px;" onclick="toggleLike('${event.id}', 'events', event)">
+                👍 이 일정 추천해요 (${likeCount})
+            </button>
+        </div>
         
-        <div style="display:flex; flex-direction: column; gap: 10px;">${btns}</div>`;
+        ${btns}`;
         
     document.getElementById('detail-content').innerHTML = detailHtml;
     
@@ -1433,7 +1466,8 @@ window.registerEvent = async function() {
     const date = document.getElementById('event-date').value; 
     const max = parseInt(document.getElementById('event-max').value); 
     const chat = document.getElementById('event-chat').value; 
-    const desc = document.getElementById('event-desc').value; 
+    // ⭐️ .trim() 추가로 앞뒤 무의미한 공백이나 줄바꿈(엔터) 제거
+    const desc = document.getElementById('event-desc').value.trim(); 
     const files = document.getElementById('event-image-file').files;
     
     if(!title||!date||!loc||!max) return alert("필수 정보를 모두 입력해주세요.");
@@ -1491,7 +1525,8 @@ window.updateEvent = async function() {
     const date = document.getElementById('edit-date').value; 
     const max = parseInt(document.getElementById('edit-max').value); 
     const chat = document.getElementById('edit-chat').value; 
-    const desc = document.getElementById('edit-desc').value; 
+    // ⭐️ .trim() 추가로 앞뒤 무의미한 공백이나 줄바꿈(엔터) 제거
+    const desc = document.getElementById('edit-desc').value.trim(); 
     const files = document.getElementById('edit-image-file').files;
     
     if(!title||!date||!loc||!max) return alert("필수 정보를 입력해주세요!");
