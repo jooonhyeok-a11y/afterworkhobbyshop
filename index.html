@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+    <!-- PWA 매니페스트 및 테마 컬러 설정 -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2E7D32">
+<!-- 아이폰(iOS)을 위한 아이콘 설정 -->
+<link rel="apple-touch-icon" href="icon-192.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>퇴근 후 취미 상점</title>
@@ -1604,5 +1609,16 @@ window.openUserManageModal = async function() {
 window.approveUser = async function(userId) { await updateDoc(doc(db, "users", userId), { status: "approved" }); alert(`${userId} 님의 가입이 승인되었습니다!`); openUserManageModal(); checkNotifications(); };
 
 </script>
+    <script>
+    // 서비스 워커 등록 (PWA의 핵심)
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('서비스 워커 등록 성공!', reg))
+                .catch(err => console.log('서비스 워커 등록 실패', err));
+        });
+    }
+</script>
+</body>
 </body>
 </html>
