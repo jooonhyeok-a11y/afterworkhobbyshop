@@ -63,7 +63,6 @@
             right: 0; 
             margin: 0 auto; 
             max-width: 600px; 
-            display: none; 
             flex-direction: column; 
             z-index: 100; 
             background: var(--bg-color);
@@ -224,7 +223,6 @@
             <button class="active" onclick="switchTab('list')">홈</button>
             <button onclick="switchTab('calendar')">일정</button>
             <button onclick="switchTab('community')">커뮤니티</button>
-            <!-- 하단 텍스트 👤 MY 로 변경 -->
             <button onclick="switchTab('mypage')">👤 MY <span id="my-badge" class="badge"></span></button>
             <button class="theme-btn" onclick="toggleTheme()">☀️</button>
         </div>
@@ -241,12 +239,9 @@
             </div>
             
             <div id="home-banner-wrapper">
-                <button class="banner-arrow left" onclick="scrollBanner(-1)">❮</button>
                 <div id="home-banner-container" class="banner-container"></div>
-                <button class="banner-arrow right" onclick="scrollBanner(1)">❯</button>
             </div>
             
-            <!-- 검색창 문구 변경 -->
             <input type="text" id="search-input" class="search-box" placeholder="🔍 일정을 검색해보세요!" oninput="renderFilteredEvents()">
             
             <div class="category-filters">
@@ -290,23 +285,19 @@
             <div id="community-posts"></div>
         </div>
         
-        <!-- 수정된 채팅 뷰 (헤더와 푸터 고정) -->
-        <div id="chat-view">
-            <!-- 헤더 고정 영역 -->
+        <!-- 수정된 채팅 뷰 (헤더와 푸터 고정, 클래스 복구로 전환 시 정상 작동) -->
+        <div id="chat-view" class="view-section">
             <div style="padding: 15px; background: var(--card-bg); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); flex-shrink: 0;">
-                <button onclick="switchTab('community')" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-dark);">←</button>
+                <button onclick="history.back()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text-dark);">←</button>
                 <h3 id="full-chat-title" style="margin:0; font-size: 1.2rem;">💬 채팅방</h3>
             </div>
             
-            <!-- 스크롤되는 메시지 영역 -->
             <div id="full-chat-messages" style="flex: 1; overflow-y: auto; padding: 15px; display:flex; flex-direction:column; gap:12px; background: var(--bg-color);">
                 <!-- 채팅 말풍선 공간 -->
             </div>
             
-            <!-- 푸터 고정 입력 영역 -->
             <div style="padding: 15px; background: var(--card-bg); border-top: 1px solid var(--border); display: flex; gap: 10px; flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom, 15px);">
                 <input type="text" id="full-chat-input" placeholder="메시지를 입력하세요..." style="flex:1; padding:12px 15px; border-radius:20px; border:1px solid var(--border); font-size:0.95rem; background:var(--input-bg); color:var(--text-dark);" onkeypress="if(event.key==='Enter') sendFullChatMessage()">
-                <!-- 글씨 세로 방지 (white-space, flex-shrink 적용) -->
                 <button class="btn btn-apply" style="width:auto; padding:10px 25px; border-radius:20px; white-space: nowrap; flex-shrink: 0;" onclick="sendFullChatMessage()">전송</button>
             </div>
         </div>
@@ -496,7 +487,6 @@ window.currentCategory = '전체';
 window.currentCommunityTab = 'chat'; 
 window.myPageTabMode = 'apps';
 window.currentEditEventId = null;
-
 window.currentDetailId = null;
 window.currentDetailType = 'event';
 
@@ -510,13 +500,30 @@ window.bannerInterval = null;
 window.currentChatUnsubscribe = null;
 window.currentChatEventId = null;
 
+// 라우팅 (URL 처리) 및 뒤로가기 대응
 window.addEventListener('popstate', (e) => {
     document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
     
-    if (e.state && e.state.tab) {
-        switchTab(e.state.tab, false);
+    if(window.currentChatUnsubscribe) {
+        window.currentChatUnsubscribe();
+        window.currentChatUnsubscribe = null;
+        window.currentChatEventId = null;
+    }
+    
+    if (e.state) {
+        if (e.state.type === 'event' && e.state.id) {
+            openEventDetail(e.state.id, window.previousTab, false);
+        } else if (e.state.type === 'post' && e.state.id) {
+            openPostDetail(e.state.id, window.previousTab, false);
+        } else if (e.state.tab) {
+            switchTab(e.state.tab, false);
+        }
     } else {
-        switchTab('list', false);
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('event')) openEventDetail(urlParams.get('event'), 'list', false);
+        else if(urlParams.get('post')) openPostDetail(urlParams.get('post'), 'community', false);
+        else if(urlParams.get('tab')) switchTab(urlParams.get('tab'), false);
+        else switchTab('list', false);
     }
 });
 
@@ -530,8 +537,6 @@ window.fetchMyApplications = async function() {
 };
 
 window.onload = async () => {
-    history.replaceState({ tab: 'list' }, null, "");
-
     if(document.getElementById('list-view').style.display === 'block' || document.getElementById('list-view').style.display === '') {
         renderSkeleton();
     }
@@ -539,10 +544,15 @@ window.onload = async () => {
     const myName = localStorage.getItem('myNickname');
     
     if(myName) {
-        onSnapshot(doc(db, "users", myName), async (docSnap) => {
-            if(docSnap.exists()) {
-                window.isUserApproved = (docSnap.data().status === 'approved' || myName === 'admin');
-                
+        // 즉각적인 차단을 위해 await getDoc 활용 후 실시간 감지 등록
+        const docSnap = await getDoc(doc(db, "users", myName));
+        if(docSnap.exists()) {
+            window.isUserApproved = (docSnap.data().status === 'approved' || myName === 'admin');
+        }
+        
+        onSnapshot(doc(db, "users", myName), (snap) => {
+            if(snap.exists()) {
+                window.isUserApproved = (snap.data().status === 'approved' || myName === 'admin');
                 const roleText = myName === 'admin' ? "총괄 관리자 모드 🛡️" : (window.isUserApproved ? "승인 완료된 회원입니다 ✨" : "가입 승인 대기 중 ⏳");
                 const roleColor = myName === 'admin' ? "var(--danger)" : (window.isUserApproved ? "var(--primary)" : "var(--text-gray)");
                 const roleEl = document.getElementById('display-my-role');
@@ -550,8 +560,6 @@ window.onload = async () => {
                 
                 const promptBanner = document.getElementById('login-prompt-banner');
                 if (promptBanner) promptBanner.style.display = window.isUserApproved ? 'none' : 'flex';
-                
-                await window.fetchMyApplications();
                 renderFilteredEvents();
             }
         });
@@ -579,6 +587,26 @@ window.onload = async () => {
 
         window.allFetchedEvents = eventsSnap.docs.map(d => ({id: d.id, ...d.data()}));
         renderFilteredEvents();
+        
+        // URL 라우팅 적용
+        const urlParams = new URLSearchParams(window.location.search);
+        const evId = urlParams.get('event');
+        const poId = urlParams.get('post');
+        const tabP = urlParams.get('tab');
+
+        if (evId) {
+            if(window.isUserApproved) openEventDetail(evId, 'list', false);
+            else { alert("일정 상세 정보는 로그인 및 가입 승인 후 확인할 수 있습니다."); history.replaceState({ tab: 'list' }, null, "?tab=list"); }
+        } else if (poId) {
+            if(window.isUserApproved) openPostDetail(poId, 'community', false);
+            else { alert("상세 정보는 로그인 및 가입 승인 후 확인할 수 있습니다."); history.replaceState({ tab: 'list' }, null, "?tab=list"); }
+        } else if (tabP) {
+            switchTab(tabP, false);
+            history.replaceState({ tab: tabP }, null, "?tab=" + tabP);
+        } else {
+            switchTab('list', false);
+            history.replaceState({ tab: 'list' }, null, "?tab=list");
+        }
         
     } catch(e) {
         console.error(e);
@@ -611,7 +639,6 @@ window.switchTab = function(tab, pushHistory = true) {
 
     document.querySelectorAll('.view-section').forEach(el => el.style.display = 'none');
     
-    // 채팅뷰는 flex, 나머지는 block 처리
     document.getElementById(tab + '-view').style.display = (tab === 'chat') ? 'flex' : 'block';
     
     document.querySelectorAll('.nav-buttons button').forEach(b => b.classList.remove('active'));
@@ -642,7 +669,7 @@ window.switchTab = function(tab, pushHistory = true) {
     }
     
     if (pushHistory) {
-        history.pushState({ tab: tab }, null, "");
+        history.pushState({ tab: tab }, null, "?tab=" + tab);
     }
     window.scrollTo(0, 0);
 };
@@ -798,7 +825,6 @@ window.renderMyPageContent = async function() {
                     const badge = res.appD.status === 'approved' ? `<span style="color:var(--primary); font-weight:bold;">[승인 완료]</span>` : `<span style="color:var(--text-gray); font-weight:bold;">[대기 중]</span>`;
                     const isPast2H = new Date() >= new Date(new Date(evD.date).getTime() + 2 * 60 * 60 * 1000);
                     
-                    // 주최자 텍스트 과감히 제거하여 줄바꿈 최소화
                     let actionBtn = res.appD.status === 'approved' ? `<button class="btn" style="background:#FFE066; color:#000; margin-top:10px; padding:6px 12px; width:auto; font-size:0.85rem;" onclick="event.stopPropagation(); openFullChatRoom('${res.evS.id}', '${evD.title}')">💬 채팅</button>` : '';
                     if(res.appD.status === 'approved' && isPast2H && !res.appD.hasReviewed) {
                         actionBtn += `<button class="btn btn-apply" style="margin-top:10px; margin-left:5px; border-color:var(--primary); color:white; padding:6px 12px; width:auto; font-size:0.85rem;" onclick="event.stopPropagation(); openPostModal('review', '${res.evS.id}', '${evD.title}', '${res.id}')">📝 후기 작성</button>`;
@@ -829,7 +855,7 @@ window.renderMyPageContent = async function() {
 
 
 // ==========================================
-// 커뮤니티 및 뷰 개편 (풀스크린 채팅 등)
+// 커뮤니티
 // ==========================================
 window.loadCommunity = async function(category) {
     window.currentCommunityTab = category;
@@ -839,7 +865,6 @@ window.loadCommunity = async function(category) {
     const container = document.getElementById('community-posts');
     const myName = localStorage.getItem('myNickname');
 
-    // 채팅 목록 뷰
     if (category === 'chat') {
         if(!myName) return container.innerHTML = "<p style='text-align:center;'>로그인이 필요합니다.</p>";
         let html = '<div class="board-list">';
@@ -956,10 +981,10 @@ window.savePost = async function() {
     }
 };
 
-window.openPostDetail = async function(postId, fromTab) {
+window.openPostDetail = async function(postId, fromTab, pushHistory = true) {
     if(!window.isUserApproved) return;
     
-    history.pushState({ tab: 'detail' }, null, "");
+    if (pushHistory) history.pushState({ tab: 'detail', type: 'post', id: postId }, null, "?post=" + postId);
     switchTab('detail', false);
     
     if(fromTab) window.previousTab = fromTab;
@@ -1018,16 +1043,8 @@ window.deletePost = async function(id) {
 
 
 // ==========================================
-// 메인 홈 (HOME) & 자동 배너
+// 메인 홈 (HOME) & 배너
 // ==========================================
-
-window.scrollBanner = function(direction) {
-    const container = document.getElementById('home-banner-container');
-    if(!container || !container.children.length) return;
-    const itemWidth = container.children[0].offsetWidth + 15;
-    container.scrollBy({ left: direction * itemWidth, behavior: 'smooth' });
-    resetBannerTimer(); 
-};
 
 window.resetBannerTimer = function() {
     if(window.bannerInterval) clearInterval(window.bannerInterval);
@@ -1165,7 +1182,6 @@ window.renderFilteredEvents = function() {
     closedSection.style.display = closedCount > 0 ? 'block' : 'none';
 };
 
-// 하트 즉각 반응 버그 수정
 window.toggleWishlist = async function(id, e) { 
     if(e) e.stopPropagation(); 
     const myName = localStorage.getItem('myNickname'); 
@@ -1187,7 +1203,7 @@ window.toggleWishlist = async function(id, e) {
         }
         
         if(document.getElementById('detail-view').style.display === 'block') {
-            openEventDetail(id, window.previousTab);
+            openEventDetail(id, window.previousTab, false);
         } else { 
             renderFilteredEvents(); 
         }
@@ -1208,9 +1224,9 @@ window.toggleLike = async function(id, collectionName, e) {
                 const freshSnap = await getDoc(ref);
                 const evIndex = window.allFetchedEvents.findIndex(ev => ev.id === id);
                 if(evIndex > -1) window.allFetchedEvents[evIndex] = {id: id, ...freshSnap.data()};
-                openEventDetail(id, window.previousTab);
+                openEventDetail(id, window.previousTab, false);
             } else {
-                openPostDetail(id, window.previousTab);
+                openPostDetail(id, window.previousTab, false);
             }
         } else {
             if(collectionName === 'events') renderFilteredEvents();
@@ -1219,13 +1235,22 @@ window.toggleLike = async function(id, collectionName, e) {
     } catch(e) { console.error(e); }
 };
 
+window.shareEvent = function(id) {
+    const url = window.location.origin + window.location.pathname + "?event=" + id;
+    navigator.clipboard.writeText(url).then(() => {
+        alert("현재 페이지 링크가 복사되었습니다!");
+    }).catch(err => {
+        alert("링크 복사에 실패했습니다.");
+    });
+};
+
 // ==========================================
 // 일정 상세 페이지, 버튼 배치 개편
 // ==========================================
-window.openEventDetail = function(eventId, fromTab) {
+window.openEventDetail = function(eventId, fromTab, pushHistory = true) {
     if(!window.isUserApproved) return;
     
-    history.pushState({ tab: 'detail' }, null, "");
+    if (pushHistory) history.pushState({ tab: 'detail', type: 'event', id: eventId }, null, "?event=" + eventId);
     switchTab('detail', false); 
     
     if(fromTab) window.previousTab = fromTab;
@@ -1252,33 +1277,34 @@ window.openEventDetail = function(eventId, fromTab) {
     const likeCount = likes.length;
     const chatLinkUrl = event.chatLink || '';
 
-    // 버튼 배치 최적화 (요청사항 반영 2x2 형식)
     let btnRow1 = `<div style="display:flex; gap:10px; margin-bottom:10px;">
-        <button class="btn" style="flex:1; padding:12px; background:var(--bg-color); border:1px solid var(--border); color:${isLiked?'var(--primary)':'var(--text-dark)'}; border-radius:25px;" onclick="toggleLike('${event.id}', 'events', event)">
+        <button class="btn" style="flex:0 0 auto; padding:12px; background:var(--bg-color); border:1px solid var(--border); color:${isLiked?'var(--primary)':'var(--text-dark)'}; border-radius:25px; white-space:nowrap;" onclick="toggleLike('${event.id}', 'events', event)">
             👍 ${likeCount}
+        </button>
+        <button class="btn" style="flex:0 0 auto; padding:12px; background:var(--bg-color); border:1px solid var(--border); color:var(--text-dark); border-radius:25px; white-space:nowrap;" onclick="shareEvent('${event.id}')">
+            🔗 공유
         </button>`;
         
     if(chatLinkUrl) {
-        btnRow1 += `<button class="btn" style="background:#FF8A3D; color:white; flex:1; border-radius:25px;" onclick="window.open('${chatLinkUrl}', '_blank')">🥕 당근 링크</button>`;
+        btnRow1 += `<button class="btn" style="background:#FF8A3D; color:white; flex:1; border-radius:25px; white-space:nowrap;" onclick="window.open('${chatLinkUrl}', '_blank')">🥕 당근 링크</button>`;
     } else {
-        btnRow1 += `<button class="btn" disabled style="background:var(--border); color:var(--text-gray); flex:1; border-radius:25px; cursor:not-allowed;">🥕 당근 링크 없음</button>`;
+        btnRow1 += `<button class="btn" disabled style="background:var(--border); color:var(--text-gray); flex:1; border-radius:25px; cursor:not-allowed; white-space:nowrap;">🥕 링크 없음</button>`;
     }
     btnRow1 += `</div>`;
 
     let btnRow2 = `<div style="display:flex; gap:10px; margin-bottom:10px;">
-        <button class="btn" style="flex:1; padding:12px; background:var(--bg-color); border:1px solid var(--border); color:${isWished?'#FF4B4B':'var(--text-gray)'}; border-radius:25px;" onclick="toggleWishlist('${event.id}', event)">
+        <button class="btn" style="flex:0 0 auto; padding:12px; background:var(--bg-color); border:1px solid var(--border); color:${isWished?'#FF4B4B':'var(--text-gray)'}; border-radius:25px; white-space:nowrap;" onclick="toggleWishlist('${event.id}', event)">
             ${isWished ? '❤️ 찜됨' : '🤍 찜하기'}
         </button>`;
 
     if(isHost || isApprovedMember) {
-        // 승인된 사람, 주최자는 바로 채팅방 입장
-        btnRow2 += `<button class="btn btn-apply" style="background:#FFE066; color:#000; flex:1; border-radius:25px;" onclick="openFullChatRoom('${event.id}', '${event.title}')">💬 채팅방</button>`;
+        btnRow2 += `<button class="btn btn-apply" style="background:#FFE066; color:#000; flex:1; border-radius:25px; white-space:nowrap;" onclick="openFullChatRoom('${event.id}', '${event.title}', false)">💬 채팅방</button>`;
     } else if (isClosed && !existingApp) {
-        btnRow2 += `<button class="btn" disabled style="background:var(--border); color:var(--text-gray); flex:1; border-radius:25px; cursor:not-allowed;">마감됨</button>`;
+        btnRow2 += `<button class="btn" disabled style="background:var(--border); color:var(--text-gray); flex:1; border-radius:25px; cursor:not-allowed; white-space:nowrap;">마감됨</button>`;
     } else if (isPending) {
-        btnRow2 += `<button class="btn" disabled style="background:var(--border); color:var(--text-gray); flex:1; border-radius:25px; cursor:not-allowed;">✋ 승인 대기 중</button>`;
+        btnRow2 += `<button class="btn" disabled style="background:var(--border); color:var(--text-gray); flex:1; border-radius:25px; cursor:not-allowed; white-space:nowrap;">✋ 승인 대기 중</button>`;
     } else {
-        btnRow2 += `<button class="btn" style="background:#20C997; color:white; flex:1; border-radius:25px;" onclick="applyForEvent('${event.id}')">✋ 일정 참여</button>`;
+        btnRow2 += `<button class="btn" style="background:#20C997; color:white; flex:1; border-radius:25px; white-space:nowrap;" onclick="applyForEvent('${event.id}')">✋ 일정 참여</button>`;
     }
     btnRow2 += `</div>`;
 
@@ -1343,7 +1369,7 @@ window.applyForEvent = async function(eventId) {
         
         alert("신청이 접수되었습니다. 주최자의 승인을 기다려주세요.");
         await window.fetchMyApplications();
-        openEventDetail(eventId); 
+        openEventDetail(eventId, window.previousTab, false); 
     } catch(e) {
         console.error(e);
         alert("일정 신청 중 오류가 발생했습니다.");
@@ -1435,11 +1461,11 @@ window.deleteComment = async function(commentId) {
 // ==========================================
 // 풀스크린 내부 실시간 채팅방 로직
 // ==========================================
-window.openFullChatRoom = function(eventId, eventTitle) {
+window.openFullChatRoom = function(eventId, eventTitle, pushHistory = true) {
     window.currentChatEventId = eventId;
     document.getElementById('full-chat-title').innerText = `💬 ${eventTitle}`;
     
-    switchTab('chat');
+    switchTab('chat', pushHistory);
 
     const msgContainer = document.getElementById('full-chat-messages');
     msgContainer.innerHTML = '<p style="text-align:center; color:gray; font-size:0.9rem;">채팅을 불러오는 중...</p>';
@@ -1717,7 +1743,7 @@ window.updateEvent = async function() {
         alert("수정이 완료되었습니다!"); 
         closeModal('editModal'); 
         await loadEvents(); 
-        openEventDetail(window.currentEditEventId);
+        openEventDetail(window.currentEditEventId, window.previousTab, false);
     } catch(e) { 
         console.error("수정 에러:", e);
         alert("업로드 도중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
