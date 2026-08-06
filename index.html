@@ -5,13 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>퇴근 후 취미 상점</title>
     
-    <!-- PWA 매니페스트 및 아이콘 설정 -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2E7D32">
     <link rel="apple-touch-icon" href="icon-192.png">
 
     <style>
-        /* 기본 테마 및 다크모드 변수 */
         :root {
             --primary: #2E7D32; --primary-light: #E8F5E9; --bg-color: #F8F9FA; --card-bg: #FFFFFF;
             --text-dark: #212529; --text-gray: #6C757D; --border: #DEE2E6; --danger: #DC3545;
@@ -25,7 +23,6 @@
         * { box-sizing: border-box; font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--bg-color); color: var(--text-dark); line-height: 1.6; padding-top: 70px; transition: background-color 0.3s; }
         
-        /* 상단 헤더 및 네비게이션 */
         header { 
             background: var(--card-bg); padding: 10px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); 
             display: flex; align-items: center; position: fixed; top: 0; left: 0; width: 100%; z-index: 9999; gap: 15px; transition: background-color 0.3s;
@@ -83,8 +80,9 @@
         .btn-manage { background: #343A40; color: white; } 
         .btn-delete { background: var(--card-bg); color: var(--danger); border: 1px solid var(--danger); margin-top: 10px; }
 
-        /* 프로필 작은 아이콘 */
-        .profile-icon { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; vertical-align: middle; background: var(--border); display: inline-block; flex-shrink: 0;}
+        /* 프로필 아이콘 / 기본 이모지 대체 */
+        .profile-icon { width: 22px; height: 22px; border-radius: 50%; object-fit: cover; vertical-align: middle; background: var(--border); display: inline-flex; justify-content: center; align-items: center; font-size: 0.75rem; flex-shrink: 0; overflow:hidden;}
+        .profile-fallback { width: 22px; height: 22px; border-radius: 50%; background: #E0E0E0; color: #555; display: inline-flex; justify-content: center; align-items: center; font-size: 0.7rem; flex-shrink:0; vertical-align:middle;}
 
         /* PC 일정 카드 */
         .grid-container { display: grid; gap: 20px; grid-template-columns: 1fr; }
@@ -95,7 +93,6 @@
         .card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); }
         .card.closed { opacity: 0.6; filter: grayscale(50%); } 
         
-        /* 썸네일 Wrapper 구조로 변경 (찜버튼 겹침, 좌측하단 배치용) */
         .card-img-wrapper { position: relative; display: block; border-radius: 12px 12px 0 0; overflow: hidden; margin: -20px -20px 20px -20px; height: 180px; flex-shrink: 0; background: var(--border);}
         .card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .card-tag { font-size: 0.75rem; color: var(--primary); font-weight: bold; margin-bottom: 5px; }
@@ -107,7 +104,6 @@
         .d-day-badge.today { background: #FF9800; color: #000; }
         .d-day-badge.closed { background: var(--text-gray); }
         
-        /* 찜 버튼을 이미지 좌측 하단으로 */
         .like-btn { position: absolute; bottom: 10px; left: 10px; background: rgba(0,0,0,0.6); color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.1rem; cursor: pointer; z-index: 5; transition: 0.2s;}
         .like-btn.liked { color: #FF4B4B; }
 
@@ -168,10 +164,9 @@
         .skeleton { background: linear-gradient(90deg, var(--skeleton) 25%, var(--skeleton-shine) 50%, var(--skeleton) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 8px;}
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-        .auth-box, .profile-section { background: var(--card-bg); padding: 30px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px;}
+        .auth-box, .profile-section { background: var(--card-bg); padding: 25px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 20px;}
         .fab { position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: var(--primary); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 30px; box-shadow: 0 4px 10px rgba(46,125,50,0.4); cursor: pointer; z-index: 100; border: none; }
         
-        /* 모달(팝업) 관련 스타일 */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 200; }
         .modal-content { position: relative; background: var(--card-bg); padding: 25px; border-radius: 12px; width: 90%; max-width: 400px; max-height: 85vh; overflow-y: auto; color: var(--text-dark);}
         .modal-close-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 1.8rem; line-height: 1; cursor: pointer; color: var(--text-gray); padding: 5px; z-index: 10;}
@@ -184,7 +179,6 @@
         .login-banner { background: var(--primary-light); border: 1px solid var(--primary); border-radius: 12px; padding: 20px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 15px; align-items: center; text-align: center; }
         @media (min-width: 640px) { .login-banner { flex-direction: row; justify-content: space-between; text-align: left; } .login-banner button { width: auto; min-width: 150px; } }
 
-        /* 풀스크린 채팅 말풍선 스타일 */
         .chat-wrapper-me { align-self: flex-end; display:flex; flex-direction:column; max-width: 75%; align-items: flex-end; }
         .chat-wrapper-other { align-self: flex-start; display:flex; flex-direction:column; max-width: 75%; align-items: flex-start; }
         
@@ -301,19 +295,24 @@
             </div>
 
             <div id="profile-section" style="display:none;">
-                <div class="profile-section" style="display:flex; flex-direction:column; align-items:center; gap: 15px; position:relative;">
+                <div class="profile-section" style="display:flex; flex-direction:column; align-items:center; gap: 10px; position:relative;">
                     <div style="width: 100%; display:flex; justify-content:flex-end;">
                         <button class="btn" style="background:var(--border); padding:6px 12px; width:auto; font-size:0.8rem; color:var(--text-dark);" onclick="logout()">로그아웃</button>
                     </div>
                     
-                    <div style="position:relative; cursor:pointer;" onclick="document.getElementById('profile-upload').click()">
-                        <img id="my-profile-img" src="https://via.placeholder.com/100/CCCCCC/FFFFFF?text=User" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); background:var(--bg-color);">
-                        <div style="position:absolute; bottom:0; right:0; background:var(--primary); color:white; border-radius:50%; width:28px; height:28px; display:flex; justify-content:center; align-items:center; font-size:0.8rem; border:2px solid var(--card-bg);">📷</div>
+                    <div style="position:relative;">
+                        <div style="position:relative; cursor:pointer;" onclick="document.getElementById('profile-upload').click()">
+                            <img id="my-profile-img" src="" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border); background:var(--bg-color); display:none;">
+                            <div id="my-profile-fallback" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid var(--border); background:#E0E0E0; color:#555; display:flex; justify-content:center; align-items:center; font-size:2rem;">👤</div>
+                            <div style="position:absolute; bottom:0; right:0; background:var(--primary); color:white; border-radius:50%; width:28px; height:28px; display:flex; justify-content:center; align-items:center; font-size:0.8rem; border:2px solid var(--card-bg);">📷</div>
+                        </div>
+                        <!-- X 삭제 버튼 -->
+                        <button id="remove-profile-btn" style="position:absolute; top:0; right:0; background:var(--danger); color:white; border:none; border-radius:50%; width:22px; height:22px; font-size:0.75rem; cursor:pointer; display:none; justify-content:center; align-items:center;" onclick="removeProfilePic()" title="프로필 사진 삭제">×</button>
                     </div>
                     <input type="file" id="profile-upload" style="display: none;" accept="image/*" onchange="uploadProfilePic(event)">
                     
                     <div style="text-align:center;">
-                        <h3 style="margin-bottom:5px;">👤 <span id="display-my-name" style="color:var(--primary);"></span></h3>
+                        <h3 style="margin-bottom:2px;">👤 <span id="display-my-name" style="color:var(--primary);"></span></h3>
                         <span id="display-my-role" style="color:var(--text-gray); font-size:0.9rem;"></span>
                     </div>
                 </div>
@@ -351,7 +350,7 @@
 
     <button class="fab" onclick="handleFabClick()">+</button>
 
-    <!-- 모달 영역 생략 없이 전부 포함 -->
+    <!-- 모달들 -->
     <div id="signupModal" class="modal">
         <div class="modal-content">
             <button class="modal-close-btn" onclick="closeModal('signupModal')">&times;</button>
@@ -459,7 +458,7 @@ const storage = getStorage(app);
 window.allFetchedEvents = []; 
 window.allFetchedPosts = [];
 window.myApplications = []; 
-window.userProfiles = {}; // 전역 유저 프로필 매핑 캐시
+window.userProfiles = {}; 
 window.previousTab = 'list'; 
 window.isUserApproved = false; 
 window.currentCategory = '전체'; 
@@ -478,34 +477,42 @@ window.bannerInterval = null;
 window.currentChatUnsubscribe = null;
 window.currentChatEventId = null;
 
-// 모든 유저 프로필 이미지 로드
 window.loadUserProfiles = async function() {
     try {
         const snap = await getDocs(collection(db, "users"));
         snap.forEach(d => {
-            window.userProfiles[d.id] = d.data().profileUrl || 'https://via.placeholder.com/100/CCCCCC/FFFFFF?text=User';
+            if(d.data().profileUrl) {
+                window.userProfiles[d.id] = d.data().profileUrl;
+            }
         });
         const myName = localStorage.getItem('myNickname');
         if(myName && window.userProfiles[myName]) {
             document.getElementById('my-profile-img').src = window.userProfiles[myName];
+            document.getElementById('my-profile-img').style.display = 'block';
+            document.getElementById('my-profile-fallback').style.display = 'none';
+            document.getElementById('remove-profile-btn').style.display = 'flex';
+        } else if(myName) {
+            document.getElementById('my-profile-img').style.display = 'none';
+            document.getElementById('my-profile-fallback').style.display = 'flex';
+            document.getElementById('remove-profile-btn').style.display = 'none';
         }
     } catch(e) {}
 };
 
-// 헬퍼: 프로필 아이콘 HTML 반환
 window.getProfileImgHtml = function(userId) {
-    const url = window.userProfiles[userId] || 'https://via.placeholder.com/100/CCCCCC/FFFFFF?text=User';
-    return `<img src="${url}" class="profile-icon">`;
+    const url = window.userProfiles[userId];
+    if(url) {
+        return `<img src="${url}" class="profile-icon">`;
+    } else {
+        return `<span class="profile-fallback">👤</span>`;
+    }
 };
 
-// 프로필 이미지 압축 및 업로드 (Canvas 활용)
 window.uploadProfilePic = async function(e) {
     const file = e.target.files[0];
     if(!file) return;
     const img = new Image();
     img.src = URL.createObjectURL(file);
-    
-    document.getElementById('my-profile-img').style.opacity = '0.5';
     
     img.onload = async () => {
         const canvas = document.createElement('canvas');
@@ -525,18 +532,29 @@ window.uploadProfilePic = async function(e) {
                 await updateDoc(doc(db, 'users', myName), { profileUrl: url });
                 
                 alert('프로필 사진이 변경되었습니다.');
-                document.getElementById('my-profile-img').src = url;
                 await window.loadUserProfiles(); 
                 if(document.getElementById('list-view').style.display === 'block') renderFilteredEvents();
             } catch (err) {
-                console.error(err);
                 alert("프로필 업로드에 실패했습니다.");
             } finally {
-                document.getElementById('my-profile-img').style.opacity = '1';
                 e.target.value = ''; 
             }
         }, 'image/jpeg', 0.8);
     };
+};
+
+window.removeProfilePic = async function() {
+    if(!confirm("프로필 사진을 삭제하시겠습니까?")) return;
+    try {
+        const myName = localStorage.getItem('myNickname');
+        await updateDoc(doc(db, 'users', myName), { profileUrl: "" });
+        delete window.userProfiles[myName];
+        alert("프로필 사진이 삭제되었습니다.");
+        await window.loadUserProfiles();
+        if(document.getElementById('list-view').style.display === 'block') renderFilteredEvents();
+    } catch(e) {
+        alert("삭제 중 오류가 발생했습니다.");
+    }
 };
 
 window.addEventListener('popstate', (e) => {
@@ -570,8 +588,7 @@ window.onload = async () => {
         renderSkeleton();
     }
     
-    await window.loadUserProfiles(); // 유저 프로필 선 로드
-    
+    await window.loadUserProfiles(); 
     const myName = localStorage.getItem('myNickname');
     
     if(myName) {
@@ -600,7 +617,7 @@ window.onload = async () => {
 
         if(myName) {
             document.getElementById('auth-section').style.display = 'none';
-            document.getElementById('profile-section').style.display = 'flex';
+            document.getElementById('profile-section').style.display = 'block';
             document.getElementById('display-my-name').innerText = myName;
             document.getElementById('admin-user-manage-btn').style.display = myName === 'admin' ? 'block' : 'none';
             
@@ -776,7 +793,6 @@ window.setMyPageTab = function(mode) {
     renderMyPageContent(); 
 };
 
-// 마이페이지 신청 내역 완벽한 가로 정렬 (Flex - nowrap)
 window.renderMyPageContent = async function() {
     const container = document.getElementById('my-content-list');
     const myName = localStorage.getItem('myNickname');
@@ -828,7 +844,7 @@ window.renderMyPageContent = async function() {
 
 window.cancelApplication = async function(applyId) {
     if(!confirm("신청을 취소하시겠습니까?")) return;
-    try { await deleteDoc(doc(db, "applications", applyId)); alert("취소되었습니다."); renderMyPageContent(); } catch(e) { console.error(e); }
+    try { await deleteDoc(doc(db, "applications", applyId)); alert("취소되었습니다."); renderMyPageContent(); } catch(e) {}
 };
 
 window.loadCommunity = async function(category) {
@@ -915,7 +931,7 @@ window.savePost = async function() {
         if(window.currentReviewApplyId) { await updateDoc(doc(db, "applications", window.currentReviewApplyId), { hasReviewed: true }); }
         alert("성공적으로 등록되었습니다!"); closeModal('postModal');
         if(window.currentReviewApplyId) switchTab('mypage'); else loadCommunity(cat);
-    } catch(e) { console.error(e); } finally { document.getElementById('post-reg-btn').innerText = "등록하기"; }
+    } catch(e) {} finally { document.getElementById('post-reg-btn').innerText = "등록하기"; }
 };
 
 window.openPostDetail = async function(postId, fromTab, pushHistory = true) {
@@ -953,9 +969,6 @@ window.openPostDetail = async function(postId, fromTab, pushHistory = true) {
 
 window.deletePost = async function(id) { if(!confirm("이 게시글을 삭제하시겠습니까?")) return; await deleteDoc(doc(db, "posts", id)); alert("삭제되었습니다."); loadCommunity(window.currentCommunityTab); switchTab('community'); };
 
-// ==========================================
-// 메인 홈 & 목록 렌더링
-// ==========================================
 window.resetBannerTimer = function() {
     if(window.bannerInterval) clearInterval(window.bannerInterval);
     window.bannerInterval = setInterval(() => {
@@ -1061,7 +1074,7 @@ window.toggleWishlist = async function(id, e) {
         }
         if(document.getElementById('detail-view').style.display === 'block') openEventDetail(id, window.previousTab, false);
         else renderFilteredEvents(); 
-    } catch(err) { console.error(err); }
+    } catch(err) {}
 };
 
 window.toggleLike = async function(id, collectionName, e) { 
@@ -1090,9 +1103,7 @@ window.shareEvent = function(id) {
     navigator.clipboard.writeText(url).then(() => alert("현재 페이지 링크가 복사되었습니다!")).catch(() => alert("링크 복사에 실패했습니다."));
 };
 
-// ==========================================
-// 상세 페이지 2줄 완벽 고정
-// ==========================================
+// 상세 페이지 버튼 복구 및 수평 고정
 window.openEventDetail = function(eventId, fromTab, pushHistory = true) {
     if(!window.isUserApproved) return;
     if (pushHistory) history.pushState({ tab: 'detail', type: 'event', id: eventId }, null, "?event=" + eventId);
@@ -1112,7 +1123,6 @@ window.openEventDetail = function(eventId, fromTab, pushHistory = true) {
     const likes = event.likes || []; const isLiked = myName && likes.includes(myName);
     const chatLinkUrl = event.chatLink || '';
 
-    // 첫번째 줄 (따봉, 공유: 최소 크기 고정 / 당근 링크: 나머지 꽉 채움)
     let btnRow1 = `<div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:nowrap; overflow:hidden;">
         <button class="btn" style="flex:0 0 auto; min-width:max-content; padding:12px; background:var(--bg-color); border:1px solid var(--border); color:${isLiked?'var(--primary)':'var(--text-dark)'}; border-radius:25px;" onclick="toggleLike('${event.id}', 'events', event)">
             👍 ${likes.length}
@@ -1124,7 +1134,6 @@ window.openEventDetail = function(eventId, fromTab, pushHistory = true) {
     else { btnRow1 += `<button class="btn" disabled style="flex:1 1 auto; background:var(--border); color:var(--text-gray); border-radius:25px; cursor:not-allowed; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">🥕 링크 없음</button>`; }
     btnRow1 += `</div>`;
 
-    // 두번째 줄 (찜하기: 최소 크기 고정 / 참여 혹은 채팅방: 나머지 꽉 채움)
     let btnRow2 = `<div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:nowrap; overflow:hidden;">
         <button class="btn" style="flex:0 0 auto; min-width:max-content; padding:12px; background:var(--bg-color); border:1px solid var(--border); color:${isWished?'#FF4B4B':'var(--text-gray)'}; border-radius:25px;" onclick="toggleWishlist('${event.id}', event)">
             ${isWished ? '❤️ 찜됨' : '🤍 찜하기'}
@@ -1213,7 +1222,6 @@ window.addComment = async function() {
 };
 window.deleteComment = async function(commentId) { if(!confirm("이 댓글을 삭제하시겠습니까?")) return; try { await deleteDoc(doc(db, "comments", commentId)); loadComments(); } catch(e) {} };
 
-// 풀스크린 내부 실시간 채팅방 로직
 window.openFullChatRoom = function(eventId, eventTitle, pushHistory = true) {
     window.currentChatEventId = eventId; document.getElementById('full-chat-title').innerText = `💬 ${eventTitle}`; switchTab('chat', pushHistory);
     const msgContainer = document.getElementById('full-chat-messages'); msgContainer.innerHTML = '<p style="text-align:center; color:gray; font-size:0.9rem;">채팅을 불러오는 중...</p>';
@@ -1239,7 +1247,6 @@ window.sendFullChatMessage = async function() {
     try { await addDoc(collection(db, "events", window.currentChatEventId, "chats"), { sender: localStorage.getItem('myNickname'), text: text, createdAt: new Date() }); } catch(e) {}
 };
 
-// 캘린더 모드
 window.setCalendarMode = function(mode) { window.calendarMode = mode; document.getElementById('btn-list').classList.toggle('active', mode === 'list'); document.getElementById('btn-monthly').classList.toggle('active', mode === 'monthly'); renderCalendar(); };
 window.changeCalendar = function(offset) { window.currentCalDate.setMonth(window.currentCalDate.getMonth() + offset); renderCalendar(); };
 
@@ -1307,7 +1314,6 @@ window.renderListChunk = function() {
     wrapper.insertAdjacentHTML('beforeend', html); window.listRenderCount += 5;
 };
 
-// 일정 생성, 수정(Edit)
 window.checkProfileAndOpenCreate = function() {
     document.getElementById('event-category').value = '아웃도어'; document.getElementById('event-title').value = ''; document.getElementById('event-location').value = ''; document.getElementById('event-date').value = ''; document.getElementById('event-max').value = ''; document.getElementById('event-chat').value = ''; document.getElementById('event-desc').value = ''; document.getElementById('event-image-file').value = ''; openModal('createModal');
 };
@@ -1353,7 +1359,6 @@ window.updateEvent = async function() {
 
 window.deleteEvent = async function(id) { if(!confirm("삭제하시겠습니까?")) return; await deleteDoc(doc(db, "events", id)); loadEvents(); switchTab('list'); };
 
-// 관리자 로직 (승인 처리)
 window.openManageModal = async function(id) {
     window.currentManageEventId = id; openModal('manageModal'); const container = document.getElementById('applicant-list');
     const snap = await getDocs(query(collection(db, "applications"), where("eventId", "==", id), where("status", "==", "pending"))); let html = '';
